@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,11 +11,17 @@ export const Route = createFileRoute("/admin")({
 function AdminLayout() {
   const { session, isAdmin, loading, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isLoginRoute = location.pathname === "/admin/login";
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || isLoginRoute) return;
     if (!session) navigate({ to: "/admin/login" });
-  }, [loading, session, navigate]);
+  }, [loading, isLoginRoute, session, navigate]);
+
+  if (isLoginRoute) {
+    return <Outlet />;
+  }
 
   if (loading) {
     return <div className="mx-auto max-w-5xl px-6 py-24 text-muted-foreground">Loading…</div>;
