@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { projects } from "@/data/projects";
+import { useEffect, useState } from "react";
+import { fetchProjects, type Project } from "@/lib/projects";
 import { ProjectCard } from "@/components/site/ProjectCard";
 
 export const Route = createFileRoute("/work")({
@@ -23,6 +24,12 @@ export const Route = createFileRoute("/work")({
 });
 
 function WorkPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    fetchProjects().then(setProjects).catch(console.error);
+  }, []);
+
   return (
     <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-28 pb-10">
       <motion.div
@@ -31,8 +38,8 @@ function WorkPage() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="max-w-3xl"
       >
-        <p className="uppercase tracking-widest text-xs text-muted-foreground mb-4">
-          Index — {projects.length} projects
+        <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-4">
+          Index — {projects.length} project{projects.length === 1 ? "" : "s"}
         </p>
         <h1 className="font-display text-5xl md:text-7xl tracking-tight leading-[0.95] text-balance">
           A small archive of <em className="text-accent not-italic">work</em> I’m proud of.
@@ -43,9 +50,9 @@ function WorkPage() {
         </p>
       </motion.div>
 
-      <div className="mt-20 md:mt-28 grid gap-20 md:gap-28">
+      <div className="mt-20 md:mt-28 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-20 md:gap-y-28">
         {projects.map((p, i) => (
-          <ProjectCard key={p.slug} project={p} index={i} />
+          <ProjectCard key={p.id} project={p} index={i} />
         ))}
       </div>
     </div>

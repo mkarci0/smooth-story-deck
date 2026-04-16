@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import portrait from "@/assets/portrait.jpg";
-import { projects } from "@/data/projects";
+import { fetchProjects, type Project } from "@/lib/projects";
 import { ProjectCard } from "@/components/site/ProjectCard";
 import { Reveal } from "@/components/site/Reveal";
 
@@ -26,11 +27,17 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    fetchProjects().then(setProjects).catch(console.error);
+  }, []);
+
   return (
     <div>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-16 md:pt-24 pb-20 md:pb-32">
+        <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-16 md:pt-24 pb-20 md:pb-28">
           <div className="grid lg:grid-cols-[1.4fr_1fr] gap-12 lg:gap-16 items-center">
             <div>
               <motion.span
@@ -51,11 +58,7 @@ function HomePage() {
               >
                 <span className="inline-block mr-3">👋</span>Hi, I’m Alex.
                 <br />
-                I design{" "}
-                <em className="not-italic text-accent">
-                  calm
-                </em>{" "}
-                software.
+                I design <em className="not-italic text-accent">calm</em> software.
               </motion.h1>
 
               <motion.p
@@ -115,7 +118,6 @@ function HomePage() {
           </div>
         </div>
 
-        {/* Marquee */}
         <div className="border-y border-border/60 bg-butter/40 py-5 overflow-hidden">
           <div className="flex gap-12 animate-marquee whitespace-nowrap font-display text-2xl md:text-3xl text-foreground/80">
             {Array.from({ length: 2 }).map((_, i) => (
@@ -131,12 +133,12 @@ function HomePage() {
         </div>
       </section>
 
-      {/* SELECTED WORK */}
+      {/* SELECTED WORK — TWO COLUMN GRID */}
       <section className="mx-auto max-w-6xl px-6 lg:px-10 py-24 md:py-32">
         <Reveal className="flex items-end justify-between mb-14">
           <div>
-            <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
-              Selected work — 2023 / 2024
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+              Selected work
             </p>
             <h2 className="font-display text-4xl md:text-5xl tracking-tight">
               Recent case studies
@@ -147,9 +149,9 @@ function HomePage() {
           </Link>
         </Reveal>
 
-        <div className="grid gap-16 md:gap-24">
-          {projects.slice(0, 3).map((p, i) => (
-            <ProjectCard key={p.slug} project={p} index={i} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16 md:gap-y-24">
+          {projects.slice(0, 4).map((p, i) => (
+            <ProjectCard key={p.id} project={p} index={i} />
           ))}
         </div>
       </section>
