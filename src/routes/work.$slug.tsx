@@ -1,11 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
-import { getProject, projects } from "@/data/projects";
+import { getProject, projects, type Project } from "@/data/projects";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
-  loader: ({ params }) => {
+  loader: ({ params }): { project: Project } => {
     const project = getProject(params.slug);
     if (!project) throw notFound();
     return { project };
