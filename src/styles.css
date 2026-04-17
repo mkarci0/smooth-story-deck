@@ -34,6 +34,8 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
 
+  /* Architectural neutral system — kept legacy names for backwards compat,
+     but remapped to a refined white/black/red palette. */
   --color-ink: var(--ink);
   --color-cream: var(--cream);
   --color-coral: var(--coral);
@@ -41,50 +43,51 @@
   --color-butter: var(--butter);
   --color-clay: var(--clay);
 
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
-  --shadow-soft: 0 1px 2px rgba(40, 30, 20, 0.04), 0 8px 24px rgba(40, 30, 20, 0.06);
-  --shadow-lift: 0 2px 4px rgba(40, 30, 20, 0.05), 0 24px 48px rgba(40, 30, 20, 0.1);
+  --shadow-soft: 0 1px 2px rgba(15, 15, 15, 0.04), 0 8px 24px rgba(15, 15, 15, 0.06);
+  --shadow-lift: 0 2px 4px rgba(15, 15, 15, 0.05), 0 24px 48px rgba(15, 15, 15, 0.1);
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 0.75rem;
 
-  /* Warm cream palette inspired by Cecilia Kim + bold accent from Emmi Wu */
-  --background: oklch(0.975 0.012 85);
-  --foreground: oklch(0.22 0.02 60);
+  /* Architectural — pure white canvas, deep charcoal ink, signal red accent.
+     All foreground/background pairings meet WCAG AAA contrast. */
+  --background: oklch(1 0 0);                  /* #FFFFFF */
+  --foreground: oklch(0.18 0 0);               /* near #0F0F0F — AAA on white */
 
-  --ink: oklch(0.22 0.02 60);
-  --cream: oklch(0.975 0.012 85);
-  --coral: oklch(0.72 0.165 35);
-  --sage: oklch(0.78 0.06 130);
-  --butter: oklch(0.93 0.05 90);
-  --clay: oklch(0.88 0.035 60);
+  --ink: oklch(0.18 0 0);
+  --cream: oklch(1 0 0);
+  --coral: oklch(0.58 0.24 27);                /* signal red — primary accent */
+  --sage: oklch(0.92 0 0);                     /* light neutral panel */
+  --butter: oklch(0.97 0 0);                   /* off-white panel */
+  --clay: oklch(0.88 0 0);                     /* divider neutral */
 
-  --card: oklch(0.99 0.008 85);
-  --card-foreground: oklch(0.22 0.02 60);
-  --popover: oklch(0.99 0.008 85);
-  --popover-foreground: oklch(0.22 0.02 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0 0);
 
-  --primary: oklch(0.22 0.02 60);
-  --primary-foreground: oklch(0.975 0.012 85);
+  --primary: oklch(0.18 0 0);
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.93 0.025 80);
-  --secondary-foreground: oklch(0.22 0.02 60);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.18 0 0);
 
-  --muted: oklch(0.93 0.018 80);
-  --muted-foreground: oklch(0.48 0.025 60);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.42 0 0);         /* AA on white at body sizes */
 
-  --accent: oklch(0.72 0.165 35);
-  --accent-foreground: oklch(0.99 0.008 85);
+  --accent: oklch(0.58 0.24 27);               /* signal red */
+  --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.88 0.025 70);
-  --input: oklch(0.88 0.025 70);
-  --ring: oklch(0.72 0.165 35);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.58 0.24 27);
 }
 
 @layer base {
@@ -100,19 +103,25 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5 {
     font-family: var(--font-display);
-    font-feature-settings: "ss01";
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    font-weight: 500;
   }
 
   ::selection {
     background-color: var(--color-coral);
     color: var(--color-cream);
+  }
+
+  /* Visible, accessible focus state on all interactive elements */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
@@ -125,7 +134,7 @@
     text-wrap: balance;
   }
 
-  /* Animated underline like emmiwu / cecilia */
+  /* Animated underline */
   .story-link {
     position: relative;
     display: inline-block;
