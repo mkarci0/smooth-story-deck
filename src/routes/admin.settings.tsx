@@ -13,9 +13,10 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "home" | "about" | "recommendations";
+type Chip = "status" | "home" | "about" | "recommendations";
 
 const CHIPS: { id: Chip; label: string }[] = [
+  { id: "status", label: "Site Status" },
   { id: "home", label: "Home Page" },
   { id: "about", label: "About Me" },
   { id: "recommendations", label: "Recommendations" },
@@ -25,7 +26,7 @@ function AdminSettings() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const [activeChip, setActiveChip] = useState<Chip>("home");
+  const [activeChip, setActiveChip] = useState<Chip>("status");
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -64,6 +65,8 @@ function AdminSettings() {
         what_i_do_title: settings.what_i_do_title,
         what_i_do_items: settings.what_i_do_items,
         recommendations_title: settings.recommendations_title,
+        maintenance_enabled: settings.maintenance_enabled,
+        maintenance_message: settings.maintenance_message,
       })
       .eq("id", settings.id);
     if (error) {
