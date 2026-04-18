@@ -20,6 +20,8 @@ export type Database = {
           category: string
           cover_url: string | null
           created_at: string
+          design_system: Json
+          final_solution: Json
           gallery: string[]
           id: string
           outcome: Json
@@ -27,6 +29,7 @@ export type Database = {
           position: number
           problem: string
           published: boolean
+          research: Json
           role: string
           sections: Json
           slug: string
@@ -44,6 +47,8 @@ export type Database = {
           category?: string
           cover_url?: string | null
           created_at?: string
+          design_system?: Json
+          final_solution?: Json
           gallery?: string[]
           id?: string
           outcome?: Json
@@ -51,6 +56,7 @@ export type Database = {
           position?: number
           problem?: string
           published?: boolean
+          research?: Json
           role?: string
           sections?: Json
           slug: string
@@ -68,6 +74,8 @@ export type Database = {
           category?: string
           cover_url?: string | null
           created_at?: string
+          design_system?: Json
+          final_solution?: Json
           gallery?: string[]
           id?: string
           outcome?: Json
@@ -75,6 +83,7 @@ export type Database = {
           position?: number
           problem?: string
           published?: boolean
+          research?: Json
           role?: string
           sections?: Json
           slug?: string
