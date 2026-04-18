@@ -78,6 +78,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const location = useLocation();
+  const isAdminArea =
+    location.pathname === "/admin" || location.pathname.startsWith("/admin/");
+
+  if (isAdminArea) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Outlet />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main-content" className="skip-link">
