@@ -2,12 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { fetchSiteSettings } from "@/lib/site-settings";
-import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const reduce = useReducedMotion();
-  const { isAdmin } = useAuth();
 
   useEffect(() => {
     fetchSiteSettings().then((s) => setResumeUrl(s?.resume_url ?? null));
@@ -42,15 +40,6 @@ export function Header() {
           >
             about
           </Link>
-          {isAdmin && (
-            <Link
-              to="/admin"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
-              title="Back to admin panel"
-            >
-              ← Admin
-            </Link>
-          )}
           {resumeUrl ? (
             <a
               href={resumeUrl}
