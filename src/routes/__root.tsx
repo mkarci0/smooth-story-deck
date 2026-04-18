@@ -1,8 +1,12 @@
 import { Outlet, createRootRoute, HeadContent, Scripts, useLocation, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { ComingSoon } from "@/components/site/ComingSoon";
+import { fetchSiteSettings } from "@/lib/site-settings";
+import { useAuth } from "@/hooks/useAuth";
 
 function NotFoundComponent() {
   return (
