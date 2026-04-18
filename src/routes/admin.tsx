@@ -47,7 +47,7 @@ function AdminLayout() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 lg:px-10 py-10">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">Portfolio CMS</p>
           <h1 className="font-display text-3xl mt-1 tracking-tight">Admin</h1>
@@ -61,6 +61,23 @@ function AdminLayout() {
           >Sign out</button>
         </div>
       </div>
+      <nav className="flex items-center gap-1 mb-10 border-b border-border">
+        <Link
+          to="/admin"
+          className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-b-2 border-transparent"
+          activeProps={{ className: "text-foreground border-foreground" }}
+          activeOptions={{ exact: true }}
+        >
+          Projects
+        </Link>
+        <Link
+          to="/admin/settings"
+          className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-b-2 border-transparent"
+          activeProps={{ className: "text-foreground border-foreground" }}
+        >
+          Site Settings
+        </Link>
+      </nav>
       <Outlet />
     </div>
   );
