@@ -5,6 +5,7 @@ import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, typ
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
+  ssr: false,
   loader: async ({ params }) => {
     const [project, all] = await Promise.all([
       fetchProjectBySlug(params.slug),
@@ -15,22 +16,51 @@ export const Route = createFileRoute("/work/$slug")({
     const next = all[(idx + 1) % all.length] ?? null;
     return { project, next };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const p = loaderData?.project;
     const title = p ? `${p.title} — Case study by Murat Karcı` : "Case study — Murat Karcı";
     const description = p?.tagline || "Product design case study by Murat Karcı.";
+    const url = `https://muratkarci.design/work/${params?.slug ?? ""}`;
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: description },
       { property: "og:type", content: "article" },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
+      { property: "og:url", content: url },
     ];
     if (p?.cover_url) {
       meta.push({ property: "og:image", content: p.cover_url });
       meta.push({ name: "twitter:image", content: p.cover_url });
     }
-    return { meta };
+
+    // JSON-LD CreativeWork schema for search engines
+    const scripts = p
+      ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CreativeWork",
+              name: p.title,
+              headline: p.title,
+              description: p.tagline || p.overview,
+              url,
+              image: p.cover_url || undefined,
+              dateCreated: p.year || undefined,
+              creator: {
+                "@type": "Person",
+                name: "Murat Karcı",
+                jobTitle: "Product Designer",
+                url: "https://muratkarci.design",
+              },
+              about: p.category || undefined,
+            }),
+          },
+        ]
+      : undefined;
+
+    return { meta, scripts };
   },
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-32 text-center">
