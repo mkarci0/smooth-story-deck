@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Smartphone, Tablet, Monitor, RotateCcw, ExternalLink, ArrowLeft } from "lucide-react";
+import { Smartphone, Tablet, Monitor, RotateCcw, ExternalLink, X } from "lucide-react";
 
 export const Route = createFileRoute("/admin/preview")({
   head: () => ({
@@ -36,17 +36,17 @@ function PreviewMode() {
   const src = `${path}${path.includes("?") ? "&" : "?"}preview=1&_=${reloadKey}`;
 
   return (
-    <div className="-mx-6 lg:-mx-10 -mb-10">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* CONTROL BAR */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
         <div className="px-6 lg:px-10 py-3 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-3">
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> back
-            </Link>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <p className="font-display text-sm tracking-tight font-bold">
+                Preview Mode
+              </p>
+            </div>
 
             {/* Device switcher */}
             <div role="tablist" aria-label="Device size" className="inline-flex items-center rounded-full border border-border bg-muted/40 p-1">
@@ -108,17 +108,25 @@ function PreviewMode() {
               href={path}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs hover:bg-accent transition-colors"
-              title="Open in a new tab"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+              title="Open this page in a new tab (full size)"
             >
-              <ExternalLink className="w-3.5 h-3.5" /> New tab
+              <ExternalLink className="w-3.5 h-3.5" /> Open
             </a>
+
+            <button
+              onClick={() => window.close()}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs hover:bg-accent transition-colors"
+              title="Close preview tab"
+            >
+              <X className="w-3.5 h-3.5" /> Close
+            </button>
           </div>
         </div>
       </div>
 
       {/* DEVICE FRAME */}
-      <div className="bg-muted/30 min-h-[80vh] py-10 px-4 overflow-auto">
+      <div className="flex-1 bg-muted/30 py-10 px-4 overflow-auto">
         <div className="mx-auto" style={{ maxWidth: `${width}px` }}>
           <p className="mb-3 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             {label} · {width}px
@@ -132,7 +140,6 @@ function PreviewMode() {
               src={src}
               title={`Preview ${label}`}
               className="w-full h-full border-0 bg-background"
-              // Allow the iframe to navigate & run scripts as normal — fully interactive.
             />
           </div>
         </div>
