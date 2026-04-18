@@ -13,6 +13,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const isLoginRoute = location.pathname === "/admin/login";
+  const isPreviewRoute = location.pathname.startsWith("/admin/preview");
 
   useEffect(() => {
     if (loading || isLoginRoute) return;
@@ -20,6 +21,11 @@ function AdminLayout() {
   }, [loading, isLoginRoute, session, navigate]);
 
   if (isLoginRoute) {
+    return <Outlet />;
+  }
+
+  // Preview mode: render full-screen without admin chrome
+  if (isPreviewRoute && session && isAdmin) {
     return <Outlet />;
   }
 
@@ -52,9 +58,18 @@ function AdminLayout() {
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">Portfolio CMS</p>
           <h1 className="font-display text-3xl mt-1 tracking-tight">Admin</h1>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 text-sm">
           <Link to="/" className="story-link text-muted-foreground">view site</Link>
-          <span className="text-muted-foreground">{user?.email}</span>
+          <a
+            href="/admin/preview"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-4 py-1.5 hover:bg-accent transition-colors"
+            title="Open preview in a new tab"
+          >
+            Preview
+          </a>
+          <span className="text-muted-foreground hidden md:inline">{user?.email}</span>
           <button
             onClick={() => supabase.auth.signOut().then(() => navigate({ to: "/admin/login" }))}
             className="rounded-full border border-border px-4 py-1.5 hover:bg-muted"
@@ -65,7 +80,6 @@ function AdminLayout() {
         {(() => {
           const isProjects = location.pathname === "/admin" || location.pathname === "/admin/";
           const isSettings = location.pathname.startsWith("/admin/settings");
-          const isPreview = location.pathname.startsWith("/admin/preview");
           const base = "px-4 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2";
           const inactive = "text-muted-foreground border-transparent hover:text-foreground";
           const active = "text-foreground border-foreground font-semibold";
@@ -76,9 +90,6 @@ function AdminLayout() {
               </Link>
               <Link to="/admin/settings" className={`${base} ${isSettings ? active : inactive}`}>
                 Site Settings
-              </Link>
-              <Link to="/admin/preview" className={`${base} ${isPreview ? active : inactive}`}>
-                Preview
               </Link>
             </>
           );
