@@ -1,9 +1,8 @@
-import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, createRootRoute, HeadContent, Scripts, useLocation, Link } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { Link } from "@tanstack/react-router";
 
 function NotFoundComponent() {
   return (
@@ -79,6 +78,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const location = useLocation();
+  const isAdminArea =
+    location.pathname === "/admin" || location.pathname.startsWith("/admin/");
+
+  if (isAdminArea) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Outlet />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main-content" className="skip-link">
