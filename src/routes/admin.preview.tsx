@@ -108,17 +108,25 @@ function PreviewMode() {
               href={path}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs hover:bg-accent transition-colors"
-              title="Open in a new tab"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+              title="Open this page in a new tab (full size)"
             >
-              <ExternalLink className="w-3.5 h-3.5" /> New tab
+              <ExternalLink className="w-3.5 h-3.5" /> Open
             </a>
+
+            <button
+              onClick={() => window.close()}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs hover:bg-accent transition-colors"
+              title="Close preview tab"
+            >
+              <X className="w-3.5 h-3.5" /> Close
+            </button>
           </div>
         </div>
       </div>
 
       {/* DEVICE FRAME */}
-      <div className="bg-muted/30 min-h-[80vh] py-10 px-4 overflow-auto">
+      <div className="flex-1 bg-muted/30 py-10 px-4 overflow-auto">
         <div className="mx-auto" style={{ maxWidth: `${width}px` }}>
           <p className="mb-3 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             {label} · {width}px
@@ -132,7 +140,6 @@ function PreviewMode() {
               src={src}
               title={`Preview ${label}`}
               className="w-full h-full border-0 bg-background"
-              // Allow the iframe to navigate & run scripts as normal — fully interactive.
             />
           </div>
         </div>
