@@ -89,6 +89,51 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          about_body: string
+          about_image_url: string | null
+          about_intro: string
+          about_title: string
+          created_at: string
+          hero_eyebrow: string
+          hero_subtitle: string
+          hero_title: string
+          id: string
+          resume_url: string | null
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          about_body?: string
+          about_image_url?: string | null
+          about_intro?: string
+          about_title?: string
+          created_at?: string
+          hero_eyebrow?: string
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          resume_url?: string | null
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          about_body?: string
+          about_image_url?: string | null
+          about_intro?: string
+          about_title?: string
+          created_at?: string
+          hero_eyebrow?: string
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          resume_url?: string | null
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
