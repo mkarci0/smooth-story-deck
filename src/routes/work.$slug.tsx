@@ -185,7 +185,7 @@ function ProjectDetail() {
             </h2>
           </Reveal>
           <div className="grid sm:grid-cols-3 gap-6">
-            {project.outcome.map((o, i) => (
+            {project.outcome.map((o: OutcomeItem, i: number) => (
               <Reveal
                 key={`${o.label}-${i}`}
                 delay={i * 0.1}
@@ -204,7 +204,7 @@ function ProjectDetail() {
       {/* GALLERY */}
       {project.gallery.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-24 md:mt-32 space-y-8">
-          {project.gallery.map((img, i) => (
+          {project.gallery.map((img: string, i: number) => (
             <Reveal key={i}>
               <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
                 <img
