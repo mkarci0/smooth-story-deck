@@ -1,9 +1,27 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { ArrowUpRight, FileText } from "lucide-react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import { useRef, useState } from "react";
 import { resolveImage, type Project } from "@/lib/projects";
 
 export function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
+
+  // Raw cursor position (relative to image wrapper)
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  // Smoothed for the badge
+  const sx = useSpring(x, { stiffness: 350, damping: 30, mass: 0.4 });
+  const sy = useSpring(y, { stiffness: 350, damping: 30, mass: 0.4 });
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = wrapRef.current?.getBoundingClientRect();
+    if (!r) return;
+    x.set(e.clientX - r.left);
+    y.set(e.clientY - r.top);
+  };
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 32 }}
@@ -18,7 +36,11 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
         className="block"
       >
         <div
-          className="relative overflow-hidden rounded-2xl"
+          ref={wrapRef}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onMouseMove={handleMove}
+          className="relative overflow-hidden rounded-2xl md:cursor-none"
           style={{ backgroundColor: project.accent }}
         >
           <motion.img
@@ -30,20 +52,29 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           />
 
-          {/* Hover badge — "Case study" */}
-          <div className="pointer-events-none absolute top-4 left-4 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-background/95 backdrop-blur-sm text-foreground text-[11px] font-medium uppercase tracking-[0.14em] px-3 py-1.5 shadow-lg">
-              <FileText className="w-3 h-3" />
+          {/* Cursor-following "Case study →" badge */}
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute top-0 left-0 z-10 hidden md:block"
+            style={{
+              x: sx,
+              y: sy,
+              translateX: "-50%",
+              translateY: "-50%",
+            }}
+          >
+            <motion.span
+              animate={{
+                opacity: hovered ? 1 : 0,
+                scale: hovered ? 1 : 0.6,
+              }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background text-[11px] font-medium uppercase tracking-[0.16em] px-3.5 py-2 shadow-xl whitespace-nowrap"
+            >
               Case study
-            </span>
-          </div>
-
-          {/* Hover arrow — bottom right */}
-          <div className="pointer-events-none absolute bottom-4 right-4 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out delay-75">
-            <span className="inline-flex w-10 h-10 items-center justify-center rounded-full bg-foreground text-background shadow-lg">
-              <ArrowUpRight className="w-4 h-4" />
-            </span>
-          </div>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </motion.span>
+          </motion.div>
         </div>
 
         <div className="mt-5">
