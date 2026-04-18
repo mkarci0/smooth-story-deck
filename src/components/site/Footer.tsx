@@ -10,10 +10,10 @@ export function Footer() {
               Let’s build <em className="text-accent not-italic">something</em> together.
             </h3>
             <a
-              href="mailto:hello@alexmorgan.design"
+              href="mailto:hello@muratkarci.design"
               className="mt-4 inline-block story-link text-foreground/80"
             >
-              hello@alexmorgan.design
+              hello@muratkarci.design
             </a>
           </div>
 
@@ -41,7 +41,7 @@ export function Footer() {
         </div>
 
         <div className="mt-16 pt-6 border-t border-border/50 flex flex-col sm:flex-row gap-3 justify-between text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Alex Morgan. Designed & built with care.</p>
+          <p>© {new Date().getFullYear()} Murat Karcı. Designed & built with care.</p>
           <p>Crafted in warm cream and coral.</p>
         </div>
       </div>
