@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchProjects, type Project } from "@/lib/projects";
 import { ProjectCard } from "@/components/site/ProjectCard";
 
-export const Route = createFileRoute("/work")({
+export const Route = createFileRoute("/work/")({
   head: () => ({
     meta: [
       { title: "Work — Murat Karcı, Product Designer" },

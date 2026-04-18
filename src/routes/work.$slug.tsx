@@ -1,36 +1,34 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchProjectBySlug, fetchProjects, resolveImage, type Project, type SectionBlock } from "@/lib/projects";
+import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type OutcomeItem } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
   loader: async ({ params }) => {
-    const project = await fetchProjectBySlug(params.slug);
-    return { project };
+    const [project, all] = await Promise.all([
+      fetchProjectBySlug(params.slug),
+      fetchProjects(),
+    ]);
+    if (!project) throw notFound();
+    const idx = all.findIndex((x) => x.slug === project.slug);
+    const next = all[(idx + 1) % all.length] ?? null;
+    return { project, next };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.project;
-    if (!p) {
-      return { meta: [{ title: "Case study — Murat Karcı" }] };
-    }
-    const title = `${p.title} — Case study by Murat Karcı`;
-    const description =
-      p.tagline || p.overview?.slice(0, 160) || "Product design case study by Murat Karcı.";
-    const image = p.cover_url || undefined;
+    const title = p ? `${p.title} — Case study by Murat Karcı` : "Case study — Murat Karcı";
+    const description = p?.tagline || "Product design case study by Murat Karcı.";
     const meta: Array<Record<string, string>> = [
       { title },
       { name: "description", content: description },
       { property: "og:type", content: "article" },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
     ];
-    if (image) {
-      meta.push({ property: "og:image", content: image });
-      meta.push({ name: "twitter:image", content: image });
+    if (p?.cover_url) {
+      meta.push({ property: "og:image", content: p.cover_url });
+      meta.push({ name: "twitter:image", content: p.cover_url });
     }
     return { meta };
   },
@@ -44,51 +42,7 @@ export const Route = createFileRoute("/work/$slug")({
 });
 
 function ProjectDetail() {
-  const { slug } = Route.useParams();
-  const [project, setProject] = useState<Project | null>(null);
-  const [next, setNext] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [missing, setMissing] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    setMissing(false);
-    Promise.all([fetchProjectBySlug(slug), fetchProjects()])
-      .then(([p, all]) => {
-        if (!mounted) return;
-        if (!p) {
-          setMissing(true);
-        } else {
-          setProject(p);
-          const idx = all.findIndex((x) => x.slug === p.slug);
-          setNext(all[(idx + 1) % all.length] ?? null);
-          if (typeof document !== "undefined") {
-            document.title = `${p.title} — Case study by Murat Karcı`;
-          }
-        }
-      })
-      .finally(() => mounted && setLoading(false));
-    return () => {
-      mounted = false;
-    };
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-6 py-32">
-        <div className="animate-pulse space-y-6">
-          <div className="h-4 w-40 bg-muted rounded" />
-          <div className="h-16 w-2/3 bg-muted rounded" />
-          <div className="h-[50vh] bg-muted rounded-3xl" />
-        </div>
-      </div>
-    );
-  }
-
-  if (missing || !project) {
-    throw notFound();
-  }
+  const { project, next } = Route.useLoaderData();
 
   const blocks: { index: string; label: string; data: SectionBlock }[] = [
     { index: "02", label: "Research", data: project.research },
@@ -231,7 +185,7 @@ function ProjectDetail() {
             </h2>
           </Reveal>
           <div className="grid sm:grid-cols-3 gap-6">
-            {project.outcome.map((o, i) => (
+            {project.outcome.map((o: OutcomeItem, i: number) => (
               <Reveal
                 key={`${o.label}-${i}`}
                 delay={i * 0.1}
@@ -250,7 +204,7 @@ function ProjectDetail() {
       {/* GALLERY */}
       {project.gallery.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-24 md:mt-32 space-y-8">
-          {project.gallery.map((img, i) => (
+          {project.gallery.map((img: string, i: number) => (
             <Reveal key={i}>
               <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
                 <img
