@@ -39,6 +39,7 @@ export const Route = createRootRoute({
           "Murat Karcı is an independent product designer crafting calm, considered software for ambitious teams.",
       },
       { name: "author", content: "Murat Karcı" },
+      { name: "theme-color", content: "#ffffff" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Murat Karcı" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -77,8 +78,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <div className="min-h-screen flex flex-col">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
       </main>
       <Footer />

@@ -71,6 +71,10 @@ function AboutPage() {
             transition={{ duration: 0.8, delay: 0.1 }}
             src={photo}
             alt="Portrait of Murat Karcı"
+            width={560}
+            height={700}
+            loading="eager"
+            decoding="async"
             className="w-full max-w-[280px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)] justify-self-end"
           />
         ) : (

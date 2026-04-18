@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { fetchSiteSettings } from "@/lib/site-settings";
 
 export function Header() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     fetchSiteSettings().then((s) => setResumeUrl(s?.resume_url ?? null));
@@ -12,8 +13,8 @@ export function Header() {
 
   return (
     <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      initial={reduce ? false : { y: -20, opacity: 0 }}
+      animate={reduce ? undefined : { y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
       className="sticky top-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/40"
     >

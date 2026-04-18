@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
 import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type OutcomeItem } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
@@ -43,6 +43,7 @@ export const Route = createFileRoute("/work/$slug")({
 
 function ProjectDetail() {
   const { project, next } = Route.useLoaderData();
+  const reduce = useReducedMotion();
 
   const blocks: { index: string; label: string; data: SectionBlock }[] = [
     { index: "02", label: "Research", data: project.research },
@@ -68,8 +69,8 @@ function ProjectDetail() {
       {/* HERO */}
       <header className="mx-auto max-w-6xl px-6 lg:px-10 pt-10 md:pt-14 pb-12">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          animate={reduce ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -95,15 +96,20 @@ function ProjectDetail() {
 
       {/* COVER */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={reduce ? false : { opacity: 0, scale: 0.98 }}
+        animate={reduce ? undefined : { opacity: 1, scale: 1 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         className="mx-auto max-w-6xl px-6 lg:px-10"
       >
         <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
           <img
             src={resolveImage(project.cover_url)}
-            alt={`${project.title} cover`}
+            alt={`${project.title} — cover image`}
+            width={1600}
+            height={1000}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="w-full aspect-[16/10] object-cover"
           />
         </div>
@@ -164,7 +170,10 @@ function ProjectDetail() {
                     <img
                       src={resolveImage(b.data.image_url)}
                       alt={`${project.title} — ${b.label}`}
+                      width={1600}
+                      height={1000}
                       loading="lazy"
+                      decoding="async"
                       className="w-full aspect-[16/10] object-cover"
                     />
                   </div>
@@ -209,8 +218,11 @@ function ProjectDetail() {
               <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
                 <img
                   src={resolveImage(img)}
-                  alt={`${project.title} screen ${i + 1}`}
+                  alt={`${project.title} — screen ${i + 1}`}
+                  width={1600}
+                  height={1000}
                   loading="lazy"
+                  decoding="async"
                   className="w-full aspect-[16/10] object-cover"
                 />
               </div>
@@ -232,13 +244,17 @@ function ProjectDetail() {
           <Link
             to="/work/$slug"
             params={{ slug: next.slug }}
-            className="group block rounded-3xl overflow-hidden relative"
+            className="group block rounded-3xl overflow-hidden relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
             style={{ backgroundColor: next.accent }}
+            aria-label={`Next case study: ${next.title}`}
           >
             <img
               src={resolveImage(next.cover_url)}
-              alt={next.title}
+              alt={`${next.title} cover`}
+              width={1600}
+              height={686}
               loading="lazy"
+              decoding="async"
               className="w-full aspect-[21/9] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />

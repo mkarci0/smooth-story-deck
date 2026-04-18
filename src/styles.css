@@ -173,4 +173,38 @@
   .animate-float-slow {
     animation: float-slow 6s ease-in-out infinite;
   }
+
+  /* Skip-to-content link — visible on focus only */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: 100;
+    background: var(--color-foreground);
+    color: var(--color-background);
+    padding: 0.625rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+}
+
+/* Honor user motion preferences globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee,
+  .animate-float-slow {
+    animation: none !important;
+  }
 }

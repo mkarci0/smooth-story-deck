@@ -42,7 +42,7 @@ function WorkPage() {
           Index — {projects.length} project{projects.length === 1 ? "" : "s"}
         </p>
         <h1 className="font-display text-5xl md:text-7xl tracking-tight leading-[0.95] text-balance">
-          A small archive of <em className="text-accent not-italic">work</em> I’m proud of.
+          A small archive of <em className="text-accent not-italic">work</em> I'm proud of.
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-xl text-balance">
           Each project below is a story about people, decisions and the small details that
