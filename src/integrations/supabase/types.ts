@@ -149,6 +149,8 @@ export type Database = {
           hero_subtitle: string
           hero_title: string
           id: string
+          maintenance_enabled: boolean
+          maintenance_message: string
           recommendations_title: string
           resume_url: string | null
           singleton: boolean
@@ -170,6 +172,8 @@ export type Database = {
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          maintenance_enabled?: boolean
+          maintenance_message?: string
           recommendations_title?: string
           resume_url?: string | null
           singleton?: boolean
@@ -191,6 +195,8 @@ export type Database = {
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          maintenance_enabled?: boolean
+          maintenance_message?: string
           recommendations_title?: string
           resume_url?: string | null
           singleton?: boolean
