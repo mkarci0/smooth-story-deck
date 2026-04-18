@@ -6,33 +6,19 @@ import { fetchProjectBySlug, fetchProjects, resolveImage, type Project, type Sec
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
-  loader: async ({ params }) => {
-    const project = await fetchProjectBySlug(params.slug);
-    return { project };
-  },
-  head: ({ loaderData }) => {
-    const p = loaderData?.project;
-    if (!p) {
-      return { meta: [{ title: "Case study — Murat Karcı" }] };
-    }
-    const title = `${p.title} — Case study by Murat Karcı`;
-    const description =
-      p.tagline || p.overview?.slice(0, 160) || "Product design case study by Murat Karcı.";
-    const image = p.cover_url || undefined;
-    const meta: Array<Record<string, string>> = [
-      { title },
-      { name: "description", content: description },
-      { property: "og:type", content: "article" },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-    ];
-    if (image) {
-      meta.push({ property: "og:image", content: image });
-      meta.push({ name: "twitter:image", content: image });
-    }
-    return { meta };
+  head: ({ params }) => {
+    const slug = params?.slug ?? "";
+    const title = slug
+      ? `${slug.replace(/-/g, " ")} — Case study by Murat Karcı`
+      : "Case study — Murat Karcı";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: "Product design case study by Murat Karcı." },
+        { property: "og:type", content: "article" },
+        { property: "og:title", content: title },
+      ],
+    };
   },
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-32 text-center">
