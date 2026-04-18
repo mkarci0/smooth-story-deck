@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Smartphone, Tablet, Monitor, RotateCcw, ExternalLink, ArrowLeft } from "lucide-react";
+import { Smartphone, Tablet, Monitor, RotateCcw, ExternalLink, X } from "lucide-react";
 
 export const Route = createFileRoute("/admin/preview")({
   head: () => ({
@@ -36,17 +36,17 @@ function PreviewMode() {
   const src = `${path}${path.includes("?") ? "&" : "?"}preview=1&_=${reloadKey}`;
 
   return (
-    <div className="-mx-6 lg:-mx-10 -mb-10">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* CONTROL BAR */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
         <div className="px-6 lg:px-10 py-3 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-3">
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> back
-            </Link>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <p className="font-display text-sm tracking-tight font-bold">
+                Preview Mode
+              </p>
+            </div>
 
             {/* Device switcher */}
             <div role="tablist" aria-label="Device size" className="inline-flex items-center rounded-full border border-border bg-muted/40 p-1">
