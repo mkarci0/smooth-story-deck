@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { resolveImage, type Project } from "@/lib/projects";
@@ -7,6 +7,7 @@ import { resolveImage, type Project } from "@/lib/projects";
 export function ProjectCard({ project, index }: { project: Project; index: number }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
+  const reduce = useReducedMotion();
 
   // Raw cursor position (relative to image wrapper)
   const x = useMotionValue(0);
@@ -22,10 +23,13 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
     y.set(e.clientY - r.top);
   };
 
+  // First two cards above the fold get higher fetch priority.
+  const isPriority = index < 2;
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={reduce ? false : { opacity: 0, y: 32 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.7, delay: (index % 2) * 0.08, ease: [0.22, 1, 0.36, 1] }}
       className="group"
@@ -33,7 +37,8 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
       <Link
         to="/work/$slug"
         params={{ slug: project.slug }}
-        className="block"
+        className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        aria-label={`Open case study: ${project.title}`}
       >
         <div
           ref={wrapRef}
@@ -45,10 +50,14 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
         >
           <motion.img
             src={resolveImage(project.cover_url)}
-            alt={project.title}
-            loading="lazy"
+            alt={`${project.title} — ${project.tagline}`}
+            width={1200}
+            height={900}
+            loading={isPriority ? "eager" : "lazy"}
+            decoding="async"
+            {...(isPriority ? { fetchPriority: "high" as const } : {})}
             className="w-full aspect-[4/3] object-cover"
-            whileHover={{ scale: 1.05 }}
+            whileHover={reduce ? undefined : { scale: 1.05 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           />
 
@@ -72,7 +81,7 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
               className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background text-[11px] font-medium uppercase tracking-[0.16em] px-3.5 py-2 shadow-xl whitespace-nowrap"
             >
               Case study
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3.5 h-3.5" aria-hidden />
             </motion.span>
           </motion.div>
         </div>
