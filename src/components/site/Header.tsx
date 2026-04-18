@@ -20,22 +20,22 @@ export function Header() {
       <div className="mx-auto max-w-6xl px-6 lg:px-10 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center group">
           <span className="font-display text-lg tracking-tight font-bold">
-            Murat Karcı
+            murat karcı
           </span>
         </Link>
 
         <nav className="flex items-center gap-7 text-sm">
           <Link
             to="/work"
-            className="story-link text-foreground/80 hover:text-foreground transition-colors"
-            activeProps={{ className: "text-foreground font-medium" }}
+            className="story-link text-foreground font-semibold hover:text-accent transition-colors"
+            activeProps={{ className: "text-accent" }}
           >
             work
           </Link>
           <Link
             to="/about"
-            className="story-link text-foreground/80 hover:text-foreground transition-colors"
-            activeProps={{ className: "text-foreground font-medium" }}
+            className="story-link text-foreground font-semibold hover:text-accent transition-colors"
+            activeProps={{ className: "text-accent" }}
           >
             about
           </Link>
