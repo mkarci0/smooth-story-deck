@@ -6,19 +6,32 @@ import { fetchProjectBySlug, fetchProjects, resolveImage, type Project, type Sec
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
-  head: ({ params }) => {
-    const slug = params?.slug ?? "";
-    const title = slug
-      ? `${slug.replace(/-/g, " ")} — Case study by Murat Karcı`
-      : "Case study — Murat Karcı";
-    return {
-      meta: [
-        { title },
-        { name: "description", content: "Product design case study by Murat Karcı." },
-        { property: "og:type", content: "article" },
-        { property: "og:title", content: title },
-      ],
-    };
+  loader: async ({ params }) => {
+    const [project, all] = await Promise.all([
+      fetchProjectBySlug(params.slug),
+      fetchProjects(),
+    ]);
+    if (!project) throw notFound();
+    const idx = all.findIndex((x) => x.slug === project.slug);
+    const next = all[(idx + 1) % all.length] ?? null;
+    return { project, next };
+  },
+  head: ({ loaderData }) => {
+    const p = loaderData?.project;
+    const title = p ? `${p.title} — Case study by Murat Karcı` : "Case study — Murat Karcı";
+    const description = p?.tagline || "Product design case study by Murat Karcı.";
+    const meta: Array<Record<string, string>> = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:type", content: "article" },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+    ];
+    if (p?.cover_url) {
+      meta.push({ property: "og:image", content: p.cover_url });
+      meta.push({ name: "twitter:image", content: p.cover_url });
+    }
+    return { meta };
   },
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-32 text-center">
@@ -30,51 +43,7 @@ export const Route = createFileRoute("/work/$slug")({
 });
 
 function ProjectDetail() {
-  const { slug } = Route.useParams();
-  const [project, setProject] = useState<Project | null>(null);
-  const [next, setNext] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [missing, setMissing] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    setMissing(false);
-    Promise.all([fetchProjectBySlug(slug), fetchProjects()])
-      .then(([p, all]) => {
-        if (!mounted) return;
-        if (!p) {
-          setMissing(true);
-        } else {
-          setProject(p);
-          const idx = all.findIndex((x) => x.slug === p.slug);
-          setNext(all[(idx + 1) % all.length] ?? null);
-          if (typeof document !== "undefined") {
-            document.title = `${p.title} — Case study by Murat Karcı`;
-          }
-        }
-      })
-      .finally(() => mounted && setLoading(false));
-    return () => {
-      mounted = false;
-    };
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-6 py-32">
-        <div className="animate-pulse space-y-6">
-          <div className="h-4 w-40 bg-muted rounded" />
-          <div className="h-16 w-2/3 bg-muted rounded" />
-          <div className="h-[50vh] bg-muted rounded-3xl" />
-        </div>
-      </div>
-    );
-  }
-
-  if (missing || !project) {
-    throw notFound();
-  }
+  const { project, next } = Route.useLoaderData();
 
   const blocks: { index: string; label: string; data: SectionBlock }[] = [
     { index: "02", label: "Research", data: project.research },
