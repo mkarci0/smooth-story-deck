@@ -20,6 +20,7 @@ export const resolveImage = (url: string | null | undefined): string => {
 
 export type OutcomeItem = { label: string; value: string };
 export type SectionItem = { heading: string; body: string };
+export type SectionBlock = { body: string; image_url: string | null };
 
 export type Project = {
   id: string;
@@ -35,13 +36,27 @@ export type Project = {
   team: string;
   tools: string[];
   overview: string;
+  // Legacy free-form (kept for backward compatibility)
   problem: string;
   solution: string;
-  outcome: OutcomeItem[];
   sections: SectionItem[];
+  // Fixed case-study blocks
+  research: SectionBlock;
+  design_system: SectionBlock;
+  final_solution: SectionBlock;
+  outcome: OutcomeItem[];
   gallery: string[];
   position: number;
   published: boolean;
+};
+
+const emptyBlock = (): SectionBlock => ({ body: "", image_url: null });
+
+const normalizeBlock = (v: any): SectionBlock => {
+  if (v && typeof v === "object" && !Array.isArray(v)) {
+    return { body: typeof v.body === "string" ? v.body : "", image_url: v.image_url ?? null };
+  }
+  return emptyBlock();
 };
 
 const normalize = (row: any): Project => ({
@@ -50,6 +65,9 @@ const normalize = (row: any): Project => ({
   sections: Array.isArray(row.sections) ? row.sections : [],
   tools: row.tools ?? [],
   gallery: row.gallery ?? [],
+  research: normalizeBlock(row.research),
+  design_system: normalizeBlock(row.design_system),
+  final_solution: normalizeBlock(row.final_solution),
 });
 
 export async function fetchProjects(): Promise<Project[]> {
