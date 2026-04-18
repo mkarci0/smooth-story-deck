@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Reveal } from "./Reveal";
@@ -50,11 +50,15 @@ function RecommendationsCarousel({ title, items }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selected, setSelected] = useState(0);
 
-  // sync selected index
-  if (emblaApi) {
-    emblaApi.off("select", () => {});
-    emblaApi.on("select", () => setSelected(emblaApi.selectedScrollSnap()));
-  }
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setSelected(emblaApi.selectedScrollSnap());
+    onSelect();
+    emblaApi.on("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
