@@ -62,21 +62,23 @@ function AdminLayout() {
         </div>
       </div>
       <nav className="flex items-center gap-1 mb-10 border-b border-border">
-        <Link
-          to="/admin"
-          className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-b-2 border-transparent"
-          activeProps={{ className: "text-foreground border-foreground" }}
-          activeOptions={{ exact: true }}
-        >
-          Projects
-        </Link>
-        <Link
-          to="/admin/settings"
-          className="px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-b-2 border-transparent"
-          activeProps={{ className: "text-foreground border-foreground" }}
-        >
-          Site Settings
-        </Link>
+        {(() => {
+          const isProjects = location.pathname === "/admin" || location.pathname === "/admin/";
+          const isSettings = location.pathname.startsWith("/admin/settings");
+          const base = "px-4 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2";
+          const inactive = "text-muted-foreground border-transparent hover:text-foreground";
+          const active = "text-foreground border-foreground font-semibold";
+          return (
+            <>
+              <Link to="/admin" className={`${base} ${isProjects ? active : inactive}`}>
+                Projects
+              </Link>
+              <Link to="/admin/settings" className={`${base} ${isSettings ? active : inactive}`}>
+                Site Settings
+              </Link>
+            </>
+          );
+        })()}
       </nav>
       <Outlet />
     </div>

@@ -44,6 +44,7 @@ export function Header() {
               href={resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
+              download="murat-karci-resume.pdf"
               className="hidden sm:inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
             >
               Resume
