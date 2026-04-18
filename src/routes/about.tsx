@@ -24,20 +24,6 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-const experience = [
-  { role: "Independent Product Designer", company: "Self-employed", years: "2023 — Now" },
-  { role: "Senior Product Designer", company: "Pulse Analytics", years: "2020 — 2023" },
-  { role: "Product Designer", company: "Loom & Co.", years: "2018 — 2020" },
-  { role: "UI Designer", company: "Studio Mira", years: "2016 — 2018" },
-];
-
-const services = [
-  { title: "Product design", body: "End-to-end design for web and mobile apps — from research to ready-to-ship Figma." },
-  { title: "Design systems", body: "Scalable component libraries that survive contact with real engineering teams." },
-  { title: "Brand & identity", body: "Wordmarks, palettes and small visual languages for early-stage products." },
-  { title: "Design partner", body: "Embedded with your team for a sprint or a season — strategy, critique, momentum." },
-];
-
 function AboutPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
@@ -50,8 +36,9 @@ function AboutPage() {
   const body = settings?.about_body ?? "";
   const photo = settings?.about_image_url ? resolveImage(settings.about_image_url) : null;
 
-  // Split body into paragraphs on blank lines
   const paragraphs = body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const whatIDo = settings?.what_i_do_items ?? [];
+  const experience = settings?.experience_items ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-28">
@@ -94,64 +81,73 @@ function AboutPage() {
         )}
       </section>
 
-      {/* SERVICES */}
-      <section className="mt-28 md:mt-36">
-        <Reveal>
-          <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
-            What I do
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl tracking-tight font-medium">
-            Four ways we can work together.
-          </h2>
-        </Reveal>
+      {/* WHAT I DO */}
+      {whatIDo.length > 0 && (
+        <section className="mt-28 md:mt-36">
+          <Reveal>
+            <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
+              {settings?.what_i_do_title ?? "What I do"}
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl tracking-tight font-medium">
+              {whatIDo.length} ways we can work together.
+            </h2>
+          </Reveal>
 
-        <div className="mt-12 grid sm:grid-cols-2 gap-px bg-border rounded-3xl overflow-hidden border border-border">
-          {services.map((s, i) => (
-            <Reveal
-              key={s.title}
-              delay={i * 0.05}
-              className="bg-background p-8 md:p-10 hover:bg-muted/40 transition-colors"
-            >
-              <div className="flex items-baseline gap-3 mb-3">
-                <span className="font-display text-accent">0{i + 1}</span>
-                <h3 className="font-display text-xl md:text-2xl tracking-tight font-medium">{s.title}</h3>
-              </div>
-              <p className="text-muted-foreground">{s.body}</p>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+          <div className="mt-12 grid sm:grid-cols-2 gap-px bg-border rounded-3xl overflow-hidden border border-border">
+            {whatIDo.map((s, i) => (
+              <Reveal
+                key={i}
+                delay={i * 0.05}
+                className="bg-background p-8 md:p-10 hover:bg-muted/40 transition-colors"
+              >
+                <div className="flex items-baseline gap-3 mb-3">
+                  <span className="font-display text-accent">0{i + 1}</span>
+                  <h3 className="font-display text-xl md:text-2xl tracking-tight font-medium">{s.title}</h3>
+                </div>
+                <p className="text-muted-foreground">{s.description}</p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* EXPERIENCE */}
-      <section className="mt-28 md:mt-36">
-        <Reveal>
-          <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
-            Experience
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl tracking-tight font-medium">
-            A short timeline.
-          </h2>
-        </Reveal>
+      {experience.length > 0 && (
+        <section className="mt-28 md:mt-36">
+          <Reveal>
+            <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
+              {settings?.experience_title ?? "Experience"}
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl tracking-tight font-medium">
+              A short timeline.
+            </h2>
+          </Reveal>
 
-        <ul className="mt-12 divide-y divide-border border-y border-border">
-          {experience.map((e, i) => (
-            <Reveal key={e.role} delay={i * 0.05}>
-              <li className="grid grid-cols-[1fr_auto] md:grid-cols-3 items-baseline gap-4 py-6 group">
-                <p className="font-display text-xl md:text-2xl tracking-tight font-medium group-hover:text-accent transition-colors">
-                  {e.role}
-                </p>
-                <p className="text-muted-foreground hidden md:block">{e.company}</p>
-                <p className="text-sm text-muted-foreground text-right md:text-right">
-                  {e.years}
-                </p>
-              </li>
-            </Reveal>
-          ))}
-        </ul>
-      </section>
+          <ul className="mt-12 divide-y divide-border border-y border-border">
+            {experience.map((e, i) => (
+              <Reveal key={i} delay={i * 0.05}>
+                <li className="grid grid-cols-[1fr_auto] md:grid-cols-3 items-baseline gap-4 py-6 group">
+                  <div>
+                    <p className="font-display text-xl md:text-2xl tracking-tight font-medium group-hover:text-accent transition-colors">
+                      {e.role}
+                    </p>
+                    {e.description && (
+                      <p className="text-sm text-muted-foreground mt-1.5 max-w-md">{e.description}</p>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground hidden md:block">{e.company}</p>
+                  <p className="text-sm text-muted-foreground text-right md:text-right">
+                    {e.years}
+                  </p>
+                </li>
+              </Reveal>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* CTA */}
-      <section className="mt-28 md:mt-36 rounded-3xl bg-foreground text-background p-10 md:p-16 text-center">
+      <section className="mt-28 md:mt-36 mb-24 rounded-3xl bg-foreground text-background p-10 md:p-16 text-center">
         <Reveal>
           <p className="uppercase tracking-widest text-xs text-background/60 mb-4">
             Currently booking — Q2 / Q3 2025

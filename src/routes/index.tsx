@@ -4,8 +4,10 @@ import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchProjects, type Project } from "@/lib/projects";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
+import { fetchPublishedRecommendations, type Recommendation } from "@/lib/recommendations";
 import { ProjectCard } from "@/components/site/ProjectCard";
 import { Reveal } from "@/components/site/Reveal";
+import { RecommendationsSection } from "@/components/site/RecommendationsSection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,10 +31,12 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   useEffect(() => {
     fetchProjects().then(setProjects).catch(console.error);
     fetchSiteSettings().then(setSettings);
+    fetchPublishedRecommendations().then(setRecommendations);
   }, []);
 
   return (
@@ -40,15 +44,17 @@ function HomePage() {
       {/* HERO — minimal, no portrait */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-32 pb-20 md:pb-28">
-          <motion.span
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            {settings?.hero_eyebrow ?? "Available for select projects · 2025"}
-          </motion.span>
+          {settings?.booking_banner_enabled !== false && (
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              {settings?.booking_banner_text ?? settings?.hero_eyebrow ?? "Available for select projects · 2025"}
+            </motion.span>
+          )}
 
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
@@ -129,18 +135,11 @@ function HomePage() {
         </div>
       </section>
 
-      {/* QUOTE */}
-      <section className="mx-auto max-w-4xl px-6 lg:px-10 py-20 md:py-28 text-center">
-        <Reveal>
-          <p className="font-display text-2xl md:text-4xl leading-tight tracking-tight text-balance font-medium">
-            "Murat has the rare ability to translate fuzzy product strategy into
-            <em className="text-accent not-italic"> interfaces that just feel right.</em>"
-          </p>
-          <p className="mt-6 text-sm text-muted-foreground">
-            — Maya Chen, Head of Product at Pulse
-          </p>
-        </Reveal>
-      </section>
+      {/* RECOMMENDATIONS */}
+      <RecommendationsSection
+        title={settings?.recommendations_title ?? "What people say"}
+        items={recommendations}
+      />
     </div>
   );
 }
