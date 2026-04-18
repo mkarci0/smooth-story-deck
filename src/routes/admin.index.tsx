@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2, Eye, GripVertical } from "lucide-react";
+import { Pencil, Plus, Trash2, ExternalLink, GripVertical } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -153,22 +153,15 @@ function SortableRow({ project, onDelete }: { project: Project; onDelete: (p: Pr
       </div>
       <Link
         to="/work/$slug" params={{ slug: project.slug }}
-        target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted hover:text-accent transition-colors"
-        title="Open public case study in a new tab"
-      >
-        <Eye className="w-3.5 h-3.5" /> Preview
-      </Link>
+        className="p-2 hover:text-accent" title="View"
+      ><ExternalLink className="w-4 h-4" /></Link>
       <Link
         to="/admin/edit/$slug" params={{ slug: project.slug }}
-        className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs hover:bg-accent transition-colors"
-        title="Edit project"
-      >
-        <Pencil className="w-3.5 h-3.5" /> Edit
-      </Link>
+        className="p-2 hover:text-accent" title="Edit"
+      ><Pencil className="w-4 h-4" /></Link>
       <button
         onClick={() => onDelete(project)}
-        className="p-2 text-muted-foreground hover:text-destructive" title="Delete"
+        className="p-2 hover:text-destructive" title="Delete"
       ><Trash2 className="w-4 h-4" /></button>
     </li>
   );

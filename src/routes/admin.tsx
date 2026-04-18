@@ -65,6 +65,7 @@ function AdminLayout() {
         {(() => {
           const isProjects = location.pathname === "/admin" || location.pathname === "/admin/";
           const isSettings = location.pathname.startsWith("/admin/settings");
+          const isPreview = location.pathname.startsWith("/admin/preview");
           const base = "px-4 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2";
           const inactive = "text-muted-foreground border-transparent hover:text-foreground";
           const active = "text-foreground border-foreground font-semibold";
@@ -75,6 +76,9 @@ function AdminLayout() {
               </Link>
               <Link to="/admin/settings" className={`${base} ${isSettings ? active : inactive}`}>
                 Site Settings
+              </Link>
+              <Link to="/admin/preview" className={`${base} ${isPreview ? active : inactive}`}>
+                Preview
               </Link>
             </>
           );

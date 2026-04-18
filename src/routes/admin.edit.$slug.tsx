@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Upload, Trash2, Plus, Save, ArrowLeft, X, Eye } from "lucide-react";
+import { Upload, Trash2, Plus, Save, ArrowLeft, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProjectBySlug, resolveImage, type Project, type SectionBlock } from "@/lib/projects";
 
@@ -68,28 +68,16 @@ function EditProject() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8 gap-3 flex-wrap">
+      <div className="flex items-center justify-between mb-8">
         <Link to="/admin" className="inline-flex items-center gap-2 story-link text-sm text-muted-foreground">
           <ArrowLeft className="w-4 h-4" /> all projects
         </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            to="/work/$slug"
-            params={{ slug: p.slug }}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted hover:text-accent transition-colors"
-            title="Open public case study in a new tab"
-          >
-            <Eye className="w-4 h-4" /> Preview
-          </Link>
-          <button
-            onClick={save} disabled={saving}
-            className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2 text-sm disabled:opacity-50 hover:bg-accent transition-colors"
-          >
-            <Save className="w-4 h-4" /> {saving ? "Saving…" : "Save changes"}
-          </button>
-        </div>
+        <button
+          onClick={save} disabled={saving}
+          className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2 text-sm disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" /> {saving ? "Saving…" : "Save changes"}
+        </button>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-8">
