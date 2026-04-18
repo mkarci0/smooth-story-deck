@@ -23,6 +23,32 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Calm, considered product design for ambitious teams.",
       },
+      { property: "og:url", content: "https://muratkarci.design/" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: "Murat Karcı",
+          jobTitle: "Product Designer",
+          url: "https://muratkarci.design",
+          description:
+            "Independent product designer working with founders and product teams on mobile, web, and brand.",
+          knowsAbout: ["Product Design", "Mobile Design", "Web Design", "Brand Systems", "Design Strategy"],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Murat Karcı",
+          url: "https://muratkarci.design",
+          author: { "@type": "Person", name: "Murat Karcı" },
+        }),
+      },
     ],
   }),
   component: HomePage,

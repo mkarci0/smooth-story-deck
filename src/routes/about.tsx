@@ -19,6 +19,22 @@ export const Route = createFileRoute("/about")({
         property: "og:description",
         content: "Independent product designer working with founders and product teams.",
       },
+      { property: "og:url", content: "https://muratkarci.design/about" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          mainEntity: {
+            "@type": "Person",
+            name: "Murat Karcı",
+            jobTitle: "Product Designer",
+            url: "https://muratkarci.design",
+          },
+        }),
+      },
     ],
   }),
   component: AboutPage,

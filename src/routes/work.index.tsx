@@ -18,6 +18,20 @@ export const Route = createFileRoute("/work/")({
         property: "og:description",
         content: "Selected product design case studies, 2023 — 2025.",
       },
+      { property: "og:url", content: "https://muratkarci.design/work" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Selected Work — Murat Karcı",
+          url: "https://muratkarci.design/work",
+          description: "Selected product design case studies by Murat Karcı.",
+          author: { "@type": "Person", name: "Murat Karcı" },
+        }),
+      },
     ],
   }),
   component: WorkPage,
