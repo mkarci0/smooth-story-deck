@@ -1,12 +1,9 @@
-import { Outlet, createRootRoute, HeadContent, Scripts, useLocation, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { ComingSoon } from "@/components/site/ComingSoon";
-import { fetchSiteSettings } from "@/lib/site-settings";
-import { useAuth } from "@/hooks/useAuth";
+import { Link } from "@tanstack/react-router";
 
 function NotFoundComponent() {
   return (
@@ -46,13 +43,17 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Murat Karcı" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Murat Karcı — Product Designer" },
+      { name: "twitter:title", content: "Murat Karcı — Product Designer" },
+      { name: "description", content: "Builds an animated, professional product designer portfolio website with detailed case studies." },
+      { property: "og:description", content: "Builds an animated, professional product designer portfolio website with detailed case studies." },
+      { name: "twitter:description", content: "Builds an animated, professional product designer portfolio website with detailed case studies." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f93117e-b4a9-4446-a4c0-3bea1ccd339f/id-preview-a2eabbfb--a1901771-da1b-43c5-a164-ae590125239b.lovable.app-1776519675705.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f93117e-b4a9-4446-a4c0-3bea1ccd339f/id-preview-a2eabbfb--a1901771-da1b-43c5-a164-ae590125239b.lovable.app-1776519675705.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "icon", href: "/favicon.ico" },
-      { rel: "apple-touch-icon", sizes: "512x512", href: "/apple-touch-icon.png" },
-      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://api.fontshare.com", crossOrigin: "anonymous" },
@@ -82,50 +83,6 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const location = useLocation();
-  const { isAdmin } = useAuth();
-  const isAdminArea =
-    location.pathname === "/admin" || location.pathname.startsWith("/admin/");
-
-  // Preview iframe sets ?preview=1 — admin uses this to inspect the live site.
-  const isPreviewBypass =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("preview") === "1";
-
-  const [maintenance, setMaintenance] = useState<{
-    enabled: boolean;
-    message: string;
-    loaded: boolean;
-  }>({ enabled: false, message: "", loaded: false });
-
-  useEffect(() => {
-    if (isAdminArea) {
-      setMaintenance((m) => ({ ...m, loaded: true }));
-      return;
-    }
-    fetchSiteSettings().then((s) => {
-      setMaintenance({
-        enabled: !!s?.maintenance_enabled,
-        message: s?.maintenance_message ?? "",
-        loaded: true,
-      });
-    });
-  }, [isAdminArea]);
-
-  if (isAdminArea) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <Outlet />
-      </div>
-    );
-  }
-
-  // Show Coming Soon to public visitors when maintenance is on.
-  // Admins (logged in) and preview iframe always see the real site.
-  if (maintenance.loaded && maintenance.enabled && !isAdmin && !isPreviewBypass) {
-    return <ComingSoon message={maintenance.message} />;
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main-content" className="skip-link">
