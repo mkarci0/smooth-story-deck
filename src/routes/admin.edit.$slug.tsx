@@ -1,12 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Upload, Trash2, Plus, Save, ArrowLeft } from "lucide-react";
+import { Upload, Trash2, Plus, Save, ArrowLeft, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProjectBySlug, resolveImage, type Project } from "@/lib/projects";
+import { fetchProjectBySlug, resolveImage, type Project, type SectionBlock } from "@/lib/projects";
 
 export const Route = createFileRoute("/admin/edit/$slug")({
   component: EditProject,
 });
+
+type BlockKey = "research" | "design_system" | "final_solution";
+
+const BLOCK_META: { key: BlockKey; label: string; description: string }[] = [
+  { key: "research", label: "Research", description: "Discovery, user interviews, audit findings." },
+  { key: "design_system", label: "Design System", description: "Tokens, components, type & color decisions." },
+  { key: "final_solution", label: "Final Solution", description: "The shipped experience and key flows." },
+];
 
 function EditProject() {
   const { slug } = Route.useParams();
@@ -24,14 +32,17 @@ function EditProject() {
   if (!p) return <p>Not found.</p>;
 
   const update = (patch: Partial<Project>) => setP({ ...p, ...patch });
+  const updateBlock = (key: BlockKey, patch: Partial<SectionBlock>) =>
+    setP({ ...p, [key]: { ...p[key], ...patch } });
 
   const save = async () => {
     setSaving(true);
     const { error } = await supabase.from("projects").update({
       slug: p.slug, title: p.title, tagline: p.tagline, category: p.category, year: p.year,
       cover_url: p.cover_url, accent: p.accent, role: p.role, timeline: p.timeline,
-      team: p.team, tools: p.tools, overview: p.overview, problem: p.problem, solution: p.solution,
-      outcome: p.outcome, sections: p.sections, gallery: p.gallery, position: p.position, published: p.published,
+      team: p.team, tools: p.tools, overview: p.overview,
+      research: p.research, design_system: p.design_system, final_solution: p.final_solution,
+      outcome: p.outcome, gallery: p.gallery, position: p.position, published: p.published,
     }).eq("id", p.id);
     setSaving(false);
     if (error) return alert(error.message);
@@ -39,7 +50,10 @@ function EditProject() {
     else alert("Saved!");
   };
 
-  const upload = async (file: File, target: "cover" | "gallery") => {
+  const upload = async (
+    file: File,
+    target: "cover" | "gallery" | BlockKey
+  ) => {
     setUploading(target);
     const ext = file.name.split(".").pop();
     const path = `${p.id}/${Date.now()}.${ext}`;
@@ -47,7 +61,8 @@ function EditProject() {
     if (error) { setUploading(null); return alert(error.message); }
     const { data } = supabase.storage.from("project-images").getPublicUrl(path);
     if (target === "cover") update({ cover_url: data.publicUrl });
-    else update({ gallery: [...p.gallery, data.publicUrl] });
+    else if (target === "gallery") update({ gallery: [...p.gallery, data.publicUrl] });
+    else updateBlock(target, { image_url: data.publicUrl });
     setUploading(null);
   };
 
@@ -87,50 +102,88 @@ function EditProject() {
             <input className={inp} value={p.tools.join(", ")}
               onChange={(e) => update({ tools: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
           </Field>
-          <Field label="Overview"><textarea rows={3} className={inp} value={p.overview} onChange={(e) => update({ overview: e.target.value })} /></Field>
-          <div className="grid md:grid-cols-2 gap-4">
-            <Field label="Problem"><textarea rows={4} className={inp} value={p.problem} onChange={(e) => update({ problem: e.target.value })} /></Field>
-            <Field label="Solution"><textarea rows={4} className={inp} value={p.solution} onChange={(e) => update({ solution: e.target.value })} /></Field>
-          </div>
 
-          {/* Outcomes */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">Outcome metrics</label>
-              <button onClick={() => update({ outcome: [...p.outcome, { label: "", value: "" }] })} className="text-xs story-link"><Plus className="inline w-3 h-3"/> add</button>
-            </div>
-            <div className="space-y-2">
-              {p.outcome.map((o, i) => (
-                <div key={i} className="flex gap-2">
-                  <input className={inp} placeholder="Label" value={o.label}
-                    onChange={(e) => { const x = [...p.outcome]; x[i] = { ...o, label: e.target.value }; update({ outcome: x }); }} />
-                  <input className={inp + " max-w-[140px]"} placeholder="+38%" value={o.value}
-                    onChange={(e) => { const x = [...p.outcome]; x[i] = { ...o, value: e.target.value }; update({ outcome: x }); }} />
-                  <button onClick={() => update({ outcome: p.outcome.filter((_, j) => j !== i) })} className="p-2 text-muted-foreground hover:text-destructive"><Trash2 className="w-4 h-4"/></button>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* CASE STUDY STRUCTURE — fixed 5 sections */}
+          <div className="border-t border-border pt-6">
+            <h3 className="font-display text-xl mb-1">Case study structure</h3>
+            <p className="text-xs text-muted-foreground mb-5">
+              Five fixed sections render in this order on the public page: Overview · Research · Design System · Final Solution · Outcome.
+            </p>
 
-          {/* Sections */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">Process sections</label>
-              <button onClick={() => update({ sections: [...p.sections, { heading: "", body: "" }] })} className="text-xs story-link"><Plus className="inline w-3 h-3"/> add</button>
-            </div>
-            <div className="space-y-3">
-              {p.sections.map((s, i) => (
-                <div key={i} className="rounded-xl border border-border p-3 space-y-2">
-                  <div className="flex gap-2">
-                    <input className={inp} placeholder="Heading" value={s.heading}
-                      onChange={(e) => { const x = [...p.sections]; x[i] = { ...s, heading: e.target.value }; update({ sections: x }); }} />
-                    <button onClick={() => update({ sections: p.sections.filter((_, j) => j !== i) })} className="p-2 text-muted-foreground hover:text-destructive"><Trash2 className="w-4 h-4"/></button>
+            {/* 1 — Overview */}
+            <SectionCard index={1} title="Overview" description="Short context paragraph at the top of the case study.">
+              <textarea rows={3} className={inp} value={p.overview} onChange={(e) => update({ overview: e.target.value })} />
+            </SectionCard>
+
+            {/* 2,3,4 — Block sections */}
+            {BLOCK_META.map((meta, i) => (
+              <SectionCard
+                key={meta.key}
+                index={i + 2}
+                title={meta.label}
+                description={meta.description}
+              >
+                <textarea
+                  rows={4}
+                  className={inp}
+                  placeholder={`${meta.label} body…`}
+                  value={p[meta.key].body}
+                  onChange={(e) => updateBlock(meta.key, { body: e.target.value })}
+                />
+                <div className="mt-3">
+                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
+                  <div className="mt-1.5 flex items-center gap-3">
+                    {p[meta.key].image_url ? (
+                      <div className="relative">
+                        <img src={resolveImage(p[meta.key].image_url)} alt="" className="w-32 h-20 object-cover rounded-lg border border-border" />
+                        <button
+                          onClick={() => updateBlock(meta.key, { image_url: null })}
+                          className="absolute -top-2 -right-2 p-1 rounded-full bg-background border border-border hover:text-destructive"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-32 h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
+                        No image
+                      </div>
+                    )}
+                    <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" />
+                      {uploading === meta.key ? "Uploading…" : (p[meta.key].image_url ? "Replace" : "Upload")}
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], meta.key)} />
+                    </label>
                   </div>
-                  <textarea rows={3} className={inp} placeholder="Body" value={s.body}
-                    onChange={(e) => { const x = [...p.sections]; x[i] = { ...s, body: e.target.value }; update({ sections: x }); }} />
                 </div>
-              ))}
-            </div>
+              </SectionCard>
+            ))}
+
+            {/* 5 — Outcome */}
+            <SectionCard index={5} title="Outcome" description="Measurable results — show 1 to 6 metrics.">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Metrics</span>
+                <button onClick={() => update({ outcome: [...p.outcome, { label: "", value: "" }] })} className="text-xs story-link">
+                  <Plus className="inline w-3 h-3"/> add metric
+                </button>
+              </div>
+              <div className="space-y-2">
+                {p.outcome.map((o, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input className={inp} placeholder="Label (e.g. Onboarding completion)" value={o.label}
+                      onChange={(e) => { const x = [...p.outcome]; x[i] = { ...o, label: e.target.value }; update({ outcome: x }); }} />
+                    <input className={inp + " max-w-[140px]"} placeholder="+38%" value={o.value}
+                      onChange={(e) => { const x = [...p.outcome]; x[i] = { ...o, value: e.target.value }; update({ outcome: x }); }} />
+                    <button onClick={() => update({ outcome: p.outcome.filter((_, j) => j !== i) })} className="p-2 text-muted-foreground hover:text-destructive">
+                      <Trash2 className="w-4 h-4"/>
+                    </button>
+                  </div>
+                ))}
+                {p.outcome.length === 0 && (
+                  <p className="text-xs text-muted-foreground italic">No metrics yet — add at least one to populate the Outcome section.</p>
+                )}
+              </div>
+            </SectionCard>
           </div>
         </div>
 
@@ -153,9 +206,9 @@ function EditProject() {
             <Field label="Accent color (CSS)">
               <input className={inp} value={p.accent} onChange={(e) => update({ accent: e.target.value })} />
             </Field>
-            <Field label="Position (sort order)">
-              <input type="number" className={inp} value={p.position} onChange={(e) => update({ position: parseInt(e.target.value) || 0 })} />
-            </Field>
+            <p className="text-[11px] text-muted-foreground -mt-1">
+              Position is set by drag &amp; drop in the Projects list.
+            </p>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={p.published} onChange={(e) => update({ published: e.target.checked })} />
               Published (visible on site)
@@ -196,6 +249,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
       <div className="mt-1">{children}</div>
+    </div>
+  );
+}
+
+function SectionCard({
+  index,
+  title,
+  description,
+  children,
+}: {
+  index: number;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-muted/20 p-5 mb-4">
+      <div className="flex items-baseline gap-3 mb-1">
+        <span className="font-display text-xs text-muted-foreground tabular-nums">0{index}</span>
+        <h4 className="font-display text-lg">{title}</h4>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">{description}</p>
+      {children}
     </div>
   );
 }

@@ -2,12 +2,12 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchProjectBySlug, fetchProjects, resolveImage, type Project } from "@/lib/projects";
+import { fetchProjectBySlug, fetchProjects, resolveImage, type Project, type SectionBlock } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
   head: () => ({
-    meta: [{ title: "Case study — Alex Morgan" }],
+    meta: [{ title: "Case study — Murat Karcı" }],
   }),
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-32 text-center">
@@ -38,9 +38,8 @@ function ProjectDetail() {
           setProject(p);
           const idx = all.findIndex((x) => x.slug === p.slug);
           setNext(all[(idx + 1) % all.length] ?? null);
-          // update document title client-side
           if (typeof document !== "undefined") {
-            document.title = `${p.title} — Case study by Alex Morgan`;
+            document.title = `${p.title} — Case study by Murat Karcı`;
           }
         }
       })
@@ -66,23 +65,21 @@ function ProjectDetail() {
     throw notFound();
   }
 
+  const blocks: { index: string; label: string; data: SectionBlock }[] = [
+    { index: "02", label: "Research", data: project.research },
+    { index: "03", label: "Design System", data: project.design_system },
+    { index: "04", label: "Final Solution", data: project.final_solution },
+  ];
+
   return (
     <article>
       {/* BREADCRUMB */}
       <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-8 md:pt-10">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
           <ol className="flex items-center gap-2 flex-wrap">
-            <li>
-              <Link to="/" className="hover:text-foreground transition-colors">
-                home
-              </Link>
-            </li>
+            <li><Link to="/" className="hover:text-foreground transition-colors">home</Link></li>
             <ChevronRight className="w-3.5 h-3.5 opacity-50" />
-            <li>
-              <Link to="/work" className="hover:text-foreground transition-colors">
-                work
-              </Link>
-            </li>
+            <li><Link to="/work" className="hover:text-foreground transition-colors">work</Link></li>
             <ChevronRight className="w-3.5 h-3.5 opacity-50" />
             <li className="text-foreground font-medium truncate">{project.title}</li>
           </ol>
@@ -143,22 +140,18 @@ function ProjectDetail() {
             { label: "Tools", value: project.tools.join(", ") },
           ].map((item, i) => (
             <Reveal key={item.label} delay={i * 0.05} className="bg-background p-6">
-              <p className="uppercase tracking-[0.2em] text-[10px] text-muted-foreground mb-2">
-                {item.label}
-              </p>
+              <p className="uppercase tracking-[0.2em] text-[10px] text-muted-foreground mb-2">{item.label}</p>
               <p className="font-display text-lg leading-tight">{item.value || "—"}</p>
             </Reveal>
           ))}
         </div>
       </section>
 
-      {/* OVERVIEW */}
+      {/* 01 — OVERVIEW */}
       {project.overview && (
         <section className="mx-auto max-w-3xl px-6 lg:px-10 mt-20 md:mt-28">
           <Reveal>
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-              Overview
-            </p>
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">01 · Overview</p>
             <p className="font-display text-3xl md:text-4xl leading-tight tracking-tight text-balance">
               {project.overview}
             </p>
@@ -166,41 +159,48 @@ function ProjectDetail() {
         </section>
       )}
 
-      {/* PROBLEM / SOLUTION */}
-      {(project.problem || project.solution) && (
-        <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28 grid md:grid-cols-2 gap-10 md:gap-16">
-          {project.problem && (
+      {/* 02 / 03 / 04 — Fixed blocks */}
+      {blocks.map((b) =>
+        b.data.body || b.data.image_url ? (
+          <section key={b.label} className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
             <Reveal>
               <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-                The problem
+                {b.index} · {b.label}
               </p>
-              <h2 className="font-display text-3xl tracking-tight mb-4">
-                What wasn’t working
+              <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
+                {b.label}
               </h2>
-              <p className="text-foreground/85 leading-relaxed">{project.problem}</p>
             </Reveal>
-          )}
-          {project.solution && (
-            <Reveal delay={0.08}>
-              <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-                The solution
-              </p>
-              <h2 className="font-display text-3xl tracking-tight mb-4">
-                How we solved it
-              </h2>
-              <p className="text-foreground/85 leading-relaxed">{project.solution}</p>
-            </Reveal>
-          )}
-        </section>
+            <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+              {b.data.body && (
+                <Reveal delay={0.05} className="md:col-span-5">
+                  <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                    {b.data.body}
+                  </p>
+                </Reveal>
+              )}
+              {b.data.image_url && (
+                <Reveal delay={0.1} className={b.data.body ? "md:col-span-7" : "md:col-span-12"}>
+                  <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
+                    <img
+                      src={resolveImage(b.data.image_url)}
+                      alt={`${project.title} — ${b.label}`}
+                      loading="lazy"
+                      className="w-full aspect-[16/10] object-cover"
+                    />
+                  </div>
+                </Reveal>
+              )}
+            </div>
+          </section>
+        ) : null
       )}
 
-      {/* OUTCOME */}
+      {/* 05 — OUTCOME */}
       {project.outcome.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
           <Reveal>
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-              Outcome
-            </p>
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">05 · Outcome</p>
             <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-10">
               By the numbers.
             </h2>
@@ -219,23 +219,6 @@ function ProjectDetail() {
               </Reveal>
             ))}
           </div>
-        </section>
-      )}
-
-      {/* SECTIONS */}
-      {project.sections.length > 0 && (
-        <section className="mx-auto max-w-3xl px-6 lg:px-10 mt-24 md:mt-32 space-y-16">
-          {project.sections.map((s, i) => (
-            <Reveal key={`${s.heading}-${i}`} delay={i * 0.05}>
-              <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-                0{i + 1}
-              </p>
-              <h3 className="font-display text-3xl md:text-4xl tracking-tight mb-4">
-                {s.heading}
-              </h3>
-              <p className="text-foreground/85 leading-relaxed text-lg">{s.body}</p>
-            </Reveal>
-          ))}
         </section>
       )}
 
@@ -282,9 +265,7 @@ function ProjectDetail() {
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex items-end justify-between text-background">
               <div>
-                <p className="uppercase tracking-[0.2em] text-xs opacity-80 mb-2">
-                  Next case study
-                </p>
+                <p className="uppercase tracking-[0.2em] text-xs opacity-80 mb-2">Next case study</p>
                 <h3 className="font-display text-4xl md:text-6xl tracking-tight">
                   {next.title}
                 </h3>
