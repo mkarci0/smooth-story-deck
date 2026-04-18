@@ -32,18 +32,20 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Alex Morgan — Product Designer" },
+      { title: "Murat Karcı — Product Designer" },
       {
         name: "description",
         content:
-          "Alex Morgan is an independent product designer crafting calm, considered software for ambitious teams.",
+          "Murat Karcı is an independent product designer crafting calm, considered software for ambitious teams.",
       },
-      { name: "author", content: "Alex Morgan" },
+      { name: "author", content: "Murat Karcı" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Murat Karcı" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.ico" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://api.fontshare.com", crossOrigin: "anonymous" },
