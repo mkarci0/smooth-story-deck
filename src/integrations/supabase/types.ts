@@ -89,48 +89,105 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendations: {
+        Row: {
+          company: string
+          created_at: string
+          id: string
+          name: string
+          position: number
+          published: boolean
+          quote: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          published?: boolean
+          quote?: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          published?: boolean
+          quote?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           about_body: string
           about_image_url: string | null
           about_intro: string
           about_title: string
+          booking_banner_enabled: boolean
+          booking_banner_text: string
           created_at: string
+          experience_items: Json
+          experience_title: string
           hero_eyebrow: string
           hero_subtitle: string
           hero_title: string
           id: string
+          recommendations_title: string
           resume_url: string | null
           singleton: boolean
           updated_at: string
+          what_i_do_items: Json
+          what_i_do_title: string
         }
         Insert: {
           about_body?: string
           about_image_url?: string | null
           about_intro?: string
           about_title?: string
+          booking_banner_enabled?: boolean
+          booking_banner_text?: string
           created_at?: string
+          experience_items?: Json
+          experience_title?: string
           hero_eyebrow?: string
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          recommendations_title?: string
           resume_url?: string | null
           singleton?: boolean
           updated_at?: string
+          what_i_do_items?: Json
+          what_i_do_title?: string
         }
         Update: {
           about_body?: string
           about_image_url?: string | null
           about_intro?: string
           about_title?: string
+          booking_banner_enabled?: boolean
+          booking_banner_text?: string
           created_at?: string
+          experience_items?: Json
+          experience_title?: string
           hero_eyebrow?: string
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          recommendations_title?: string
           resume_url?: string | null
           singleton?: boolean
           updated_at?: string
+          what_i_do_items?: Json
+          what_i_do_title?: string
         }
         Relationships: []
       }
