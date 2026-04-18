@@ -20,6 +20,8 @@ export type SiteSettings = {
   what_i_do_title: string;
   what_i_do_items: WhatIDoItem[];
   recommendations_title: string;
+  maintenance_enabled: boolean;
+  maintenance_message: string;
 };
 
 const normalize = (row: any): SiteSettings => ({

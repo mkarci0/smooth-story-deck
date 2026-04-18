@@ -1,8 +1,12 @@
 import { Outlet, createRootRoute, HeadContent, Scripts, useLocation, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { ComingSoon } from "@/components/site/ComingSoon";
+import { fetchSiteSettings } from "@/lib/site-settings";
+import { useAuth } from "@/hooks/useAuth";
 
 function NotFoundComponent() {
   return (
@@ -79,8 +83,34 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const isAdminArea =
     location.pathname === "/admin" || location.pathname.startsWith("/admin/");
+
+  // Preview iframe sets ?preview=1 — admin uses this to inspect the live site.
+  const isPreviewBypass =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("preview") === "1";
+
+  const [maintenance, setMaintenance] = useState<{
+    enabled: boolean;
+    message: string;
+    loaded: boolean;
+  }>({ enabled: false, message: "", loaded: false });
+
+  useEffect(() => {
+    if (isAdminArea) {
+      setMaintenance((m) => ({ ...m, loaded: true }));
+      return;
+    }
+    fetchSiteSettings().then((s) => {
+      setMaintenance({
+        enabled: !!s?.maintenance_enabled,
+        message: s?.maintenance_message ?? "",
+        loaded: true,
+      });
+    });
+  }, [isAdminArea]);
 
   if (isAdminArea) {
     return (
@@ -88,6 +118,12 @@ function RootComponent() {
         <Outlet />
       </div>
     );
+  }
+
+  // Show Coming Soon to public visitors when maintenance is on.
+  // Admins (logged in) and preview iframe always see the real site.
+  if (maintenance.loaded && maintenance.enabled && !isAdmin && !isPreviewBypass) {
+    return <ComingSoon message={maintenance.message} />;
   }
 
   return (

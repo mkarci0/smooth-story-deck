@@ -13,9 +13,10 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "home" | "about" | "recommendations";
+type Chip = "status" | "home" | "about" | "recommendations";
 
 const CHIPS: { id: Chip; label: string }[] = [
+  { id: "status", label: "Site Status" },
   { id: "home", label: "Home Page" },
   { id: "about", label: "About Me" },
   { id: "recommendations", label: "Recommendations" },
@@ -25,7 +26,7 @@ function AdminSettings() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const [activeChip, setActiveChip] = useState<Chip>("home");
+  const [activeChip, setActiveChip] = useState<Chip>("status");
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -64,6 +65,8 @@ function AdminSettings() {
         what_i_do_title: settings.what_i_do_title,
         what_i_do_items: settings.what_i_do_items,
         recommendations_title: settings.recommendations_title,
+        maintenance_enabled: settings.maintenance_enabled,
+        maintenance_message: settings.maintenance_message,
       })
       .eq("id", settings.id);
     if (error) {
@@ -177,6 +180,70 @@ function AdminSettings() {
           );
         })}
       </div>
+
+      {/* SITE STATUS */}
+      {activeChip === "status" && (
+        <div className="space-y-12">
+          <Section
+            title="Coming Soon mode"
+            description="When enabled, public visitors see a simple Coming Soon page instead of your portfolio. You and any signed-in admin can still browse the live site normally."
+          >
+            <Field label="Mode">
+              <label className="inline-flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.maintenance_enabled}
+                  onChange={(e) => update("maintenance_enabled", e.target.checked)}
+                  className="accent-accent w-4 h-4 mt-1"
+                />
+                <span className="text-sm">
+                  <span className="font-medium block">
+                    {settings.maintenance_enabled
+                      ? "Coming Soon page is LIVE"
+                      : "Site is fully public"}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {settings.maintenance_enabled
+                      ? "Visitors at muratkarci.com see the Coming Soon page. Toggle off to launch."
+                      : "Visitors see your full portfolio. Toggle on to hide the site behind a Coming Soon page."}
+                  </span>
+                </span>
+              </label>
+            </Field>
+
+            <Field
+              label="Coming Soon message"
+              hint="Shown under the headline. Keep it short."
+            >
+              <textarea
+                value={settings.maintenance_message}
+                onChange={(e) => update("maintenance_message", e.target.value)}
+                rows={3}
+                className={inputCls}
+                disabled={!settings.maintenance_enabled}
+              />
+            </Field>
+
+            <div
+              className={`rounded-xl border px-4 py-3 text-xs ${
+                settings.maintenance_enabled
+                  ? "border-accent/40 bg-accent/10 text-foreground"
+                  : "border-border bg-muted/40 text-muted-foreground"
+              }`}
+            >
+              <p className="font-medium mb-1">
+                {settings.maintenance_enabled
+                  ? "🚧 Coming Soon mode is ON"
+                  : "✓ Site is fully public"}
+              </p>
+              <p>
+                Admins (you) and the Preview tab always see the real site —
+                this toggle only affects logged-out visitors.
+              </p>
+            </div>
+          </Section>
+        </div>
+      )}
 
       {/* HOME PAGE */}
       {activeChip === "home" && (
