@@ -1,9 +1,13 @@
-import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Link } from "@tanstack/react-router";
+import { ComingSoon } from "@/components/site/ComingSoon";
+import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
+import { useAuth } from "@/hooks/useAuth";
 
 function NotFoundComponent() {
   return (
@@ -12,7 +16,7 @@ function NotFoundComponent() {
         <h1 className="font-display text-7xl text-foreground">404</h1>
         <h2 className="mt-4 font-display text-2xl text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you’re looking for doesn’t exist or has been moved.
+          The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
           <Link
@@ -83,6 +87,40 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const location = useLocation();
+  const { isAdmin, loading: authLoading } = useAuth();
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchSiteSettings()
+      .then((s) => setSettings(s))
+      .finally(() => setSettingsLoaded(true));
+  }, []);
+
+  // Bypass paths: admin section, preview tab uses ?preview=1
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isPreview =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("preview") === "1";
+
+  const shouldGate =
+    settingsLoaded &&
+    settings?.maintenance_enabled === true &&
+    !isAdminRoute &&
+    !isPreview &&
+    !authLoading &&
+    !isAdmin;
+
+  // Avoid flash: while we don't yet know settings/auth, render nothing on public pages
+  if (!isAdminRoute && (!settingsLoaded || authLoading)) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  if (shouldGate) {
+    return <ComingSoon message={settings!.maintenance_message} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main-content" className="skip-link">
