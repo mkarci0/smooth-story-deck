@@ -1,7 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { fetchSiteSettings } from "@/lib/site-settings";
 
 export function Header() {
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSiteSettings().then((s) => setResumeUrl(s?.resume_url ?? null));
+  }, []);
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -10,12 +18,9 @@ export function Header() {
       className="sticky top-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/40"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-10 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center font-display text-lg font-semibold transition-transform group-hover:scale-105">
-            a.
-          </div>
-          <span className="font-display text-lg tracking-tight hidden sm:inline">
-            alex morgan
+        <Link to="/" className="flex items-center group">
+          <span className="font-display text-lg tracking-tight font-bold">
+            Murat Karcı
           </span>
         </Link>
 
@@ -34,12 +39,24 @@ export function Header() {
           >
             about
           </Link>
-          <a
-            href="mailto:hello@alexmorgan.design"
-            className="hidden sm:inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
-          >
-            let’s talk
-          </a>
+          {resumeUrl ? (
+            <a
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              Resume
+            </a>
+          ) : (
+            <span
+              aria-disabled="true"
+              title="Resume not uploaded yet"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-muted text-muted-foreground px-4 py-2 text-sm font-medium cursor-not-allowed"
+            >
+              Resume
+            </span>
+          )}
         </nav>
       </div>
     </motion.header>
