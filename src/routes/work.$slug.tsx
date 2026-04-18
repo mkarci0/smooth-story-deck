@@ -1,8 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchProjectBySlug, fetchProjects, resolveImage, type Project, type SectionBlock } from "@/lib/projects";
+import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type OutcomeItem } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/work/$slug")({
