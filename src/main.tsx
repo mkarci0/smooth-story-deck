@@ -61,6 +61,14 @@ declare module "@tanstack/react-router" {
   }
 }
 
+if (typeof window !== "undefined") {
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+  if (host === "admin.muratkarci.com" && !path.startsWith("/admin")) {
+    window.location.replace("/admin/login");
+  }
+}
+
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Root element not found");
 
