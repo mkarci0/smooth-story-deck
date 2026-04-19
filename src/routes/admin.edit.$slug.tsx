@@ -59,7 +59,8 @@ function EditProject() {
       research: p.research, design_system: p.design_system, final_solution: p.final_solution,
       sections: p.sections,
       outcome: p.outcome, gallery: p.gallery, position: p.position, published: p.published,
-    }).eq("id", p.id);
+      section_order: p.section_order,
+    } as never).eq("id", p.id);
     setSaving(false);
     if (error) return alert(error.message);
     if (p.slug !== slug) navigate({ to: "/admin/edit/$slug", params: { slug: p.slug } });
