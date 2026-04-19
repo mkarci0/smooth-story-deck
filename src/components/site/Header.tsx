@@ -19,13 +19,13 @@ export function Header() {
       className="sticky top-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/40"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-10 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center group">
+        <Link to="/" className="flex items-center group" aria-label="Murat Karcı — home">
           <span className="font-display text-lg tracking-tight font-bold">
             murat karcı
           </span>
         </Link>
 
-        <nav className="flex items-center gap-7 text-sm">
+        <nav aria-label="Primary" className="flex items-center gap-7 text-sm">
           <Link
             to="/work"
             className="story-link text-foreground font-normal"

@@ -23,23 +23,25 @@ export function Footer() {
   const lead = taglineParts.join(" ");
 
   return (
-    <footer className="mt-32 border-t border-border/50">
+    <footer className="mt-32 border-t border-border/50" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">Site footer</h2>
       <div className="mx-auto max-w-6xl px-6 lg:px-10 py-16">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
-            <h3 className="font-display text-3xl tracking-tight">
+            <p className="font-display text-3xl tracking-tight">
               {lead ? `${lead} ` : ""}
               <em className="text-accent not-italic">{last}</em>
-            </h3>
+            </p>
             <a
               href={`mailto:${email}`}
               className="mt-4 inline-block story-link text-foreground/80"
+              aria-label={`Email Murat at ${email}`}
             >
               {email}
             </a>
           </div>
 
-          <div className="text-sm text-muted-foreground">
+          <nav aria-label="Footer navigation" className="text-sm text-muted-foreground">
             <p className="uppercase tracking-widest text-xs mb-3 text-foreground/60">
               navigate
             </p>
@@ -48,7 +50,7 @@ export function Footer() {
               <li><Link to="/work" className="story-link">Work</Link></li>
               <li><Link to="/about" className="story-link">About</Link></li>
             </ul>
-          </div>
+          </nav>
 
           <div className="text-sm text-muted-foreground">
             <p className="uppercase tracking-widest text-xs mb-3 text-foreground/60">
