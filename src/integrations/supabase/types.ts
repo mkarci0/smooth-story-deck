@@ -165,7 +165,7 @@ export type Database = {
           hero_title: string
           id: string
           linkedin_url: string | null
-          logo_variant: string
+          logo_svg_url: string | null
           maintenance_enabled: boolean
           maintenance_message: string
           recommendations_title: string
@@ -196,7 +196,7 @@ export type Database = {
           hero_title?: string
           id?: string
           linkedin_url?: string | null
-          logo_variant?: string
+          logo_svg_url?: string | null
           maintenance_enabled?: boolean
           maintenance_message?: string
           recommendations_title?: string
@@ -227,7 +227,7 @@ export type Database = {
           hero_title?: string
           id?: string
           linkedin_url?: string | null
-          logo_variant?: string
+          logo_svg_url?: string | null
           maintenance_enabled?: boolean
           maintenance_message?: string
           recommendations_title?: string

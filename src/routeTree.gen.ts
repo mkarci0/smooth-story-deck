@@ -19,7 +19,6 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPreviewRouteImport } from './routes/admin.preview'
-import { Route as AdminLogoRouteImport } from './routes/admin.logo'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminEditSlugRouteImport } from './routes/admin.edit.$slug'
 
@@ -73,11 +72,6 @@ const AdminPreviewRoute = AdminPreviewRouteImport.update({
   path: '/preview',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminLogoRoute = AdminLogoRouteImport.update({
-  id: '/logo',
-  path: '/logo',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -96,7 +90,6 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/logo': typeof AdminLogoRoute
   '/admin/preview': typeof AdminPreviewRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/work/$slug': typeof WorkSlugRoute
@@ -110,7 +103,6 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/logo': typeof AdminLogoRoute
   '/admin/preview': typeof AdminPreviewRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/work/$slug': typeof WorkSlugRoute
@@ -126,7 +118,6 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/logo': typeof AdminLogoRoute
   '/admin/preview': typeof AdminPreviewRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/work/$slug': typeof WorkSlugRoute
@@ -143,7 +134,6 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/login'
-    | '/admin/logo'
     | '/admin/preview'
     | '/admin/settings'
     | '/work/$slug'
@@ -157,7 +147,6 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/login'
-    | '/admin/logo'
     | '/admin/preview'
     | '/admin/settings'
     | '/work/$slug'
@@ -172,7 +161,6 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/admin/login'
-    | '/admin/logo'
     | '/admin/preview'
     | '/admin/settings'
     | '/work/$slug'
@@ -263,13 +251,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPreviewRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/logo': {
-      id: '/admin/logo'
-      path: '/logo'
-      fullPath: '/admin/logo'
-      preLoaderRoute: typeof AdminLogoRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -289,7 +270,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
-  AdminLogoRoute: typeof AdminLogoRoute
   AdminPreviewRoute: typeof AdminPreviewRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -298,7 +278,6 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
-  AdminLogoRoute: AdminLogoRoute,
   AdminPreviewRoute: AdminPreviewRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "status" | "home" | "about" | "recommendations" | "footer";
+type Chip = "status" | "home" | "about" | "recommendations" | "footer" | "header_footer";
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "status", label: "Site Status" },
@@ -21,6 +21,7 @@ const CHIPS: { id: Chip; label: string }[] = [
   { id: "about", label: "About Me" },
   { id: "recommendations", label: "Recommendations" },
   { id: "footer", label: "Footer" },
+  { id: "header_footer", label: "Header & Footer" },
 ];
 
 function AdminSettings() {
@@ -30,6 +31,8 @@ function AdminSettings() {
   const [activeChip, setActiveChip] = useState<Chip>("status");
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoDragOver, setLogoDragOver] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -145,6 +148,50 @@ function AdminSettings() {
     if (!settings || !confirm("Remove current photo?")) return;
     await supabase.from("site_settings").update({ about_image_url: null }).eq("id", settings.id);
     update("about_image_url", null);
+  };
+
+  const processLogoFile = async (file: File) => {
+    if (!settings) return;
+    if (file.type !== "image/svg+xml" && !file.name.toLowerCase().endsWith(".svg")) {
+      setStatus({ kind: "error", msg: "Please upload an SVG file." });
+      return;
+    }
+    setUploadingLogo(true);
+    const path = `logo/${Date.now()}-${file.name.replace(/[^a-z0-9.-]/gi, "_")}`;
+    const { error: upErr } = await supabase.storage
+      .from("site-assets")
+      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: "image/svg+xml" });
+    if (upErr) {
+      setUploadingLogo(false);
+      setStatus({ kind: "error", msg: upErr.message });
+      return;
+    }
+    const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
+    const url = data.publicUrl;
+    await supabase.from("site_settings").update({ logo_svg_url: url }).eq("id", settings.id);
+    update("logo_svg_url", url);
+    setUploadingLogo(false);
+    setStatus({ kind: "success", msg: "Logo uploaded." });
+    setTimeout(() => setStatus({ kind: "idle" }), 2500);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processLogoFile(file);
+    e.target.value = "";
+  };
+
+  const handleLogoDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setLogoDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) await processLogoFile(file);
+  };
+
+  const removeLogo = async () => {
+    if (!settings || !confirm("Remove logo and use the text wordmark fallback?")) return;
+    await supabase.from("site_settings").update({ logo_svg_url: null }).eq("id", settings.id);
+    update("logo_svg_url", null);
   };
 
   if (loading || !settings) {
@@ -495,6 +542,102 @@ function AdminSettings() {
                 className={inputCls}
                 placeholder="Crafted in warm cream and coral."
               />
+            </Field>
+          </Section>
+        </div>
+      )}
+
+      {/* HEADER & FOOTER (logo) */}
+      {activeChip === "header_footer" && (
+        <div className="space-y-12">
+          <Section
+            title="Logo (Header & Footer)"
+            description="Upload an SVG to use across both the site header (top-left) and footer (bottom-left). Leave empty to fall back to the “murat karcı” wordmark."
+          >
+            <Field
+              label="Logo SVG"
+              hint="SVG only. Recommended height 24–32px. Use currentColor for strokes/fills so the logo adapts to light & dark surfaces."
+            >
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setLogoDragOver(true);
+                }}
+                onDragLeave={() => setLogoDragOver(false)}
+                onDrop={handleLogoDrop}
+                className={`rounded-2xl border-2 border-dashed p-6 transition-colors ${
+                  logoDragOver
+                    ? "border-accent bg-accent/5"
+                    : "border-border bg-muted/20"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <label className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm cursor-pointer hover:bg-accent transition-colors shrink-0">
+                    {uploadingLogo ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    {uploadingLogo
+                      ? "Uploading…"
+                      : settings.logo_svg_url
+                        ? "Replace SVG"
+                        : "Choose SVG file"}
+                    <input
+                      type="file"
+                      accept=".svg,image/svg+xml"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                      disabled={uploadingLogo}
+                    />
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    or drag & drop an <code className="font-mono">.svg</code> file here
+                  </p>
+                  {settings.logo_svg_url && (
+                    <div className="flex items-center gap-3 sm:ml-auto">
+                      <a
+                        href={settings.logo_svg_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        <ExternalLink className="w-3 h-3" /> View file
+                      </a>
+                      <button
+                        onClick={removeLogo}
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-3 h-3" /> Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Field>
+
+            <Field label="Preview" hint="How the logo renders on light and dark surfaces.">
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-border bg-background p-6 flex items-center justify-center min-h-24">
+                  {settings.logo_svg_url ? (
+                    <img src={settings.logo_svg_url} alt="Logo preview (light)" className="h-7 w-auto" />
+                  ) : (
+                    <span className="font-display text-lg tracking-tight font-bold">murat karcı</span>
+                  )}
+                </div>
+                <div className="rounded-xl border border-border bg-foreground p-6 flex items-center justify-center min-h-24">
+                  {settings.logo_svg_url ? (
+                    <img
+                      src={settings.logo_svg_url}
+                      alt="Logo preview (dark)"
+                      className="h-7 w-auto"
+                      style={{ filter: "invert(1)" }}
+                    />
+                  ) : (
+                    <span className="font-display text-lg tracking-tight font-bold text-background">murat karcı</span>
+                  )}
+                </div>
+              </div>
             </Field>
           </Section>
         </div>
