@@ -2,7 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Upload, Trash2, Plus, Save, ArrowLeft, X, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProjectBySlug, resolveImage, type Project, type SectionBlock, type SectionItem } from "@/lib/projects";
+import {
+  fetchProjectBySlug,
+  resolveImage,
+  type Project,
+  type SectionBlock,
+  type SectionItem,
+  type SectionOrderId,
+} from "@/lib/projects";
 
 export const Route = createFileRoute("/admin/edit/$slug")({
   component: EditProject,
@@ -10,11 +17,19 @@ export const Route = createFileRoute("/admin/edit/$slug")({
 
 type BlockKey = "research" | "design_system" | "final_solution";
 
-const BLOCK_META: { key: BlockKey; label: string; description: string }[] = [
-  { key: "research", label: "Research", description: "Discovery, user interviews, audit findings." },
-  { key: "design_system", label: "Design System", description: "Tokens, components, type & color decisions." },
-  { key: "final_solution", label: "Final Solution", description: "The shipped experience and key flows." },
-];
+const BLOCK_META: Record<BlockKey, { label: string; description: string }> = {
+  research: { label: "Research", description: "Discovery, user interviews, audit findings." },
+  design_system: { label: "Design System", description: "Tokens, components, type & color decisions." },
+  final_solution: { label: "Final Solution", description: "The shipped experience and key flows." },
+};
+
+const FIXED_LABELS: Record<"overview" | "outcome" | BlockKey, string> = {
+  overview: "Overview",
+  research: "Research",
+  design_system: "Design System",
+  final_solution: "Final Solution",
+  outcome: "Outcome",
+};
 
 function EditProject() {
   const { slug } = Route.useParams();
@@ -44,7 +59,8 @@ function EditProject() {
       research: p.research, design_system: p.design_system, final_solution: p.final_solution,
       sections: p.sections,
       outcome: p.outcome, gallery: p.gallery, position: p.position, published: p.published,
-    }).eq("id", p.id);
+      section_order: p.section_order,
+    } as never).eq("id", p.id);
     setSaving(false);
     if (error) return alert(error.message);
     if (p.slug !== slug) navigate({ to: "/admin/edit/$slug", params: { slug: p.slug } });
@@ -72,22 +88,39 @@ function EditProject() {
     setUploading(null);
   };
 
-  // Section helpers
-  const addSection = () =>
-    update({ sections: [...p.sections, { heading: "", body: "", image_url: null }] });
+  // Custom section helpers — keep section_order in sync
+  const addSection = () => {
+    const nextSections = [...p.sections, { heading: "", body: "", image_url: null }];
+    const newId = `custom-${nextSections.length - 1}` as SectionOrderId;
+    update({ sections: nextSections, section_order: [...p.section_order, newId] });
+  };
   const updateSection = (i: number, patch: Partial<SectionItem>) => {
     const next = [...p.sections];
     next[i] = { ...next[i], ...patch };
     update({ sections: next });
   };
-  const removeSection = (i: number) =>
-    update({ sections: p.sections.filter((_, j) => j !== i) });
-  const moveSection = (i: number, dir: -1 | 1) => {
+  const removeSection = (i: number) => {
+    // Drop the section, then re-index custom-N IDs in section_order.
+    const remaining = p.sections.filter((_, j) => j !== i);
+    const remap = new Map<string, string>();
+    let cursor = 0;
+    p.sections.forEach((_, j) => {
+      if (j === i) return;
+      remap.set(`custom-${j}`, `custom-${cursor++}`);
+    });
+    const nextOrder = p.section_order
+      .filter((id) => id !== `custom-${i}`)
+      .map((id) => (remap.get(id) ?? id) as SectionOrderId);
+    update({ sections: remaining, section_order: nextOrder });
+  };
+
+  // Unified section ordering (all 5 fixed + N custom)
+  const moveOrder = (i: number, dir: -1 | 1) => {
     const j = i + dir;
-    if (j < 0 || j >= p.sections.length) return;
-    const next = [...p.sections];
+    if (j < 0 || j >= p.section_order.length) return;
+    const next = [...p.section_order];
     [next[i], next[j]] = [next[j], next[i]];
-    update({ sections: next });
+    update({ section_order: next });
   };
 
   // Gallery reorder
@@ -136,204 +169,134 @@ function EditProject() {
               onChange={(e) => update({ tools: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
           </Field>
 
-          {/* CASE STUDY STRUCTURE — fixed 5 sections */}
-          <div className="border-t border-border pt-6">
-            <h3 className="font-display text-xl mb-1">Case study structure</h3>
-            <p className="text-xs text-muted-foreground mb-5">
-              Five fixed sections render in this order on the public page: Overview · Research · Design System · Final Solution · Outcome.
-            </p>
-
-            {/* 1 — Overview */}
-            <SectionCard index={1} title="Overview" description="Short context paragraph at the top of the case study.">
-              <textarea rows={3} className={inp} value={p.overview} onChange={(e) => update({ overview: e.target.value })} />
-            </SectionCard>
-
-            {/* 2,3,4 — Block sections */}
-            {BLOCK_META.map((meta, i) => (
-              <SectionCard
-                key={meta.key}
-                index={i + 2}
-                title={meta.label}
-                description={meta.description}
-              >
-                <textarea
-                  rows={4}
-                  className={inp}
-                  placeholder={`${meta.label} body…`}
-                  value={p[meta.key].body}
-                  onChange={(e) => updateBlock(meta.key, { body: e.target.value })}
-                />
-                <div className="mt-3">
-                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
-                  <div className="mt-1.5 flex items-center gap-3">
-                    {p[meta.key].image_url ? (
-                      <div className="relative">
-                        <img src={resolveImage(p[meta.key].image_url)} alt="" className="w-32 h-20 object-cover rounded-lg border border-border" />
-                        <button
-                          onClick={() => updateBlock(meta.key, { image_url: null })}
-                          className="absolute -top-2 -right-2 p-1 rounded-full bg-background border border-border hover:text-destructive"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="w-32 h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
-                        No image
-                      </div>
-                    )}
-                    <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
-                      <Upload className="w-3.5 h-3.5" />
-                      {uploading === meta.key ? "Uploading…" : (p[meta.key].image_url ? "Replace" : "Upload")}
-                      <input type="file" accept="image/*" className="hidden"
-                        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], meta.key)} />
-                    </label>
-                  </div>
-                </div>
-              </SectionCard>
-            ))}
-
-            {/* 5 — Outcome */}
-            <SectionCard index={5} title="Outcome" description="Measurable results — show 1 to 6 metrics.">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Metrics</span>
-                <button onClick={() => update({ outcome: [...p.outcome, { label: "", value: "" }] })} className="text-xs story-link">
-                  <Plus className="inline w-3 h-3"/> add metric
-                </button>
-              </div>
-              <div className="space-y-2">
-                {p.outcome.map((o, i) => (
-                  <div key={i} className="flex gap-2">
-                    <input className={inp} placeholder="Label (e.g. Onboarding completion)" value={o.label}
-                      onChange={(e) => { const x = [...p.outcome]; x[i] = { ...o, label: e.target.value }; update({ outcome: x }); }} />
-                    <input className={inp + " max-w-[140px]"} placeholder="+38%" value={o.value}
-                      onChange={(e) => { const x = [...p.outcome]; x[i] = { ...o, value: e.target.value }; update({ outcome: x }); }} />
-                    <button onClick={() => update({ outcome: p.outcome.filter((_, j) => j !== i) })} className="p-2 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="w-4 h-4"/>
-                    </button>
-                  </div>
-                ))}
-                {p.outcome.length === 0 && (
-                  <p className="text-xs text-muted-foreground italic">No metrics yet — add at least one to populate the Outcome section.</p>
-                )}
-              </div>
-            </SectionCard>
-          </div>
-
-          {/* CUSTOM SECTIONS — fully dynamic, ordered between Outcome and Gallery on the public page */}
+          {/* CASE STUDY STRUCTURE — unified, ordered list */}
           <div className="border-t border-border pt-6">
             <div className="flex items-baseline justify-between mb-1">
-              <h3 className="font-display text-xl">Custom sections</h3>
+              <h3 className="font-display text-xl">Case study sections</h3>
               <button
                 onClick={addSection}
                 className="text-xs story-link inline-flex items-center gap-1.5"
               >
-                <Plus className="w-3 h-3" /> add section
+                <Plus className="w-3 h-3" /> add custom section
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-5">
-              Optional, fully dynamic. Each section has heading + body + optional image. Render order matches the list below — use the arrows to reorder.
+              All sections — fixed (Overview, Research, Design System, Final Solution, Outcome) and custom — render in the order below. Use the arrows to reorder. Custom sections can also be removed.
             </p>
 
-            {p.sections.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-muted/10 p-6 text-center text-xs text-muted-foreground">
-                No custom sections yet. The fixed five (Overview, Research, Design System, Final Solution, Outcome) are still active above.
-              </div>
-            ) : (
-              <ul className="space-y-4">
-                {p.sections.map((s, i) => {
-                  const uploadKey = `section-${i}`;
-                  return (
-                    <li key={i} className="rounded-2xl border border-border bg-muted/20 p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
-                          <GripVertical className="w-3.5 h-3.5" />
-                          Section {String(i + 1).padStart(2, "0")}
-                        </div>
-                        <div className="inline-flex items-center gap-1">
+            <ul className="space-y-4">
+              {p.section_order.map((id, i) => {
+                const isCustom = id.startsWith("custom-");
+                const customIdx = isCustom ? Number(id.slice("custom-".length)) : -1;
+                const labelText = isCustom
+                  ? p.sections[customIdx]?.heading || `Custom section`
+                  : FIXED_LABELS[id as keyof typeof FIXED_LABELS];
+                const indexLabel = String(i + 1).padStart(2, "0");
+
+                return (
+                  <li key={id} className="rounded-2xl border border-border bg-muted/20 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+                        <GripVertical className="w-3.5 h-3.5" />
+                        <span className="tabular-nums">{indexLabel}</span>
+                        <span className="text-foreground font-medium normal-case tracking-normal">
+                          {labelText}
+                        </span>
+                        {isCustom && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent normal-case tracking-normal">
+                            custom
+                          </span>
+                        )}
+                      </div>
+                      <div className="inline-flex items-center gap-1">
+                        <button
+                          onClick={() => moveOrder(i, -1)}
+                          disabled={i === 0}
+                          className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Move up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => moveOrder(i, 1)}
+                          disabled={i === p.section_order.length - 1}
+                          className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Move down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        {isCustom && (
                           <button
-                            onClick={() => moveSection(i, -1)}
-                            disabled={i === 0}
-                            className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Move up"
-                          >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => moveSection(i, 1)}
-                            disabled={i === p.sections.length - 1}
-                            className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Move down"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => removeSection(i)}
+                            onClick={() => removeSection(customIdx)}
                             className="p-1.5 text-muted-foreground hover:text-destructive"
                             title="Remove"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        </div>
+                        )}
                       </div>
+                    </div>
 
-                      <input
-                        className={inp + " mb-2"}
-                        placeholder="Heading (e.g. Mapping the journey)"
-                        value={s.heading}
-                        onChange={(e) => updateSection(i, { heading: e.target.value })}
-                      />
+                    {/* Per-section editor */}
+                    {id === "overview" && (
                       <textarea
-                        rows={4}
+                        rows={3}
                         className={inp}
-                        placeholder="Body copy…"
-                        value={s.body}
-                        onChange={(e) => updateSection(i, { body: e.target.value })}
+                        placeholder="Short context paragraph at the top of the case study."
+                        value={p.overview}
+                        onChange={(e) => update({ overview: e.target.value })}
                       />
+                    )}
 
-                      <div className="mt-3">
-                        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                          Image (optional)
-                        </label>
-                        <div className="mt-1.5 flex items-center gap-3">
-                          {s.image_url ? (
-                            <div className="relative">
-                              <img
-                                src={resolveImage(s.image_url)}
-                                alt=""
-                                className="w-32 h-20 object-cover rounded-lg border border-border"
-                              />
-                              <button
-                                onClick={() => updateSection(i, { image_url: null })}
-                                className="absolute -top-2 -right-2 p-1 rounded-full bg-background border border-border hover:text-destructive"
-                              >
-                                <X className="w-3 h-3" />
+                    {(id === "research" || id === "design_system" || id === "final_solution") && (
+                      <BlockEditor
+                        block={p[id as BlockKey]}
+                        meta={BLOCK_META[id as BlockKey]}
+                        uploading={uploading === id}
+                        onChange={(patch) => updateBlock(id as BlockKey, patch)}
+                        onUpload={(file) => upload(file, id as BlockKey)}
+                      />
+                    )}
+
+                    {id === "outcome" && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Metrics</span>
+                          <button onClick={() => update({ outcome: [...p.outcome, { label: "", value: "" }] })} className="text-xs story-link">
+                            <Plus className="inline w-3 h-3" /> add metric
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          {p.outcome.map((o, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input className={inp} placeholder="Label (e.g. Onboarding completion)" value={o.label}
+                                onChange={(e) => { const x = [...p.outcome]; x[idx] = { ...o, label: e.target.value }; update({ outcome: x }); }} />
+                              <input className={inp + " max-w-[140px]"} placeholder="+38%" value={o.value}
+                                onChange={(e) => { const x = [...p.outcome]; x[idx] = { ...o, value: e.target.value }; update({ outcome: x }); }} />
+                              <button onClick={() => update({ outcome: p.outcome.filter((_, j) => j !== idx) })} className="p-2 text-muted-foreground hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
-                          ) : (
-                            <div className="w-32 h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
-                              No image
-                            </div>
+                          ))}
+                          {p.outcome.length === 0 && (
+                            <p className="text-xs text-muted-foreground italic">No metrics yet — add at least one to populate the Outcome section.</p>
                           )}
-                          <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
-                            <Upload className="w-3.5 h-3.5" />
-                            {uploading === uploadKey ? "Uploading…" : (s.image_url ? "Replace" : "Upload")}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) =>
-                                e.target.files?.[0] &&
-                                upload(e.target.files[0], { kind: "section", index: i })
-                              }
-                            />
-                          </label>
                         </div>
                       </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+                    )}
+
+                    {isCustom && p.sections[customIdx] && (
+                      <CustomSectionEditor
+                        section={p.sections[customIdx]}
+                        uploading={uploading === `section-${customIdx}`}
+                        onChange={(patch) => updateSection(customIdx, patch)}
+                        onUpload={(file) => upload(file, { kind: "section", index: customIdx })}
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
 
@@ -409,7 +372,7 @@ function EditProject() {
               ))}
               {p.gallery.length === 0 && (
                 <p className="col-span-2 text-[11px] text-muted-foreground italic text-center py-3">
-                  No images yet. 1–3 → grid · 4+ → carousel.
+                  No images yet. 1 → hero · 2 → grid · 3+ → swipeable carousel. Portrait & landscape both supported.
                 </p>
               )}
             </div>
@@ -431,25 +394,119 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function SectionCard({
-  index,
-  title,
-  description,
-  children,
+function BlockEditor({
+  block,
+  meta,
+  uploading,
+  onChange,
+  onUpload,
 }: {
-  index: number;
-  title: string;
-  description: string;
-  children: React.ReactNode;
+  block: SectionBlock;
+  meta: { label: string; description: string };
+  uploading: boolean;
+  onChange: (patch: Partial<SectionBlock>) => void;
+  onUpload: (file: File) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-muted/20 p-5 mb-4">
-      <div className="flex items-baseline gap-3 mb-1">
-        <span className="font-display text-xs text-muted-foreground tabular-nums">0{index}</span>
-        <h4 className="font-display text-lg">{title}</h4>
+    <div>
+      <p className="text-xs text-muted-foreground mb-2">{meta.description}</p>
+      <textarea
+        rows={4}
+        className={inp}
+        placeholder={`${meta.label} body…`}
+        value={block.body}
+        onChange={(e) => onChange({ body: e.target.value })}
+      />
+      <div className="mt-3">
+        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
+        <ImagePicker
+          imageUrl={block.image_url}
+          uploading={uploading}
+          onClear={() => onChange({ image_url: null })}
+          onUpload={onUpload}
+        />
       </div>
-      <p className="text-xs text-muted-foreground mb-4">{description}</p>
-      {children}
+    </div>
+  );
+}
+
+function CustomSectionEditor({
+  section,
+  uploading,
+  onChange,
+  onUpload,
+}: {
+  section: SectionItem;
+  uploading: boolean;
+  onChange: (patch: Partial<SectionItem>) => void;
+  onUpload: (file: File) => void;
+}) {
+  return (
+    <div>
+      <input
+        className={inp + " mb-2"}
+        placeholder="Heading (e.g. Mapping the journey)"
+        value={section.heading}
+        onChange={(e) => onChange({ heading: e.target.value })}
+      />
+      <textarea
+        rows={4}
+        className={inp}
+        placeholder="Body copy…"
+        value={section.body}
+        onChange={(e) => onChange({ body: e.target.value })}
+      />
+      <div className="mt-3">
+        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
+        <ImagePicker
+          imageUrl={section.image_url ?? null}
+          uploading={uploading}
+          onClear={() => onChange({ image_url: null })}
+          onUpload={onUpload}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ImagePicker({
+  imageUrl,
+  uploading,
+  onClear,
+  onUpload,
+}: {
+  imageUrl: string | null;
+  uploading: boolean;
+  onClear: () => void;
+  onUpload: (file: File) => void;
+}) {
+  return (
+    <div className="mt-1.5 flex items-center gap-3">
+      {imageUrl ? (
+        <div className="relative">
+          <img src={resolveImage(imageUrl)} alt="" className="w-32 h-20 object-cover rounded-lg border border-border" />
+          <button
+            onClick={onClear}
+            className="absolute -top-2 -right-2 p-1 rounded-full bg-background border border-border hover:text-destructive"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div className="w-32 h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
+          No image
+        </div>
+      )}
+      <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
+        <Upload className="w-3.5 h-3.5" />
+        {uploading ? "Uploading…" : (imageUrl ? "Replace" : "Upload")}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
+        />
+      </label>
     </div>
   );
 }
