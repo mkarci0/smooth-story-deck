@@ -20,6 +20,13 @@ function AdminLayout() {
     if (!session) navigate({ to: "/admin/login" });
   }, [loading, isLoginRoute, session, navigate]);
 
+  const adminHelmet = (
+    <Helmet>
+      <title>Admin — Portfolio CMS</title>
+      <meta name="robots" content="noindex" />
+    </Helmet>
+  );
+
   if (isLoginRoute) {
     return <Outlet />;
   }
