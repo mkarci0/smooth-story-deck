@@ -121,9 +121,14 @@ function GalleryCarousel({ images, meta, accent, title }: Props) {
   }, [emblaApi]);
 
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={`${title} gallery`}
+    >
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex -ml-4 md:-ml-6 items-stretch">
+        <div className="flex -ml-4 md:-ml-6 items-stretch" aria-live="polite">
           {images.map((img, i) => {
             const o = meta[i]?.orientation ?? "landscape";
             // Portraits get a narrower slide so a tall image fits next to its
@@ -135,6 +140,9 @@ function GalleryCarousel({ images, meta, accent, title }: Props) {
             return (
               <div
                 key={i}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${i + 1} of ${images.length}`}
                 className={`${widthClass} min-w-0 pl-4 md:pl-6`}
               >
                 <Frame
@@ -155,7 +163,7 @@ function GalleryCarousel({ images, meta, accent, title }: Props) {
         aria-label="Previous gallery image"
         className="hidden sm:flex absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-border bg-background hover:border-accent hover:text-accent items-center justify-center transition-colors shadow-[var(--shadow-soft)]"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-5 h-5" aria-hidden />
       </button>
       <button
         type="button"
@@ -163,17 +171,23 @@ function GalleryCarousel({ images, meta, accent, title }: Props) {
         aria-label="Next gallery image"
         className="hidden sm:flex absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-border bg-background hover:border-accent hover:text-accent items-center justify-center transition-colors shadow-[var(--shadow-soft)]"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-5 h-5" aria-hidden />
       </button>
 
       {snapCount > 1 && (
-        <div className="mt-8 flex justify-center gap-2">
+        <div
+          className="mt-8 flex justify-center gap-2"
+          role="tablist"
+          aria-label="Gallery pagination"
+        >
           {Array.from({ length: snapCount }).map((_, i) => (
             <button
               key={i}
               type="button"
-              onClick={() => emblaApi?.scrollTo(i)}
+              role="tab"
+              aria-selected={i === selected}
               aria-label={`Go to gallery image ${i + 1}`}
+              onClick={() => emblaApi?.scrollTo(i)}
               className={`h-1.5 rounded-full transition-all ${
                 i === selected ? "w-8 bg-accent" : "w-1.5 bg-border hover:bg-muted-foreground/40"
               }`}
