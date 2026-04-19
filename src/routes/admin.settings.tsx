@@ -31,6 +31,8 @@ function AdminSettings() {
   const [activeChip, setActiveChip] = useState<Chip>("status");
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoDragOver, setLogoDragOver] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -146,6 +148,50 @@ function AdminSettings() {
     if (!settings || !confirm("Remove current photo?")) return;
     await supabase.from("site_settings").update({ about_image_url: null }).eq("id", settings.id);
     update("about_image_url", null);
+  };
+
+  const processLogoFile = async (file: File) => {
+    if (!settings) return;
+    if (file.type !== "image/svg+xml" && !file.name.toLowerCase().endsWith(".svg")) {
+      setStatus({ kind: "error", msg: "Please upload an SVG file." });
+      return;
+    }
+    setUploadingLogo(true);
+    const path = `logo/${Date.now()}-${file.name.replace(/[^a-z0-9.-]/gi, "_")}`;
+    const { error: upErr } = await supabase.storage
+      .from("site-assets")
+      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: "image/svg+xml" });
+    if (upErr) {
+      setUploadingLogo(false);
+      setStatus({ kind: "error", msg: upErr.message });
+      return;
+    }
+    const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
+    const url = data.publicUrl;
+    await supabase.from("site_settings").update({ logo_svg_url: url }).eq("id", settings.id);
+    update("logo_svg_url", url);
+    setUploadingLogo(false);
+    setStatus({ kind: "success", msg: "Logo uploaded." });
+    setTimeout(() => setStatus({ kind: "idle" }), 2500);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processLogoFile(file);
+    e.target.value = "";
+  };
+
+  const handleLogoDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setLogoDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) await processLogoFile(file);
+  };
+
+  const removeLogo = async () => {
+    if (!settings || !confirm("Remove logo and use the text wordmark fallback?")) return;
+    await supabase.from("site_settings").update({ logo_svg_url: null }).eq("id", settings.id);
+    update("logo_svg_url", null);
   };
 
   if (loading || !settings) {
