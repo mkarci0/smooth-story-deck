@@ -308,7 +308,7 @@ function ProjectDetail() {
       </section>
 
       {/* UNIFIED ORDERED SECTIONS */}
-      {project.sections.map((s, i) => (
+      {project.sections.map((s: UnifiedSection, i: number) => (
         <SectionRenderer
           key={s.id}
           section={s}
