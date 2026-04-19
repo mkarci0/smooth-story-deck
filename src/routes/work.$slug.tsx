@@ -94,7 +94,7 @@ function ProjectDetail() {
   const { project, prev, next } = Route.useLoaderData();
   const reduce = useReducedMotion();
 
-  const ordered = project.section_order;
+  const ordered: SectionOrderId[] = project.section_order;
 
   const renderSection = (id: SectionOrderId, displayIndex: number) => {
     const indexLabel = String(displayIndex + 1).padStart(2, "0");
