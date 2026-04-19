@@ -2,7 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Upload, Trash2, Plus, Save, ArrowLeft, X, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProjectBySlug, resolveImage, type Project, type SectionBlock, type SectionItem } from "@/lib/projects";
+import {
+  fetchProjectBySlug,
+  resolveImage,
+  type Project,
+  type SectionBlock,
+  type SectionItem,
+  type SectionOrderId,
+} from "@/lib/projects";
 
 export const Route = createFileRoute("/admin/edit/$slug")({
   component: EditProject,
@@ -10,11 +17,19 @@ export const Route = createFileRoute("/admin/edit/$slug")({
 
 type BlockKey = "research" | "design_system" | "final_solution";
 
-const BLOCK_META: { key: BlockKey; label: string; description: string }[] = [
-  { key: "research", label: "Research", description: "Discovery, user interviews, audit findings." },
-  { key: "design_system", label: "Design System", description: "Tokens, components, type & color decisions." },
-  { key: "final_solution", label: "Final Solution", description: "The shipped experience and key flows." },
-];
+const BLOCK_META: Record<BlockKey, { label: string; description: string }> = {
+  research: { label: "Research", description: "Discovery, user interviews, audit findings." },
+  design_system: { label: "Design System", description: "Tokens, components, type & color decisions." },
+  final_solution: { label: "Final Solution", description: "The shipped experience and key flows." },
+};
+
+const FIXED_LABELS: Record<"overview" | "outcome" | BlockKey, string> = {
+  overview: "Overview",
+  research: "Research",
+  design_system: "Design System",
+  final_solution: "Final Solution",
+  outcome: "Outcome",
+};
 
 function EditProject() {
   const { slug } = Route.useParams();
