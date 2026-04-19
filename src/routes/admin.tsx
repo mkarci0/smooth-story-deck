@@ -60,6 +60,7 @@ function AdminLayout() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 lg:px-10 py-10">
+      {adminHelmet}
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">Portfolio CMS</p>
