@@ -7,7 +7,7 @@ export const Route = createFileRoute("/robots.txt")({
         const url = new URL(request.url);
         const origin = `${url.protocol}//${url.host}`;
 
-        const body = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /admin/\n\nSitemap: ${origin}/sitemap.xml\n`;
+        const body = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /admin/\nDisallow: /admin/login\nDisallow: /admin/preview\nDisallow: /admin/edit/\nDisallow: /admin/settings\n\nSitemap: ${origin}/sitemap.xml\n`;
 
         return new Response(body, {
           headers: {

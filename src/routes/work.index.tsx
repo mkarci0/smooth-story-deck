@@ -1,12 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { fetchProjects, type Project } from "@/lib/projects";
 import { ProjectCard } from "@/components/site/ProjectCard";
 
 export const Route = createFileRoute("/work/")({
-  head: () => ({
-    meta: [
+  loader: async () => {
+    const projects = await fetchProjects().catch(() => [] as Project[]);
+    return { featuredCover: projects.find((p) => p.cover_url)?.cover_url ?? null };
+  },
+  head: ({ loaderData }) => {
+    const meta: Array<Record<string, string>> = [
       { title: "Work — Murat Karcı, Product Designer" },
       {
         name: "description",
@@ -19,29 +23,41 @@ export const Route = createFileRoute("/work/")({
         content: "Selected product design case studies, 2023 — 2025.",
       },
       { property: "og:url", content: "https://muratkarci.design/work" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "Selected Work — Murat Karcı",
-          url: "https://muratkarci.design/work",
-          description: "Selected product design case studies by Murat Karcı.",
-          author: { "@type": "Person", name: "Murat Karcı" },
-        }),
-      },
-    ],
-  }),
+    ];
+    if (loaderData?.featuredCover) {
+      meta.push({ property: "og:image", content: loaderData.featuredCover });
+      meta.push({ name: "twitter:image", content: loaderData.featuredCover });
+      meta.push({ name: "twitter:card", content: "summary_large_image" });
+    }
+    return {
+      meta,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Selected Work — Murat Karcı",
+            url: "https://muratkarci.design/work",
+            description: "Selected product design case studies by Murat Karcı.",
+            author: { "@type": "Person", name: "Murat Karcı" },
+          }),
+        },
+      ],
+    };
+  },
   component: WorkPage,
 });
 
 function WorkPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetchProjects().then(setProjects).catch(console.error);
+    fetchProjects()
+      .then(setProjects)
+      .catch(console.error)
+      .finally(() => setLoaded(true));
   }, []);
 
   return (
@@ -64,11 +80,28 @@ function WorkPage() {
         </p>
       </motion.div>
 
-      <div className="mt-20 md:mt-28 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-20 md:gap-y-28">
-        {projects.map((p, i) => (
-          <ProjectCard key={p.id} project={p} index={i} />
-        ))}
-      </div>
+      {loaded && projects.length === 0 ? (
+        <div className="mt-20 md:mt-28 rounded-3xl border border-dashed border-border bg-muted/30 p-12 md:p-16 text-center">
+          <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+            Coming soon
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl tracking-tight text-balance">
+            New case studies are in the works.
+          </h2>
+          <p className="mt-4 text-muted-foreground max-w-md mx-auto text-balance">
+            Check back shortly, or get in touch if you'd like to be the next one.
+          </p>
+          <Link to="/about" className="mt-8 inline-block btn-secondary btn-sm">
+            About me
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-20 md:mt-28 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-20 md:gap-y-28">
+          {projects.map((p, i) => (
+            <ProjectCard key={p.id} project={p} index={i} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -11,22 +11,30 @@ import { useAuth } from "@/hooks/useAuth";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl text-foreground">404</h1>
-        <h2 className="mt-4 font-display text-2xl text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-colors hover:bg-accent"
-          >
-            Go home
-          </Link>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      <main className="flex-1 flex items-center justify-center px-6 py-24">
+        <div className="max-w-xl text-center">
+          <p className="uppercase tracking-[0.22em] text-xs text-muted-foreground mb-6">
+            Error 404
+          </p>
+          <h1 className="font-display text-6xl md:text-8xl tracking-[-0.02em] leading-[0.95] text-foreground text-balance font-medium">
+            This page wandered off.
+          </h1>
+          <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-md mx-auto text-balance">
+            The link may be broken, or the page might have moved. Try one of these instead.
+          </p>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/" className="btn-primary">
+              Go home
+            </Link>
+            <Link to="/work" className="btn-secondary">
+              Browse work
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
@@ -54,17 +62,11 @@ export const Route = createRootRoute({
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://api.fontshare.com", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://gbzhbwayfjbenezzyrcg.supabase.co", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
         href: "https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap",
-      },
-      // Logo-variant fonts (loaded once globally so admin preview + header swap instantly)
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500;600;700&display=swap",
       },
     ],
   }),

@@ -36,6 +36,7 @@ export function SiteLogo({ className = "", compact = false }: Props) {
         className={`${compact ? "h-5" : "h-7"} w-auto ${className}`}
         loading="eager"
         decoding="async"
+        onError={() => setSvgUrl(null)}
       />
     );
   }

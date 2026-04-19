@@ -40,7 +40,13 @@ export const Route = createFileRoute("/work/$slug")({
     ];
     if (p?.cover_url) {
       meta.push({ property: "og:image", content: p.cover_url });
+      meta.push({ property: "og:image:width", content: "1600" });
+      meta.push({ property: "og:image:height", content: "1000" });
+      meta.push({ property: "og:image:alt", content: `${p.title} — cover image` });
+      meta.push({ name: "twitter:card", content: "summary_large_image" });
       meta.push({ name: "twitter:image", content: p.cover_url });
+      meta.push({ name: "twitter:title", content: title });
+      meta.push({ name: "twitter:description", content: description });
     }
 
     const overviewSection = p?.sections.find(

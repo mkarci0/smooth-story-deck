@@ -7,37 +7,52 @@ import { resolveImage } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
+  loader: async () => {
+    const settings = await fetchSiteSettings().catch(() => null);
+    return {
+      portrait: settings?.about_image_url ?? null,
+      linkedin: settings?.linkedin_url ?? null,
+      intro: settings?.about_intro ?? null,
+    };
+  },
+  head: ({ loaderData }) => {
+    const description =
+      loaderData?.intro ||
+      "Murat Karcı is an independent product designer with years of experience across startups and design studios.";
+    const meta: Array<Record<string, string>> = [
       { title: "About Me — Murat Karcı, Product Designer" },
-      {
-        name: "description",
-        content:
-          "Murat Karcı is an independent product designer with years of experience across startups and design studios.",
-      },
+      { name: "description", content: description },
       { property: "og:title", content: "About Me — Murat Karcı" },
-      {
-        property: "og:description",
-        content: "Independent product designer working with founders and product teams.",
-      },
+      { property: "og:description", content: description },
       { property: "og:url", content: "https://muratkarci.design/about" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ProfilePage",
-          mainEntity: {
-            "@type": "Person",
-            name: "Murat Karcı",
-            jobTitle: "Product Designer",
-            url: "https://muratkarci.design",
-          },
-        }),
-      },
-    ],
-  }),
+    ];
+    if (loaderData?.portrait) {
+      meta.push({ property: "og:image", content: loaderData.portrait });
+      meta.push({ name: "twitter:image", content: loaderData.portrait });
+      meta.push({ name: "twitter:card", content: "summary_large_image" });
+    }
+    return {
+      meta,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ProfilePage",
+            mainEntity: {
+              "@type": "Person",
+              name: "Murat Karcı",
+              jobTitle: "Product Designer",
+              url: "https://muratkarci.design",
+              description,
+              ...(loaderData?.portrait ? { image: loaderData.portrait } : {}),
+              ...(loaderData?.linkedin ? { sameAs: [loaderData.linkedin] } : {}),
+            },
+          }),
+        },
+      ],
+    };
+  },
   component: AboutPage,
 });
 
