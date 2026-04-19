@@ -18,25 +18,26 @@ export const resolveImage = (url: string | null | undefined): string => {
   return url;
 };
 
+export type Orientation = "landscape" | "portrait";
+
 export type OutcomeItem = { label: string; value: string };
-export type SectionItem = { heading: string; body: string; image_url?: string | null };
-export type SectionBlock = { body: string; image_url: string | null };
 
-export type SectionOrderId =
-  | "overview"
-  | "research"
-  | "design_system"
-  | "final_solution"
-  | "outcome"
-  | `custom-${number}`;
+/**
+ * Unified, fully-dynamic case-study section.
+ * Every section — Overview, Research, Outcome and any author-defined block —
+ * shares this shape. Heading, body, image and metrics are all optional, so a
+ * section can be a paragraph, an image-led block, a metrics row, or a mix.
+ */
+export type UnifiedSection = {
+  id: string;
+  heading: string;
+  body: string;
+  image_url: string | null;
+  image_orientation: Orientation | null;
+  metrics: OutcomeItem[];
+};
 
-export const DEFAULT_SECTION_ORDER: SectionOrderId[] = [
-  "overview",
-  "research",
-  "design_system",
-  "final_solution",
-  "outcome",
-];
+export type GalleryMeta = { orientation: Orientation };
 
 export type Project = {
   id: string;
@@ -51,104 +52,68 @@ export type Project = {
   timeline: string;
   team: string;
   tools: string[];
-  overview: string;
-  // Legacy free-form (kept for backward compatibility)
-  problem: string;
-  solution: string;
-  sections: SectionItem[];
-  // Fixed case-study blocks
-  research: SectionBlock;
-  design_system: SectionBlock;
-  final_solution: SectionBlock;
-  outcome: OutcomeItem[];
+  sections: UnifiedSection[];
   gallery: string[];
+  gallery_meta: GalleryMeta[];
   position: number;
   published: boolean;
-  section_order: SectionOrderId[];
 };
 
-const emptyBlock = (): SectionBlock => ({ body: "", image_url: null });
+const uid = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-const normalizeBlock = (v: any): SectionBlock => {
-  if (v && typeof v === "object" && !Array.isArray(v)) {
-    return { body: typeof v.body === "string" ? v.body : "", image_url: v.image_url ?? null };
-  }
-  return emptyBlock();
-};
-
-// Demo placeholder copy used when a section is empty — lets you preview the
-// full case-study layout before authoring real content per project.
-const DEMO_COPY: Record<"research" | "design_system" | "final_solution", string> = {
-  research:
-    "We started by interviewing 12 power users across three regions. Patterns surfaced quickly: people wanted clarity, not more features. Synthesizing the insights into a single insight wall helped the team align on the few problems worth solving.",
-  design_system:
-    "A small but opinionated system: one display face, one neutral text face, an 8-pt spacing rhythm, and a four-color semantic palette. Components were built atomically so engineers could compose screens in hours, not days.",
-  final_solution:
-    "The shipped experience replaces a noisy dashboard with a calm, focused home. Primary actions sit one tap away, secondary surfaces fade into the background, and motion is used sparingly to confirm — never to decorate.",
-};
-
-const DEMO_OUTCOME: OutcomeItem[] = [
-  { label: "Activation lift", value: "+38%" },
-  { label: "Time on task", value: "−42%" },
-  { label: "NPS after redesign", value: "67" },
-];
-
-const withDemo = (block: SectionBlock, kind: keyof typeof DEMO_COPY, fallbackImage: string | null): SectionBlock => ({
-  body: block.body || DEMO_COPY[kind],
-  image_url: block.image_url || fallbackImage,
-});
-
-const normalizeSection = (s: any): SectionItem => ({
+const normalizeSection = (s: any): UnifiedSection => ({
+  id: typeof s?.id === "string" && s.id ? s.id : uid(),
   heading: typeof s?.heading === "string" ? s.heading : "",
   body: typeof s?.body === "string" ? s.body : "",
   image_url: s?.image_url ?? null,
+  image_orientation:
+    s?.image_orientation === "portrait" || s?.image_orientation === "landscape"
+      ? s.image_orientation
+      : null,
+  metrics: Array.isArray(s?.metrics)
+    ? s.metrics.map((m: any) => ({
+        label: typeof m?.label === "string" ? m.label : "",
+        value: typeof m?.value === "string" ? m.value : "",
+      }))
+    : [],
 });
 
-const normalizeSectionOrder = (raw: any, sectionsLen: number): SectionOrderId[] => {
-  const valid = new Set<string>([
-    "overview",
-    "research",
-    "design_system",
-    "final_solution",
-    "outcome",
-    ...Array.from({ length: sectionsLen }, (_, i) => `custom-${i}`),
-  ]);
-  const incoming = Array.isArray(raw)
-    ? (raw.filter((x): x is string => typeof x === "string" && valid.has(x)) as SectionOrderId[])
+const normalizeGalleryMeta = (raw: any, count: number): GalleryMeta[] => {
+  const arr: GalleryMeta[] = Array.isArray(raw)
+    ? raw.map((m: any) => ({
+        orientation: m?.orientation === "portrait" ? "portrait" : "landscape",
+      }))
     : [];
-  // Append any defaults / custom IDs that aren't yet in the order so nothing is lost.
-  const present = new Set(incoming);
-  const result: SectionOrderId[] = [...incoming];
-  for (const id of DEFAULT_SECTION_ORDER) {
-    if (!present.has(id)) result.push(id);
-  }
-  for (let i = 0; i < sectionsLen; i++) {
-    const id = `custom-${i}` as SectionOrderId;
-    if (!present.has(id)) result.push(id);
-  }
-  return result;
+  // Pad with landscape defaults so the array always matches gallery length.
+  while (arr.length < count) arr.push({ orientation: "landscape" });
+  return arr.slice(0, count);
 };
 
 const normalize = (row: any): Project => {
-  const cover = row.cover_url ?? null;
-  const research = normalizeBlock(row.research);
-  const design_system = normalizeBlock(row.design_system);
-  const final_solution = normalizeBlock(row.final_solution);
-  const outcome = Array.isArray(row.outcome) && row.outcome.length > 0 ? row.outcome : DEMO_OUTCOME;
-  const sections = Array.isArray(row.sections) ? row.sections.map(normalizeSection) : [];
+  const gallery: string[] = row.gallery ?? [];
   return {
-    ...row,
-    outcome,
-    sections,
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    tagline: row.tagline ?? "",
+    category: row.category ?? "",
+    year: row.year ?? "",
+    cover_url: row.cover_url ?? null,
+    accent: row.accent ?? "oklch(0.92 0.06 45)",
+    role: row.role ?? "",
+    timeline: row.timeline ?? "",
+    team: row.team ?? "",
     tools: row.tools ?? [],
-    gallery: row.gallery ?? [],
-    overview:
-      row.overview ||
-      "A short, opinionated overview of the project — the product, the users, and the wedge that made the work worth doing.",
-    research: withDemo(research, "research", cover),
-    design_system: withDemo(design_system, "design_system", cover),
-    final_solution: withDemo(final_solution, "final_solution", cover),
-    section_order: normalizeSectionOrder(row.section_order, sections.length),
+    sections: Array.isArray(row.unified_sections)
+      ? row.unified_sections.map(normalizeSection)
+      : [],
+    gallery,
+    gallery_meta: normalizeGalleryMeta(row.gallery_meta, gallery.length),
+    position: row.position ?? 0,
+    published: row.published ?? true,
   };
 };
 
@@ -180,3 +145,28 @@ export async function fetchProjectBySlug(slug: string): Promise<Project | null> 
   if (error) throw error;
   return data ? normalize(data) : null;
 }
+
+export const newSection = (heading = ""): UnifiedSection => ({
+  id: uid(),
+  heading,
+  body: "",
+  image_url: null,
+  image_orientation: null,
+  metrics: [],
+});
+
+/** Detect orientation from a File by reading its intrinsic dimensions. */
+export const detectOrientation = (file: File): Promise<Orientation> =>
+  new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img.naturalHeight > img.naturalWidth ? "portrait" : "landscape");
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve("landscape");
+    };
+    img.src = url;
+  });

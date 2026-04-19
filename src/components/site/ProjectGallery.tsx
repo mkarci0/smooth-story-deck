@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { resolveImage } from "@/lib/projects";
+import { resolveImage, type GalleryMeta } from "@/lib/projects";
 
 type Props = {
   images: string[];
+  meta: GalleryMeta[];
   accent: string;
   title: string;
 };
@@ -12,18 +13,28 @@ type Props = {
 /**
  * Gallery layout:
  *   1 image  → full-width hero
- *   2 images → 2-column grid (desktop) / stacked (mobile)
- *   3+       → horizontal carousel with arrows + dots
+ *   2 images → 2-column grid
+ *   3+       → swipeable carousel (mobile + desktop)
  *
- * The carousel preserves the natural aspect ratio of each image (so portrait
- * and landscape uploads both look right) and is swipeable on mobile.
+ * Each image is cropped to one of two strict aspect ratios:
+ *   - landscape → 4:3
+ *   - portrait  → 1:2
  */
-export function ProjectGallery({ images, accent, title }: Props) {
+export function ProjectGallery({ images, meta, accent, title }: Props) {
   if (images.length === 0) return null;
+
+  const orientationOf = (i: number): "landscape" | "portrait" =>
+    meta[i]?.orientation ?? "landscape";
 
   if (images.length === 1) {
     return (
-      <Frame src={images[0]} accent={accent} alt={`${title} — screen 1`} priority />
+      <Frame
+        src={images[0]}
+        accent={accent}
+        alt={`${title} — screen 1`}
+        orientation={orientationOf(0)}
+        priority
+      />
     );
   }
 
@@ -36,69 +47,56 @@ export function ProjectGallery({ images, accent, title }: Props) {
             src={img}
             accent={accent}
             alt={`${title} — screen ${i + 1}`}
+            orientation={orientationOf(i)}
           />
         ))}
       </div>
     );
   }
 
-  return <GalleryCarousel images={images} accent={accent} title={title} />;
+  return (
+    <GalleryCarousel
+      images={images}
+      meta={meta}
+      accent={accent}
+      title={title}
+    />
+  );
 }
+
+const ratioClass = (o: "landscape" | "portrait") =>
+  o === "portrait" ? "aspect-[1/2]" : "aspect-[4/3]";
 
 function Frame({
   src,
   accent,
   alt,
+  orientation,
   priority,
 }: {
   src: string;
   accent: string;
   alt: string;
+  orientation: "landscape" | "portrait";
   priority?: boolean;
 }) {
   return (
-    <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
-      <img
-        src={resolveImage(src)}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        className="w-full h-auto object-contain"
-      />
-    </div>
-  );
-}
-
-/**
- * Carousel frame: keeps the image's natural aspect ratio (portrait or landscape)
- * by constraining max-height instead of forcing a fixed aspect.
- */
-function CarouselFrame({
-  src,
-  accent,
-  alt,
-}: {
-  src: string;
-  accent: string;
-  alt: string;
-}) {
-  return (
     <div
-      className="rounded-3xl overflow-hidden flex items-center justify-center"
+      className={`rounded-3xl overflow-hidden ${ratioClass(orientation)}`}
       style={{ backgroundColor: accent }}
     >
       <img
         src={resolveImage(src)}
         alt={alt}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
-        className="w-full h-auto max-h-[70vh] object-contain"
+        className="w-full h-full object-cover"
       />
     </div>
   );
 }
 
-function GalleryCarousel({ images, accent, title }: Props) {
+function GalleryCarousel({ images, meta, accent, title }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: images.length > 1,
     align: "center",
@@ -125,15 +123,29 @@ function GalleryCarousel({ images, accent, title }: Props) {
   return (
     <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex -ml-4 md:-ml-6">
-          {images.map((img, i) => (
-            <div
-              key={i}
-              className="flex-[0_0_88%] sm:flex-[0_0_70%] md:flex-[0_0_60%] lg:flex-[0_0_55%] min-w-0 pl-4 md:pl-6"
-            >
-              <CarouselFrame src={img} accent={accent} alt={`${title} — screen ${i + 1}`} />
-            </div>
-          ))}
+        <div className="flex -ml-4 md:-ml-6 items-stretch">
+          {images.map((img, i) => {
+            const o = meta[i]?.orientation ?? "landscape";
+            // Portraits get a narrower slide so a tall image fits next to its
+            // neighbours; landscape uses a wider slide.
+            const widthClass =
+              o === "portrait"
+                ? "flex-[0_0_60%] sm:flex-[0_0_42%] md:flex-[0_0_32%] lg:flex-[0_0_28%]"
+                : "flex-[0_0_88%] sm:flex-[0_0_70%] md:flex-[0_0_60%] lg:flex-[0_0_55%]";
+            return (
+              <div
+                key={i}
+                className={`${widthClass} min-w-0 pl-4 md:pl-6`}
+              >
+                <Frame
+                  src={img}
+                  accent={accent}
+                  alt={`${title} — screen ${i + 1}`}
+                  orientation={o}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 
