@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Upload, Trash2, Plus, Save, ArrowLeft, X } from "lucide-react";
+import { Upload, Trash2, Plus, Save, ArrowLeft, X, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProjectBySlug, resolveImage, type Project, type SectionBlock } from "@/lib/projects";
+import { fetchProjectBySlug, resolveImage, type Project, type SectionBlock, type SectionItem } from "@/lib/projects";
 
 export const Route = createFileRoute("/admin/edit/$slug")({
   component: EditProject,
@@ -42,6 +42,7 @@ function EditProject() {
       cover_url: p.cover_url, accent: p.accent, role: p.role, timeline: p.timeline,
       team: p.team, tools: p.tools, overview: p.overview,
       research: p.research, design_system: p.design_system, final_solution: p.final_solution,
+      sections: p.sections,
       outcome: p.outcome, gallery: p.gallery, position: p.position, published: p.published,
     }).eq("id", p.id);
     setSaving(false);
