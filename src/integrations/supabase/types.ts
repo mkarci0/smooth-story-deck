@@ -31,6 +31,7 @@ export type Database = {
           published: boolean
           research: Json
           role: string
+          section_order: string[]
           sections: Json
           slug: string
           solution: string
@@ -58,6 +59,7 @@ export type Database = {
           published?: boolean
           research?: Json
           role?: string
+          section_order?: string[]
           sections?: Json
           slug: string
           solution?: string
@@ -85,6 +87,7 @@ export type Database = {
           published?: boolean
           research?: Json
           role?: string
+          section_order?: string[]
           sections?: Json
           slug?: string
           solution?: string
