@@ -13,8 +13,10 @@ export const Route = createFileRoute("/work/$slug")({
     ]);
     if (!project) throw notFound();
     const idx = all.findIndex((x) => x.slug === project.slug);
-    const next = all[(idx + 1) % all.length] ?? null;
-    return { project, next };
+    const total = all.length;
+    const prev = total > 1 ? all[(idx - 1 + total) % total] : null;
+    const next = total > 1 ? all[(idx + 1) % total] : null;
+    return { project, prev, next };
   },
   head: ({ loaderData, params }) => {
     const p = loaderData?.project;
@@ -72,7 +74,7 @@ export const Route = createFileRoute("/work/$slug")({
 });
 
 function ProjectDetail() {
-  const { project, next } = Route.useLoaderData();
+  const { project, prev, next } = Route.useLoaderData();
   const reduce = useReducedMotion();
 
   const blocks: { index: string; label: string; data: SectionBlock }[] = [
@@ -261,45 +263,63 @@ function ProjectDetail() {
         </section>
       )}
 
-      {/* NEXT */}
-      {next && (
+      {/* NEXT / PREV */}
+      {(prev || next) && (
         <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-32">
           <div className="flex items-center justify-between mb-8">
             <Link to="/work" className="inline-flex items-center gap-2 text-sm story-link">
               <ArrowLeft className="w-4 h-4" /> back to all work
             </Link>
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">Up next</p>
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">More work</p>
           </div>
 
-          <Link
-            to="/work/$slug"
-            params={{ slug: next.slug }}
-            className="group block rounded-3xl overflow-hidden relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
-            style={{ backgroundColor: next.accent }}
-            aria-label={`Next case study: ${next.title}`}
-          >
-            <img
-              src={resolveImage(next.cover_url)}
-              alt={`${next.title} cover`}
-              width={1600}
-              height={686}
-              loading="lazy"
-              decoding="async"
-              className="w-full aspect-[21/9] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex items-end justify-between text-background">
-              <div>
-                <p className="uppercase tracking-[0.2em] text-xs opacity-80 mb-2">Next case study</p>
-                <h3 className="font-display text-4xl md:text-6xl tracking-tight">
-                  {next.title}
-                </h3>
-              </div>
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-background text-foreground flex items-center justify-center transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
-                <ArrowUpRight className="w-5 h-5 md:w-6 md:h-6" />
-              </div>
-            </div>
-          </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { item: prev, label: "Previous" as const, align: "left" as const },
+              { item: next, label: "Next" as const, align: "right" as const },
+            ].map(({ item, label, align }) =>
+              item ? (
+                <Link
+                  key={`${label}-${item.slug}`}
+                  to="/work/$slug"
+                  params={{ slug: item.slug }}
+                  className="group block rounded-3xl overflow-hidden relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+                  style={{ backgroundColor: item.accent }}
+                  aria-label={`${label} case study: ${item.title}`}
+                >
+                  <img
+                    src={resolveImage(item.cover_url)}
+                    alt={`${item.title} cover`}
+                    width={1200}
+                    height={750}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full aspect-[16/10] object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/25 to-transparent" />
+                  <div className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end gap-4 text-background ${align === "right" ? "justify-between" : "flex-row-reverse justify-between"}`}>
+                    <div className={align === "right" ? "" : "text-right"}>
+                      <p className="uppercase tracking-[0.2em] text-[10px] opacity-80 mb-1.5">
+                        {label} case study
+                      </p>
+                      <h3 className="font-display text-2xl md:text-3xl tracking-tight">
+                        {item.title}
+                      </h3>
+                    </div>
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-background text-foreground flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
+                      {align === "right" ? (
+                        <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5" />
+                      ) : (
+                        <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div key={`empty-${label}`} aria-hidden className="hidden md:block" />
+              )
+            )}
+          </div>
         </section>
       )}
     </article>

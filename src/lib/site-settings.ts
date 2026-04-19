@@ -22,6 +22,9 @@ export type SiteSettings = {
   recommendations_title: string;
   maintenance_enabled: boolean;
   maintenance_message: string;
+  booking_banner_cta_label: string;
+  booking_banner_cta_email: string;
+  linkedin_url: string | null;
 };
 
 const normalize = (row: any): SiteSettings => ({

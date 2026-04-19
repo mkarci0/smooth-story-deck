@@ -28,14 +28,14 @@ export function Header() {
         <nav className="flex items-center gap-7 text-sm">
           <Link
             to="/work"
-            className="story-link text-foreground font-semibold hover:text-accent transition-colors"
+            className="story-link text-foreground font-normal hover:text-accent transition-colors"
             activeProps={{ className: "text-accent" }}
           >
             work
           </Link>
           <Link
             to="/about"
-            className="story-link text-foreground font-semibold hover:text-accent transition-colors"
+            className="story-link text-foreground font-normal hover:text-accent transition-colors"
             activeProps={{ className: "text-accent" }}
           >
             about

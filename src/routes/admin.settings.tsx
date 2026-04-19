@@ -67,6 +67,9 @@ function AdminSettings() {
         recommendations_title: settings.recommendations_title,
         maintenance_enabled: settings.maintenance_enabled,
         maintenance_message: settings.maintenance_message,
+        booking_banner_cta_label: settings.booking_banner_cta_label,
+        booking_banner_cta_email: settings.booking_banner_cta_email,
+        linkedin_url: settings.linkedin_url,
       })
       .eq("id", settings.id);
     if (error) {
@@ -275,7 +278,7 @@ function AdminSettings() {
             </Field>
           </Section>
 
-          <Section title="Currently Booking banner" description="Shown as the small status pill above the hero headline.">
+          <Section title="Currently Booking banner" description="Status pill + CTA button shown above the hero headline.">
             <Field label="Show banner">
               <label className="inline-flex items-center gap-3 cursor-pointer">
                 <input
@@ -287,13 +290,33 @@ function AdminSettings() {
                 <span className="text-sm">{settings.booking_banner_enabled ? "Visible on homepage" : "Hidden"}</span>
               </label>
             </Field>
-            <Field label="Banner text">
+            <Field label="Status text">
               <input
                 type="text"
                 value={settings.booking_banner_text}
                 onChange={(e) => update("booking_banner_text", e.target.value)}
                 className={inputCls}
                 disabled={!settings.booking_banner_enabled}
+              />
+            </Field>
+            <Field label="CTA button label" hint="Shown on the red button next to the status text. Leave both CTA fields empty to hide the button.">
+              <input
+                type="text"
+                value={settings.booking_banner_cta_label}
+                onChange={(e) => update("booking_banner_cta_label", e.target.value)}
+                className={inputCls}
+                disabled={!settings.booking_banner_enabled}
+                placeholder="hello@muratkarci.design"
+              />
+            </Field>
+            <Field label="CTA email address" hint="Clicking the button opens the user's mail app addressed here.">
+              <input
+                type="email"
+                value={settings.booking_banner_cta_email}
+                onChange={(e) => update("booking_banner_cta_email", e.target.value)}
+                className={inputCls}
+                disabled={!settings.booking_banner_enabled}
+                placeholder="hello@muratkarci.design"
               />
             </Field>
           </Section>
@@ -339,6 +362,16 @@ function AdminSettings() {
             </Field>
             <Field label="Bio" hint="Separate paragraphs with a blank line.">
               <textarea value={settings.about_body} onChange={(e) => update("about_body", e.target.value)} rows={8} className={inputCls} />
+            </Field>
+
+            <Field label="LinkedIn URL" hint="Shown as a button under the bio and as a link in the footer. Leave empty to hide.">
+              <input
+                type="url"
+                value={settings.linkedin_url ?? ""}
+                onChange={(e) => update("linkedin_url", e.target.value || null)}
+                className={inputCls}
+                placeholder="https://linkedin.com/in/your-handle"
+              />
             </Field>
 
             <Field label="Profile photo">

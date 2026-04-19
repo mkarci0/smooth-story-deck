@@ -140,6 +140,8 @@ export type Database = {
           about_image_url: string | null
           about_intro: string
           about_title: string
+          booking_banner_cta_email: string
+          booking_banner_cta_label: string
           booking_banner_enabled: boolean
           booking_banner_text: string
           created_at: string
@@ -149,6 +151,7 @@ export type Database = {
           hero_subtitle: string
           hero_title: string
           id: string
+          linkedin_url: string | null
           maintenance_enabled: boolean
           maintenance_message: string
           recommendations_title: string
@@ -163,6 +166,8 @@ export type Database = {
           about_image_url?: string | null
           about_intro?: string
           about_title?: string
+          booking_banner_cta_email?: string
+          booking_banner_cta_label?: string
           booking_banner_enabled?: boolean
           booking_banner_text?: string
           created_at?: string
@@ -172,6 +177,7 @@ export type Database = {
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          linkedin_url?: string | null
           maintenance_enabled?: boolean
           maintenance_message?: string
           recommendations_title?: string
@@ -186,6 +192,8 @@ export type Database = {
           about_image_url?: string | null
           about_intro?: string
           about_title?: string
+          booking_banner_cta_email?: string
+          booking_banner_cta_label?: string
           booking_banner_enabled?: boolean
           booking_banner_text?: string
           created_at?: string
@@ -195,6 +203,7 @@ export type Database = {
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          linkedin_url?: string | null
           maintenance_enabled?: boolean
           maintenance_message?: string
           recommendations_title?: string

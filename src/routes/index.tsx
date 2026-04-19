@@ -71,15 +71,25 @@ function HomePage() {
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-32 pb-20 md:pb-28">
           {settings?.booking_banner_enabled !== false && (
-            <motion.span
+            <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground"
+              className="inline-flex flex-wrap items-center gap-3"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              {settings?.booking_banner_text ?? settings?.hero_eyebrow ?? "Available for select projects · 2025"}
-            </motion.span>
+              <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" aria-hidden />
+                {settings?.booking_banner_text ?? settings?.hero_eyebrow ?? "Available for select projects · 2025"}
+              </span>
+              {settings?.booking_banner_cta_label && settings?.booking_banner_cta_email && (
+                <a
+                  href={`mailto:${settings.booking_banner_cta_email}`}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-accent text-accent-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90 transition-opacity"
+                >
+                  {settings.booking_banner_cta_label}
+                </a>
+              )}
+            </motion.div>
           )}
 
           <motion.h1

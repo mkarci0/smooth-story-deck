@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { Linkedin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
@@ -78,6 +79,19 @@ function AboutPage() {
               <p className="text-muted-foreground italic">No bio yet — add one in Admin → Site Settings.</p>
             )}
           </div>
+
+          {settings?.linkedin_url && (
+            <a
+              href={settings.linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Murat Karcı on LinkedIn"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent transition-colors"
+            >
+              <Linkedin className="w-4 h-4" aria-hidden />
+              Connect on LinkedIn
+            </a>
+          )}
         </motion.div>
 
         {photo ? (
