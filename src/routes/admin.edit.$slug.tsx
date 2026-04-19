@@ -53,9 +53,10 @@ function EditProject() {
 
   const upload = async (
     file: File,
-    target: "cover" | "gallery" | BlockKey
+    target: "cover" | "gallery" | BlockKey | { kind: "section"; index: number }
   ) => {
-    setUploading(target);
+    const targetKey = typeof target === "string" ? target : `section-${target.index}`;
+    setUploading(targetKey);
     const ext = file.name.split(".").pop();
     const path = `${p.id}/${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("project-images").upload(path, file);
@@ -63,8 +64,39 @@ function EditProject() {
     const { data } = supabase.storage.from("project-images").getPublicUrl(path);
     if (target === "cover") update({ cover_url: data.publicUrl });
     else if (target === "gallery") update({ gallery: [...p.gallery, data.publicUrl] });
-    else updateBlock(target, { image_url: data.publicUrl });
+    else if (typeof target === "object" && target.kind === "section") {
+      const next = [...p.sections];
+      next[target.index] = { ...next[target.index], image_url: data.publicUrl };
+      update({ sections: next });
+    } else updateBlock(target as BlockKey, { image_url: data.publicUrl });
     setUploading(null);
+  };
+
+  // Section helpers
+  const addSection = () =>
+    update({ sections: [...p.sections, { heading: "", body: "", image_url: null }] });
+  const updateSection = (i: number, patch: Partial<SectionItem>) => {
+    const next = [...p.sections];
+    next[i] = { ...next[i], ...patch };
+    update({ sections: next });
+  };
+  const removeSection = (i: number) =>
+    update({ sections: p.sections.filter((_, j) => j !== i) });
+  const moveSection = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= p.sections.length) return;
+    const next = [...p.sections];
+    [next[i], next[j]] = [next[j], next[i]];
+    update({ sections: next });
+  };
+
+  // Gallery reorder
+  const moveGallery = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= p.gallery.length) return;
+    const next = [...p.gallery];
+    [next[i], next[j]] = [next[j], next[i]];
+    update({ gallery: next });
   };
 
   return (
