@@ -364,6 +364,16 @@ function AdminSettings() {
               <textarea value={settings.about_body} onChange={(e) => update("about_body", e.target.value)} rows={8} className={inputCls} />
             </Field>
 
+            <Field label="LinkedIn URL" hint="Shown as a button under the bio and as a link in the footer. Leave empty to hide.">
+              <input
+                type="url"
+                value={settings.linkedin_url ?? ""}
+                onChange={(e) => update("linkedin_url", e.target.value || null)}
+                className={inputCls}
+                placeholder="https://linkedin.com/in/your-handle"
+              />
+            </Field>
+
             <Field label="Profile photo">
               <div className="flex items-start gap-4">
                 <div className="w-28 h-32 rounded-2xl overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
