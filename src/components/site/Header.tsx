@@ -1,18 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { fetchSiteSettings, type LogoVariant } from "@/lib/site-settings";
-import { Logo } from "./Logo";
+import { fetchSiteSettings } from "@/lib/site-settings";
+import { SiteLogo } from "./SiteLogo";
 
 export function Header() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
-  const [logoVariant, setLogoVariant] = useState<LogoVariant>("wordmark");
   const reduce = useReducedMotion();
 
   useEffect(() => {
     fetchSiteSettings().then((s) => {
       setResumeUrl(s?.resume_url ?? null);
-      if (s?.logo_variant) setLogoVariant(s.logo_variant);
     });
   }, []);
 
@@ -29,7 +27,7 @@ export function Header() {
           className="flex items-center group rounded-md"
           aria-label="Murat Karcı — home"
         >
-          <Logo variant={logoVariant} />
+          <SiteLogo />
         </Link>
 
         <nav aria-label="Primary" className="flex items-center gap-7 text-sm">
