@@ -47,13 +47,9 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Murat Karcı" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:title", content: "Murat Karcı — Product Designer" },
-      { name: "twitter:title", content: "Murat Karcı — Product Designer" },
-      { name: "description", content: "Builds an animated, professional product designer portfolio website with detailed case studies." },
-      { property: "og:description", content: "Builds an animated, professional product designer portfolio website with detailed case studies." },
-      { name: "twitter:description", content: "Builds an animated, professional product designer portfolio website with detailed case studies." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f93117e-b4a9-4446-a4c0-3bea1ccd339f/id-preview-a2eabbfb--a1901771-da1b-43c5-a164-ae590125239b.lovable.app-1776519675705.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4f93117e-b4a9-4446-a4c0-3bea1ccd339f/id-preview-a2eabbfb--a1901771-da1b-43c5-a164-ae590125239b.lovable.app-1776519675705.png" },
+      // NOTE: og:image / twitter:image intentionally omitted at root level so
+      // each leaf route can supply its own (TanStack concatenates head() and a
+      // root og:image always wins, defeating per-page social previews).
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -127,7 +123,7 @@ function RootComponent() {
         Skip to content
       </a>
       <Header />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <Outlet />
       </main>
       <Footer />

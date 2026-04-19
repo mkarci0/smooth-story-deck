@@ -119,7 +119,11 @@ function HomePage() {
           </motion.div>
         </div>
 
-        <div className="border-y border-border/60 bg-muted/30 py-5 overflow-hidden">
+        <div
+          aria-hidden="true"
+          role="presentation"
+          className="border-y border-border/60 bg-muted/30 py-5 overflow-hidden"
+        >
           <div className="flex gap-12 animate-marquee whitespace-nowrap font-display text-xl md:text-2xl text-foreground/70 tracking-tight">
             {Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="flex gap-12 shrink-0">

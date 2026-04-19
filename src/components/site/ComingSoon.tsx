@@ -8,7 +8,7 @@ export function ComingSoon({ message }: Props) {
   const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 relative overflow-hidden">
       {/* subtle ambient background */}
       <div
         aria-hidden
@@ -47,6 +47,6 @@ export function ComingSoon({ message }: Props) {
       <p className="absolute bottom-6 text-[11px] text-muted-foreground/70">
         © {new Date().getFullYear()} Murat Karcı
       </p>
-    </div>
+    </main>
   );
 }
