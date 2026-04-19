@@ -76,10 +76,11 @@ function AdminLayout() {
           >Sign out</button>
         </div>
       </div>
-      <nav className="flex items-center gap-1 mb-10 border-b border-border">
+      <nav className="flex items-center gap-1 mb-10 border-b border-border" aria-label="Admin sections">
         {(() => {
           const isProjects = location.pathname === "/admin" || location.pathname === "/admin/";
           const isSettings = location.pathname.startsWith("/admin/settings");
+          const isLogo = location.pathname.startsWith("/admin/logo");
           const base = "px-4 py-2.5 text-sm font-medium transition-colors -mb-px border-b-2";
           const inactive = "text-muted-foreground border-transparent hover:text-foreground";
           const active = "text-foreground border-foreground font-semibold";
@@ -90,6 +91,9 @@ function AdminLayout() {
               </Link>
               <Link to="/admin/settings" className={`${base} ${isSettings ? active : inactive}`}>
                 Site Settings
+              </Link>
+              <Link to="/admin/logo" className={`${base} ${isLogo ? active : inactive}`}>
+                Logo
               </Link>
             </>
           );

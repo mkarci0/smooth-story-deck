@@ -61,6 +61,11 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: "https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap",
       },
+      // Logo-variant fonts (loaded once globally so admin preview + header swap instantly)
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500;600;700&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,

@@ -3,6 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 export type ExperienceItem = { role: string; company: string; years: string; description: string };
 export type WhatIDoItem = { title: string; description: string };
 
+export type LogoVariant =
+  | "wordmark"
+  | "editorial"
+  | "monogram"
+  | "architectural"
+  | "signature"
+  | "minimal";
+
 export type SiteSettings = {
   id: string;
   hero_eyebrow: string;
@@ -29,7 +37,17 @@ export type SiteSettings = {
   footer_email: string;
   footer_copyright: string;
   footer_credit: string;
+  logo_variant: LogoVariant;
 };
+
+const VALID_LOGO_VARIANTS: LogoVariant[] = [
+  "wordmark",
+  "editorial",
+  "monogram",
+  "architectural",
+  "signature",
+  "minimal",
+];
 
 const normalize = (row: any): SiteSettings => ({
   ...row,
@@ -39,6 +57,9 @@ const normalize = (row: any): SiteSettings => ({
   footer_email: row.footer_email ?? "hello@muratkarci.design",
   footer_copyright: row.footer_copyright ?? "© Murat Karcı. Designed & built with care.",
   footer_credit: row.footer_credit ?? "Crafted in warm cream and coral.",
+  logo_variant: VALID_LOGO_VARIANTS.includes(row.logo_variant)
+    ? (row.logo_variant as LogoVariant)
+    : "wordmark",
 });
 
 export async function fetchSiteSettings(): Promise<SiteSettings | null> {
