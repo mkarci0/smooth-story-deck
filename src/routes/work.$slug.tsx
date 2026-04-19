@@ -94,11 +94,145 @@ function ProjectDetail() {
   const { project, prev, next } = Route.useLoaderData();
   const reduce = useReducedMotion();
 
-  const blocks: { index: string; label: string; data: SectionBlock }[] = [
-    { index: "02", label: "Research", data: project.research },
-    { index: "03", label: "Design System", data: project.design_system },
-    { index: "04", label: "Final Solution", data: project.final_solution },
-  ];
+  const ordered = project.section_order;
+
+  const renderSection = (id: SectionOrderId, displayIndex: number) => {
+    const indexLabel = String(displayIndex + 1).padStart(2, "0");
+
+    if (id === "overview") {
+      if (!project.overview) return null;
+      return (
+        <section key={id} className="mx-auto max-w-3xl px-6 lg:px-10 mt-20 md:mt-28">
+          <Reveal>
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+              {indexLabel} · Overview
+            </p>
+            <p className="font-display text-3xl md:text-4xl leading-tight tracking-tight text-balance">
+              {project.overview}
+            </p>
+          </Reveal>
+        </section>
+      );
+    }
+
+    if (id === "outcome") {
+      if (project.outcome.length === 0) return null;
+      return (
+        <section key={id} className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
+          <Reveal>
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+              {indexLabel} · Outcome
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-10">
+              By the numbers.
+            </h2>
+          </Reveal>
+          <div className="grid sm:grid-cols-3 gap-6">
+            {project.outcome.map((o: OutcomeItem, i: number) => (
+              <Reveal
+                key={`${o.label}-${i}`}
+                delay={i * 0.1}
+                className="rounded-3xl bg-butter/50 p-8 md:p-10"
+              >
+                <p className="font-display text-5xl md:text-6xl text-accent tracking-tight">
+                  {o.value}
+                </p>
+                <p className="mt-3 text-sm text-foreground/80">{o.label}</p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    if (id === "research" || id === "design_system" || id === "final_solution") {
+      const data: SectionBlock = project[id];
+      if (!data.body && !data.image_url) return null;
+      const label = SECTION_LABELS[id];
+      return (
+        <section key={id} className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
+          <Reveal>
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+              {indexLabel} · {label}
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
+              {label}
+            </h2>
+          </Reveal>
+          <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+            {data.body && (
+              <Reveal delay={0.05} className={data.image_url ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}>
+                <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                  {data.body}
+                </p>
+              </Reveal>
+            )}
+            {data.image_url && (
+              <Reveal delay={0.1} className={data.body ? "md:col-span-7" : "md:col-span-12"}>
+                <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
+                  <img
+                    src={resolveImage(data.image_url)}
+                    alt={`${project.title} — ${label}`}
+                    width={1600}
+                    height={1000}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full aspect-[16/10] object-cover"
+                  />
+                </div>
+              </Reveal>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    // Custom section
+    const m = id.match(/^custom-(\d+)$/);
+    if (!m) return null;
+    const idx = Number(m[1]);
+    const s: SectionItem | undefined = project.sections[idx];
+    if (!s || (!s.heading && !s.body && !s.image_url)) return null;
+
+    return (
+      <section key={id} className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
+        <Reveal>
+          <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+            {indexLabel} · {s.heading || "Section"}
+          </p>
+          {s.heading && (
+            <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
+              {s.heading}
+            </h2>
+          )}
+        </Reveal>
+        <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+          {s.body && (
+            <Reveal delay={0.05} className={s.image_url ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}>
+              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                {s.body}
+              </p>
+            </Reveal>
+          )}
+          {s.image_url && (
+            <Reveal delay={0.1} className={s.body ? "md:col-span-7" : "md:col-span-12"}>
+              <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
+                <img
+                  src={resolveImage(s.image_url)}
+                  alt={s.heading ? `${project.title} — ${s.heading}` : `${project.title} — section ${idx + 1}`}
+                  width={1600}
+                  height={1000}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full aspect-[16/10] object-cover"
+                />
+              </div>
+            </Reveal>
+          )}
+        </div>
+      </section>
+    );
+  };
 
   return (
     <article>
@@ -181,132 +315,8 @@ function ProjectDetail() {
         </div>
       </section>
 
-      {/* 01 — OVERVIEW */}
-      {project.overview && (
-        <section className="mx-auto max-w-3xl px-6 lg:px-10 mt-20 md:mt-28">
-          <Reveal>
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">01 · Overview</p>
-            <p className="font-display text-3xl md:text-4xl leading-tight tracking-tight text-balance">
-              {project.overview}
-            </p>
-          </Reveal>
-        </section>
-      )}
-
-      {/* 02 / 03 / 04 — Fixed blocks */}
-      {blocks.map((b) =>
-        b.data.body || b.data.image_url ? (
-          <section key={b.label} className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
-            <Reveal>
-              <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-                {b.index} · {b.label}
-              </p>
-              <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
-                {b.label}
-              </h2>
-            </Reveal>
-            <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
-              {b.data.body && (
-                <Reveal delay={0.05} className="md:col-span-5">
-                  <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                    {b.data.body}
-                  </p>
-                </Reveal>
-              )}
-              {b.data.image_url && (
-                <Reveal delay={0.1} className={b.data.body ? "md:col-span-7" : "md:col-span-12"}>
-                  <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
-                    <img
-                      src={resolveImage(b.data.image_url)}
-                      alt={`${project.title} — ${b.label}`}
-                      width={1600}
-                      height={1000}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full aspect-[16/10] object-cover"
-                    />
-                  </div>
-                </Reveal>
-              )}
-            </div>
-          </section>
-        ) : null
-      )}
-
-      {/* DYNAMIC SECTIONS — admin-managed */}
-      {project.sections.length > 0 && (
-        <div className="mt-20 md:mt-28 space-y-20 md:space-y-28">
-          {project.sections.map((s: SectionItem, i: number) =>
-            s.heading || s.body || s.image_url ? (
-              <section
-                key={i}
-                className="mx-auto max-w-6xl px-6 lg:px-10"
-              >
-                <Reveal>
-                  <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-                    {String(i + 1).padStart(2, "0")} · Section
-                  </p>
-                  {s.heading && (
-                    <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
-                      {s.heading}
-                    </h2>
-                  )}
-                </Reveal>
-                <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
-                  {s.body && (
-                    <Reveal delay={0.05} className={s.image_url ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}>
-                      <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                        {s.body}
-                      </p>
-                    </Reveal>
-                  )}
-                  {s.image_url && (
-                    <Reveal delay={0.1} className={s.body ? "md:col-span-7" : "md:col-span-12"}>
-                      <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
-                        <img
-                          src={resolveImage(s.image_url)}
-                          alt={s.heading ? `${project.title} — ${s.heading}` : `${project.title} — section ${i + 1}`}
-                          width={1600}
-                          height={1000}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full aspect-[16/10] object-cover"
-                        />
-                      </div>
-                    </Reveal>
-                  )}
-                </div>
-              </section>
-            ) : null
-          )}
-        </div>
-      )}
-
-      {/* 05 — OUTCOME */}
-      {project.outcome.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
-          <Reveal>
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">05 · Outcome</p>
-            <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-10">
-              By the numbers.
-            </h2>
-          </Reveal>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {project.outcome.map((o: OutcomeItem, i: number) => (
-              <Reveal
-                key={`${o.label}-${i}`}
-                delay={i * 0.1}
-                className="rounded-3xl bg-butter/50 p-8 md:p-10"
-              >
-                <p className="font-display text-5xl md:text-6xl text-accent tracking-tight">
-                  {o.value}
-                </p>
-                <p className="mt-3 text-sm text-foreground/80">{o.label}</p>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* UNIFIED ORDERED SECTIONS (fixed + custom) */}
+      {ordered.map((id, i) => renderSection(id, i))}
 
       {/* GALLERY */}
       {project.gallery.length > 0 && (
