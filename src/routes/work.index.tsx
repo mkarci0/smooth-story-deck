@@ -1,51 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { fetchProjects, type Project } from "@/lib/projects";
 import { ProjectCard } from "@/components/site/ProjectCard";
 
 export const Route = createFileRoute("/work/")({
-  loader: async () => {
-    const projects = await fetchProjects().catch(() => [] as Project[]);
-    return { featuredCover: projects.find((p) => p.cover_url)?.cover_url ?? null };
-  },
-  head: ({ loaderData }) => {
-    const meta: Array<Record<string, string>> = [
-      { title: "Work — Murat Karcı, Product Designer" },
-      {
-        name: "description",
-        content:
-          "Selected case studies in mobile, web and brand design — calm software for ambitious teams.",
-      },
-      { property: "og:title", content: "Work — Murat Karcı" },
-      {
-        property: "og:description",
-        content: "Selected product design case studies, 2023 — 2025.",
-      },
-      { property: "og:url", content: "https://muratkarci.design/work" },
-    ];
-    if (loaderData?.featuredCover) {
-      meta.push({ property: "og:image", content: loaderData.featuredCover });
-      meta.push({ name: "twitter:image", content: loaderData.featuredCover });
-      meta.push({ name: "twitter:card", content: "summary_large_image" });
-    }
-    return {
-      meta,
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: "Selected Work — Murat Karcı",
-            url: "https://muratkarci.design/work",
-            description: "Selected product design case studies by Murat Karcı.",
-            author: { "@type": "Person", name: "Murat Karcı" },
-          }),
-        },
-      ],
-    };
-  },
   component: WorkPage,
 });
 
@@ -60,8 +20,37 @@ function WorkPage() {
       .finally(() => setLoaded(true));
   }, []);
 
+  const featuredCover = projects.find((p) => p.cover_url)?.cover_url ?? null;
+
+  const collectionLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Selected Work — Murat Karcı",
+    url: "https://muratkarci.design/work",
+    description: "Selected product design case studies by Murat Karcı.",
+    author: { "@type": "Person", name: "Murat Karcı" },
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-28 pb-10">
+      <Helmet>
+        <title>Work — Murat Karcı, Product Designer</title>
+        <meta
+          name="description"
+          content="Selected case studies in mobile, web and brand design — calm software for ambitious teams."
+        />
+        <meta property="og:title" content="Work — Murat Karcı" />
+        <meta
+          property="og:description"
+          content="Selected product design case studies, 2023 — 2025."
+        />
+        <meta property="og:url" content="https://muratkarci.design/work" />
+        {featuredCover && <meta property="og:image" content={featuredCover} />}
+        {featuredCover && <meta name="twitter:image" content={featuredCover} />}
+        {featuredCover && <meta name="twitter:card" content="summary_large_image" />}
+        <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
+      </Helmet>
+
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

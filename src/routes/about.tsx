@@ -2,57 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Linkedin } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/about")({
-  loader: async () => {
-    const settings = await fetchSiteSettings().catch(() => null);
-    return {
-      portrait: settings?.about_image_url ?? null,
-      linkedin: settings?.linkedin_url ?? null,
-      intro: settings?.about_intro ?? null,
-    };
-  },
-  head: ({ loaderData }) => {
-    const description =
-      loaderData?.intro ||
-      "Murat Karcı is an independent product designer with years of experience across startups and design studios.";
-    const meta: Array<Record<string, string>> = [
-      { title: "About Me — Murat Karcı, Product Designer" },
-      { name: "description", content: description },
-      { property: "og:title", content: "About Me — Murat Karcı" },
-      { property: "og:description", content: description },
-      { property: "og:url", content: "https://muratkarci.design/about" },
-    ];
-    if (loaderData?.portrait) {
-      meta.push({ property: "og:image", content: loaderData.portrait });
-      meta.push({ name: "twitter:image", content: loaderData.portrait });
-      meta.push({ name: "twitter:card", content: "summary_large_image" });
-    }
-    return {
-      meta,
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "ProfilePage",
-            mainEntity: {
-              "@type": "Person",
-              name: "Murat Karcı",
-              jobTitle: "Product Designer",
-              url: "https://muratkarci.design",
-              description,
-              ...(loaderData?.portrait ? { image: loaderData.portrait } : {}),
-              ...(loaderData?.linkedin ? { sameAs: [loaderData.linkedin] } : {}),
-            },
-          }),
-        },
-      ],
-    };
-  },
   component: AboutPage,
 });
 
@@ -67,6 +22,26 @@ function AboutPage() {
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
   const body = settings?.about_body ?? "";
   const photo = settings?.about_image_url ? resolveImage(settings.about_image_url) : null;
+  const portrait = settings?.about_image_url ?? null;
+  const linkedin = settings?.linkedin_url ?? null;
+
+  const description =
+    settings?.about_intro ||
+    "Murat Karcı is an independent product designer with years of experience across startups and design studios.";
+
+  const profileLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    mainEntity: {
+      "@type": "Person",
+      name: "Murat Karcı",
+      jobTitle: "Product Designer",
+      url: "https://muratkarci.design",
+      description,
+      ...(portrait ? { image: portrait } : {}),
+      ...(linkedin ? { sameAs: [linkedin] } : {}),
+    },
+  };
 
   const paragraphs = body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   const whatIDo = settings?.what_i_do_items ?? [];
@@ -74,6 +49,18 @@ function AboutPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-28">
+      <Helmet>
+        <title>About Me — Murat Karcı, Product Designer</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content="About Me — Murat Karcı" />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content="https://muratkarci.design/about" />
+        {portrait && <meta property="og:image" content={portrait} />}
+        {portrait && <meta name="twitter:image" content={portrait} />}
+        {portrait && <meta name="twitter:card" content="summary_large_image" />}
+        <script type="application/ld+json">{JSON.stringify(profileLd)}</script>
+      </Helmet>
+
       {/* INTRO */}
       <section className="grid md:grid-cols-[1fr_280px] gap-12 items-start">
         <motion.div

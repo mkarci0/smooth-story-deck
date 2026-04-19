@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { fetchProjects, type Project } from "@/lib/projects";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
 import { fetchPublishedRecommendations, type Recommendation } from "@/lib/recommendations";
@@ -10,71 +11,6 @@ import { Reveal } from "@/components/site/Reveal";
 import { RecommendationsSection } from "@/components/site/RecommendationsSection";
 
 export const Route = createFileRoute("/")({
-  loader: async () => {
-    const [projects, settings] = await Promise.all([
-      fetchProjects().catch(() => [] as Project[]),
-      fetchSiteSettings().catch(() => null),
-    ]);
-    const featuredCover = projects.find((p) => p.cover_url)?.cover_url ?? null;
-    const linkedin = settings?.linkedin_url ?? null;
-    return { featuredCover, linkedin };
-  },
-  head: ({ loaderData }) => {
-    const meta: Array<Record<string, string>> = [
-      { title: "Murat Karcı — Product Designer" },
-      {
-        name: "description",
-        content:
-          "Independent product designer working with founders and product teams on mobile, web, and brand. Currently open for select projects.",
-      },
-      { property: "og:title", content: "Murat Karcı — Product Designer" },
-      {
-        property: "og:description",
-        content: "Calm, considered product design for ambitious teams.",
-      },
-      { property: "og:url", content: "https://muratkarci.design/" },
-    ];
-    if (loaderData?.featuredCover) {
-      meta.push({ property: "og:image", content: loaderData.featuredCover });
-      meta.push({ name: "twitter:image", content: loaderData.featuredCover });
-      meta.push({ name: "twitter:card", content: "summary_large_image" });
-    }
-    return {
-      meta,
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Person",
-            name: "Murat Karcı",
-            jobTitle: "Product Designer",
-            url: "https://muratkarci.design",
-            description:
-              "Independent product designer working with founders and product teams on mobile, web, and brand.",
-            knowsAbout: [
-              "Product Design",
-              "Mobile Design",
-              "Web Design",
-              "Brand Systems",
-              "Design Strategy",
-            ],
-            ...(loaderData?.linkedin ? { sameAs: [loaderData.linkedin] } : {}),
-          }),
-        },
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: "Murat Karcı",
-            url: "https://muratkarci.design",
-            author: { "@type": "Person", name: "Murat Karcı" },
-          }),
-        },
-      ],
-    };
-  },
   component: HomePage,
 });
 
@@ -89,9 +25,57 @@ function HomePage() {
     fetchPublishedRecommendations().then(setRecommendations);
   }, []);
 
+  const featuredCover = projects.find((p) => p.cover_url)?.cover_url ?? null;
+  const linkedin = settings?.linkedin_url ?? null;
+
+  const personLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Murat Karcı",
+    jobTitle: "Product Designer",
+    url: "https://muratkarci.design",
+    description:
+      "Independent product designer working with founders and product teams on mobile, web, and brand.",
+    knowsAbout: [
+      "Product Design",
+      "Mobile Design",
+      "Web Design",
+      "Brand Systems",
+      "Design Strategy",
+    ],
+    ...(linkedin ? { sameAs: [linkedin] } : {}),
+  };
+
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Murat Karcı",
+    url: "https://muratkarci.design",
+    author: { "@type": "Person", name: "Murat Karcı" },
+  };
+
   return (
     <div>
-      {/* HERO — minimal, no portrait */}
+      <Helmet>
+        <title>Murat Karcı — Product Designer</title>
+        <meta
+          name="description"
+          content="Independent product designer working with founders and product teams on mobile, web, and brand. Currently open for select projects."
+        />
+        <meta property="og:title" content="Murat Karcı — Product Designer" />
+        <meta
+          property="og:description"
+          content="Calm, considered product design for ambitious teams."
+        />
+        <meta property="og:url" content="https://muratkarci.design/" />
+        {featuredCover && <meta property="og:image" content={featuredCover} />}
+        {featuredCover && <meta name="twitter:image" content={featuredCover} />}
+        {featuredCover && <meta name="twitter:card" content="summary_large_image" />}
+        <script type="application/ld+json">{JSON.stringify(personLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(websiteLd)}</script>
+      </Helmet>
+
+      {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-32 pb-20 md:pb-28">
           {settings?.booking_banner_enabled !== false && (
