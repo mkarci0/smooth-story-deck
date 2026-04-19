@@ -109,8 +109,7 @@ function AboutPage() {
           />
         ) : (
           <div className="w-full max-w-[280px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border flex items-center justify-center text-xs text-muted-foreground text-center px-4 justify-self-end">
-            Upload a profile photo in
-            <br />Admin → Site Settings
+            <span>Upload a profile photo in Admin → Site Settings</span>
           </div>
         )}
       </section>
