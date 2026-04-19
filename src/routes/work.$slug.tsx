@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import {
   fetchProjectBySlug,
   fetchProjects,
@@ -12,7 +13,6 @@ import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
 
 export const Route = createFileRoute("/work/$slug")({
-  ssr: false,
   loader: async ({ params }) => {
     const [project, all] = await Promise.all([
       fetchProjectBySlug(params.slug),
@@ -25,62 +25,12 @@ export const Route = createFileRoute("/work/$slug")({
     const next = total > 1 ? all[(idx + 1) % total] : null;
     return { project, prev, next };
   },
-  head: ({ loaderData, params }) => {
-    const p = loaderData?.project;
-    const title = p ? `${p.title} — Case study by Murat Karcı` : "Case study — Murat Karcı";
-    const description = p?.tagline || "Product design case study by Murat Karcı.";
-    const url = `https://muratkarci.design/work/${params?.slug ?? ""}`;
-    const meta: Array<Record<string, string>> = [
-      { title },
-      { name: "description", content: description },
-      { property: "og:type", content: "article" },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:url", content: url },
-    ];
-    if (p?.cover_url) {
-      meta.push({ property: "og:image", content: p.cover_url });
-      meta.push({ property: "og:image:width", content: "1600" });
-      meta.push({ property: "og:image:height", content: "1000" });
-      meta.push({ property: "og:image:alt", content: `${p.title} — cover image` });
-      meta.push({ name: "twitter:card", content: "summary_large_image" });
-      meta.push({ name: "twitter:image", content: p.cover_url });
-      meta.push({ name: "twitter:title", content: title });
-      meta.push({ name: "twitter:description", content: description });
-    }
-
-    const overviewSection = p?.sections.find(
-      (s) => s.heading.trim().toLowerCase() === "overview"
-    );
-    const scripts = p
-      ? [
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "CreativeWork",
-              name: p.title,
-              headline: p.title,
-              description: p.tagline || overviewSection?.body || "",
-              url,
-              image: p.cover_url || undefined,
-              dateCreated: p.year || undefined,
-              creator: {
-                "@type": "Person",
-                name: "Murat Karcı",
-                jobTitle: "Product Designer",
-                url: "https://muratkarci.design",
-              },
-              about: p.category || undefined,
-            }),
-          },
-        ]
-      : undefined;
-
-    return { meta, scripts };
-  },
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-32 text-center">
+      <Helmet>
+        <title>Case study not found — Murat Karcı</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       <h1 className="font-display text-5xl">Case study not found</h1>
       <Link to="/work" className="mt-6 inline-block story-link">← Back to all work</Link>
     </div>
@@ -89,8 +39,6 @@ export const Route = createFileRoute("/work/$slug")({
 });
 
 function isOverviewLike(s: UnifiedSection, i: number): boolean {
-  // The first section, when it's a heading-only paragraph, gets the editorial
-  // pull-quote treatment. Authors usually use this for "Overview".
   return (
     i === 0 &&
     !s.image_url &&
@@ -117,10 +65,8 @@ function SectionRenderer({
   const hasImage = !!section.image_url;
   const hasHeading = !!section.heading;
 
-  // Skip completely empty sections
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
 
-  // Editorial-style overview: large pull quote, no heading H2.
   if (isOverviewLike(section, displayIndex)) {
     return (
       <section className="mx-auto max-w-3xl px-6 lg:px-10 mt-20 md:mt-28">
@@ -136,7 +82,6 @@ function SectionRenderer({
     );
   }
 
-  // Metrics block (no body/image, only metrics)
   if (hasMetrics && !hasBody && !hasImage) {
     return (
       <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
@@ -168,7 +113,6 @@ function SectionRenderer({
     );
   }
 
-  // Standard block: heading + body + optional image (and optional metrics row)
   return (
     <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
       <Reveal>
@@ -231,9 +175,56 @@ function SectionRenderer({
 function ProjectDetail() {
   const { project, prev, next } = Route.useLoaderData();
   const reduce = useReducedMotion();
+  const params = Route.useParams();
+
+  const title = `${project.title} — Case study by Murat Karcı`;
+  const description = project.tagline || "Product design case study by Murat Karcı.";
+  const url = `https://muratkarci.design/work/${params.slug}`;
+
+  const overviewSection = project.sections.find(
+    (s) => s.heading.trim().toLowerCase() === "overview"
+  );
+
+  const creativeWorkLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    headline: project.title,
+    description: project.tagline || overviewSection?.body || "",
+    url,
+    image: project.cover_url || undefined,
+    dateCreated: project.year || undefined,
+    creator: {
+      "@type": "Person",
+      name: "Murat Karcı",
+      jobTitle: "Product Designer",
+      url: "https://muratkarci.design",
+    },
+    about: project.category || undefined,
+  };
 
   return (
     <article>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={url} />
+        {project.cover_url && <meta property="og:image" content={project.cover_url} />}
+        {project.cover_url && <meta property="og:image:width" content="1600" />}
+        {project.cover_url && <meta property="og:image:height" content="1000" />}
+        {project.cover_url && (
+          <meta property="og:image:alt" content={`${project.title} — cover image`} />
+        )}
+        {project.cover_url && <meta name="twitter:card" content="summary_large_image" />}
+        {project.cover_url && <meta name="twitter:image" content={project.cover_url} />}
+        {project.cover_url && <meta name="twitter:title" content={title} />}
+        {project.cover_url && <meta name="twitter:description" content={description} />}
+        <script type="application/ld+json">{JSON.stringify(creativeWorkLd)}</script>
+      </Helmet>
+
       {/* BREADCRUMB */}
       <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-8 md:pt-10">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">

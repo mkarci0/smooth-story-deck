@@ -4,9 +4,9 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "dev": "vite",
+    "build": "vite build && tsx scripts/generate-static.ts",
+    "build:dev": "vite build --mode development && tsx scripts/generate-static.ts",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
