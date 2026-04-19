@@ -1,14 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Smartphone, Tablet, Monitor, RotateCcw, ExternalLink, X } from "lucide-react";
 
 export const Route = createFileRoute("/admin/preview")({
-  head: () => ({
-    meta: [
-      { title: "Preview — Admin" },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
   component: PreviewMode,
 });
 
