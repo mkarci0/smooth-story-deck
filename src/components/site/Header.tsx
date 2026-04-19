@@ -1,14 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { fetchSiteSettings } from "@/lib/site-settings";
+import { fetchSiteSettings, type LogoVariant } from "@/lib/site-settings";
+import { Logo } from "./Logo";
 
 export function Header() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const [logoVariant, setLogoVariant] = useState<LogoVariant>("wordmark");
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    fetchSiteSettings().then((s) => setResumeUrl(s?.resume_url ?? null));
+    fetchSiteSettings().then((s) => {
+      setResumeUrl(s?.resume_url ?? null);
+      if (s?.logo_variant) setLogoVariant(s.logo_variant);
+    });
   }, []);
 
   return (
@@ -19,10 +24,12 @@ export function Header() {
       className="sticky top-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/40"
     >
       <div className="mx-auto max-w-6xl px-6 lg:px-10 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center group" aria-label="Murat Karcı — home">
-          <span className="font-display text-lg tracking-tight font-bold">
-            murat karcı
-          </span>
+        <Link
+          to="/"
+          className="flex items-center group rounded-md"
+          aria-label="Murat Karcı — home"
+        >
+          <Logo variant={logoVariant} />
         </Link>
 
         <nav aria-label="Primary" className="flex items-center gap-7 text-sm">
