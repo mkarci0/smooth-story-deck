@@ -372,7 +372,7 @@ function EditProject() {
               ))}
               {p.gallery.length === 0 && (
                 <p className="col-span-2 text-[11px] text-muted-foreground italic text-center py-3">
-                  No images yet. 1–3 → grid · 4+ → carousel.
+                  No images yet. 1 → hero · 2 → grid · 3+ → swipeable carousel. Portrait & landscape both supported.
                 </p>
               )}
             </div>
