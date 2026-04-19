@@ -88,22 +88,39 @@ function EditProject() {
     setUploading(null);
   };
 
-  // Section helpers
-  const addSection = () =>
-    update({ sections: [...p.sections, { heading: "", body: "", image_url: null }] });
+  // Custom section helpers — keep section_order in sync
+  const addSection = () => {
+    const nextSections = [...p.sections, { heading: "", body: "", image_url: null }];
+    const newId = `custom-${nextSections.length - 1}` as SectionOrderId;
+    update({ sections: nextSections, section_order: [...p.section_order, newId] });
+  };
   const updateSection = (i: number, patch: Partial<SectionItem>) => {
     const next = [...p.sections];
     next[i] = { ...next[i], ...patch };
     update({ sections: next });
   };
-  const removeSection = (i: number) =>
-    update({ sections: p.sections.filter((_, j) => j !== i) });
-  const moveSection = (i: number, dir: -1 | 1) => {
+  const removeSection = (i: number) => {
+    // Drop the section, then re-index custom-N IDs in section_order.
+    const remaining = p.sections.filter((_, j) => j !== i);
+    const remap = new Map<string, string>();
+    let cursor = 0;
+    p.sections.forEach((_, j) => {
+      if (j === i) return;
+      remap.set(`custom-${j}`, `custom-${cursor++}`);
+    });
+    const nextOrder = p.section_order
+      .filter((id) => id !== `custom-${i}`)
+      .map((id) => (remap.get(id) ?? id) as SectionOrderId);
+    update({ sections: remaining, section_order: nextOrder });
+  };
+
+  // Unified section ordering (all 5 fixed + N custom)
+  const moveOrder = (i: number, dir: -1 | 1) => {
     const j = i + dir;
-    if (j < 0 || j >= p.sections.length) return;
-    const next = [...p.sections];
+    if (j < 0 || j >= p.section_order.length) return;
+    const next = [...p.section_order];
     [next[i], next[j]] = [next[j], next[i]];
-    update({ sections: next });
+    update({ section_order: next });
   };
 
   // Gallery reorder
