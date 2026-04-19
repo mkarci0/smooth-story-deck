@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Linkedin } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -86,7 +86,7 @@ function AboutPage() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Murat Karcı on LinkedIn"
-              className="mt-8 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent transition-colors"
+              className="mt-8 btn-secondary btn-sm"
             >
               <Linkedin className="w-4 h-4" aria-hidden />
               Connect on LinkedIn
@@ -189,16 +189,12 @@ function AboutPage() {
           <h2 className="font-display text-3xl md:text-5xl tracking-tight text-balance font-medium">
             Got a project in mind?
           </h2>
-          <Link
-            to="/"
-            onClick={(e) => {
-              e.preventDefault();
-              window.location.href = "mailto:hello@muratkarci.design";
-            }}
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent text-background px-7 py-3.5 text-sm font-medium hover:bg-background hover:text-foreground transition-colors"
+          <a
+            href="mailto:hello@muratkarci.design"
+            className="mt-8 btn-accent"
           >
             hello@muratkarci.design →
-          </Link>
+          </a>
         </Reveal>
       </section>
     </div>

@@ -28,14 +28,14 @@ export function Header() {
         <nav className="flex items-center gap-7 text-sm">
           <Link
             to="/work"
-            className="story-link text-foreground font-normal hover:text-accent transition-colors"
+            className="story-link text-foreground font-normal"
             activeProps={{ className: "text-accent" }}
           >
             work
           </Link>
           <Link
             to="/about"
-            className="story-link text-foreground font-normal hover:text-accent transition-colors"
+            className="story-link text-foreground font-normal"
             activeProps={{ className: "text-accent" }}
           >
             about
@@ -46,7 +46,7 @@ export function Header() {
               target="_blank"
               rel="noopener noreferrer"
               download="murat-karci-resume.pdf"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+              className="hidden sm:inline-flex btn-primary btn-sm"
             >
               Resume
             </a>
@@ -54,7 +54,7 @@ export function Header() {
             <span
               aria-disabled="true"
               title="Resume not uploaded yet"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-muted text-muted-foreground px-4 py-2 text-sm font-medium cursor-not-allowed"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-muted text-muted-foreground px-4 py-2 text-sm font-medium cursor-not-allowed border border-border"
             >
               Resume
             </span>

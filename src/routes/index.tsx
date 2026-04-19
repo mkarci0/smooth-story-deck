@@ -81,14 +81,6 @@ function HomePage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" aria-hidden />
                 {settings?.booking_banner_text ?? settings?.hero_eyebrow ?? "Available for select projects · 2025"}
               </span>
-              {settings?.booking_banner_cta_label && settings?.booking_banner_cta_email && (
-                <a
-                  href={`mailto:${settings.booking_banner_cta_email}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-accent text-accent-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90 transition-opacity"
-                >
-                  {settings.booking_banner_cta_label}
-                </a>
-              )}
             </motion.div>
           )}
 
@@ -117,17 +109,11 @@ function HomePage() {
             transition={{ duration: 0.7, delay: 0.32 }}
             className="mt-10 flex flex-wrap gap-3"
           >
-            <Link
-              to="/work"
-              className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:bg-accent transition-colors"
-            >
+            <Link to="/work" className="btn-primary group">
               See selected work
               <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
-            <Link
-              to="/about"
-              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium hover:bg-muted transition-colors"
-            >
+            <Link to="/about" className="btn-secondary">
               About me
             </Link>
           </motion.div>

@@ -134,10 +134,17 @@
     text-wrap: balance;
   }
 
-  /* Animated underline */
+  /* ─────────────────────────────────────────────────────────────
+     Unified interactive states — keep every primary, secondary,
+     accent button and text-link visually consistent across the site.
+     ───────────────────────────────────────────────────────────── */
+
+  /* Text link with animated underline + accent hover */
   .story-link {
     position: relative;
     display: inline-block;
+    color: inherit;
+    transition: color 0.25s cubic-bezier(0.65, 0, 0.35, 1);
   }
   .story-link::after {
     content: "";
@@ -151,9 +158,83 @@
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
   }
-  .story-link:hover::after {
+  .story-link:hover,
+  .story-link:focus-visible {
+    color: var(--color-accent);
+  }
+  .story-link:hover::after,
+  .story-link:focus-visible::after {
     transform: scaleX(1);
     transform-origin: bottom left;
+  }
+
+  /* Primary button — solid ink, accent hover */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--color-foreground);
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .btn-primary:hover,
+  .btn-primary:focus-visible {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  /* Secondary button — outline, accent border on hover */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    background-color: transparent;
+    color: var(--color-foreground);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--color-border);
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+  .btn-secondary:hover,
+  .btn-secondary:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background-color: transparent;
+  }
+
+  /* Accent (signal-red) pill button — used for booking CTA */
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--color-accent);
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+  .btn-accent:hover,
+  .btn-accent:focus-visible {
+    background-color: var(--color-foreground);
+    border-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  /* Compact size modifier for header / inline use */
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
   }
 
   /* Marquee */

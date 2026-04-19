@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
 import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type OutcomeItem } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
+import { ProjectGallery } from "@/components/site/ProjectGallery";
 
 export const Route = createFileRoute("/work/$slug")({
   ssr: false,
@@ -244,22 +245,12 @@ function ProjectDetail() {
 
       {/* GALLERY */}
       {project.gallery.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-24 md:mt-32 space-y-8">
-          {project.gallery.map((img: string, i: number) => (
-            <Reveal key={i}>
-              <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
-                <img
-                  src={resolveImage(img)}
-                  alt={`${project.title} — screen ${i + 1}`}
-                  width={1600}
-                  height={1000}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full aspect-[16/10] object-cover"
-                />
-              </div>
-            </Reveal>
-          ))}
+        <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-24 md:mt-32">
+          <ProjectGallery
+            images={project.gallery}
+            accent={project.accent}
+            title={project.title}
+          />
         </section>
       )}
 
