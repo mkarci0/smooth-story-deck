@@ -23,6 +23,7 @@ export type Database = {
           design_system: Json
           final_solution: Json
           gallery: string[]
+          gallery_meta: Json
           id: string
           outcome: Json
           overview: string
@@ -40,6 +41,7 @@ export type Database = {
           timeline: string
           title: string
           tools: string[]
+          unified_sections: Json
           updated_at: string
           year: string
         }
@@ -51,6 +53,7 @@ export type Database = {
           design_system?: Json
           final_solution?: Json
           gallery?: string[]
+          gallery_meta?: Json
           id?: string
           outcome?: Json
           overview?: string
@@ -68,6 +71,7 @@ export type Database = {
           timeline?: string
           title: string
           tools?: string[]
+          unified_sections?: Json
           updated_at?: string
           year?: string
         }
@@ -79,6 +83,7 @@ export type Database = {
           design_system?: Json
           final_solution?: Json
           gallery?: string[]
+          gallery_meta?: Json
           id?: string
           outcome?: Json
           overview?: string
@@ -96,6 +101,7 @@ export type Database = {
           timeline?: string
           title?: string
           tools?: string[]
+          unified_sections?: Json
           updated_at?: string
           year?: string
         }
