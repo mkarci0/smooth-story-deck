@@ -48,6 +48,7 @@ export function ProjectGallery({ images, meta, accent, title }: Props) {
             accent={accent}
             alt={`${title} — screen ${i + 1}`}
             orientation={orientationOf(i)}
+            priority={i < 2}
           />
         ))}
       </div>
@@ -150,6 +151,7 @@ function GalleryCarousel({ images, meta, accent, title }: Props) {
                   accent={accent}
                   alt={`${title} — screen ${i + 1}`}
                   orientation={o}
+                  priority={i < 2}
                 />
               </div>
             );

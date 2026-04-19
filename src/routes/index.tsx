@@ -10,8 +10,17 @@ import { Reveal } from "@/components/site/Reveal";
 import { RecommendationsSection } from "@/components/site/RecommendationsSection";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
+  loader: async () => {
+    const [projects, settings] = await Promise.all([
+      fetchProjects().catch(() => [] as Project[]),
+      fetchSiteSettings().catch(() => null),
+    ]);
+    const featuredCover = projects.find((p) => p.cover_url)?.cover_url ?? null;
+    const linkedin = settings?.linkedin_url ?? null;
+    return { featuredCover, linkedin };
+  },
+  head: ({ loaderData }) => {
+    const meta: Array<Record<string, string>> = [
       { title: "Murat Karcı — Product Designer" },
       {
         name: "description",
@@ -24,33 +33,48 @@ export const Route = createFileRoute("/")({
         content: "Calm, considered product design for ambitious teams.",
       },
       { property: "og:url", content: "https://muratkarci.design/" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Person",
-          name: "Murat Karcı",
-          jobTitle: "Product Designer",
-          url: "https://muratkarci.design",
-          description:
-            "Independent product designer working with founders and product teams on mobile, web, and brand.",
-          knowsAbout: ["Product Design", "Mobile Design", "Web Design", "Brand Systems", "Design Strategy"],
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Murat Karcı",
-          url: "https://muratkarci.design",
-          author: { "@type": "Person", name: "Murat Karcı" },
-        }),
-      },
-    ],
-  }),
+    ];
+    if (loaderData?.featuredCover) {
+      meta.push({ property: "og:image", content: loaderData.featuredCover });
+      meta.push({ name: "twitter:image", content: loaderData.featuredCover });
+      meta.push({ name: "twitter:card", content: "summary_large_image" });
+    }
+    return {
+      meta,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: "Murat Karcı",
+            jobTitle: "Product Designer",
+            url: "https://muratkarci.design",
+            description:
+              "Independent product designer working with founders and product teams on mobile, web, and brand.",
+            knowsAbout: [
+              "Product Design",
+              "Mobile Design",
+              "Web Design",
+              "Brand Systems",
+              "Design Strategy",
+            ],
+            ...(loaderData?.linkedin ? { sameAs: [loaderData.linkedin] } : {}),
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Murat Karcı",
+            url: "https://muratkarci.design",
+            author: { "@type": "Person", name: "Murat Karcı" },
+          }),
+        },
+      ],
+    };
+  },
   component: HomePage,
 });
 
