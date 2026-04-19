@@ -17,11 +17,11 @@ type Chip = "status" | "home" | "about" | "recommendations" | "footer" | "header
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "status", label: "Site Status" },
+  { id: "header_footer", label: "Header" },
   { id: "home", label: "Home Page" },
   { id: "about", label: "About Me" },
   { id: "recommendations", label: "Recommendations" },
   { id: "footer", label: "Footer" },
-  { id: "header_footer", label: "Header & Footer" },
 ];
 
 function AdminSettings() {
