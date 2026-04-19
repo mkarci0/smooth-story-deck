@@ -218,6 +218,123 @@ function EditProject() {
               </div>
             </SectionCard>
           </div>
+
+          {/* CUSTOM SECTIONS — fully dynamic, ordered between Outcome and Gallery on the public page */}
+          <div className="border-t border-border pt-6">
+            <div className="flex items-baseline justify-between mb-1">
+              <h3 className="font-display text-xl">Custom sections</h3>
+              <button
+                onClick={addSection}
+                className="text-xs story-link inline-flex items-center gap-1.5"
+              >
+                <Plus className="w-3 h-3" /> add section
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mb-5">
+              Optional, fully dynamic. Each section has heading + body + optional image. Render order matches the list below — use the arrows to reorder.
+            </p>
+
+            {p.sections.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-muted/10 p-6 text-center text-xs text-muted-foreground">
+                No custom sections yet. The fixed five (Overview, Research, Design System, Final Solution, Outcome) are still active above.
+              </div>
+            ) : (
+              <ul className="space-y-4">
+                {p.sections.map((s, i) => {
+                  const uploadKey = `section-${i}`;
+                  return (
+                    <li key={i} className="rounded-2xl border border-border bg-muted/20 p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+                          <GripVertical className="w-3.5 h-3.5" />
+                          Section {String(i + 1).padStart(2, "0")}
+                        </div>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            onClick={() => moveSection(i, -1)}
+                            disabled={i === 0}
+                            className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Move up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => moveSection(i, 1)}
+                            disabled={i === p.sections.length - 1}
+                            className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Move down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => removeSection(i)}
+                            className="p-1.5 text-muted-foreground hover:text-destructive"
+                            title="Remove"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <input
+                        className={inp + " mb-2"}
+                        placeholder="Heading (e.g. Mapping the journey)"
+                        value={s.heading}
+                        onChange={(e) => updateSection(i, { heading: e.target.value })}
+                      />
+                      <textarea
+                        rows={4}
+                        className={inp}
+                        placeholder="Body copy…"
+                        value={s.body}
+                        onChange={(e) => updateSection(i, { body: e.target.value })}
+                      />
+
+                      <div className="mt-3">
+                        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                          Image (optional)
+                        </label>
+                        <div className="mt-1.5 flex items-center gap-3">
+                          {s.image_url ? (
+                            <div className="relative">
+                              <img
+                                src={resolveImage(s.image_url)}
+                                alt=""
+                                className="w-32 h-20 object-cover rounded-lg border border-border"
+                              />
+                              <button
+                                onClick={() => updateSection(i, { image_url: null })}
+                                className="absolute -top-2 -right-2 p-1 rounded-full bg-background border border-border hover:text-destructive"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-32 h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
+                              No image
+                            </div>
+                          )}
+                          <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
+                            <Upload className="w-3.5 h-3.5" />
+                            {uploading === uploadKey ? "Uploading…" : (s.image_url ? "Replace" : "Upload")}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) =>
+                                e.target.files?.[0] &&
+                                upload(e.target.files[0], { kind: "section", index: i })
+                              }
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
 
         {/* SIDEBAR */}
@@ -261,12 +378,40 @@ function EditProject() {
               {p.gallery.map((g, i) => (
                 <div key={i} className="relative group">
                   <img src={resolveImage(g)} alt="" className="w-full aspect-square object-cover rounded-lg" />
-                  <button onClick={() => update({ gallery: p.gallery.filter((_, j) => j !== i) })}
-                    className="absolute top-1 right-1 p-1 rounded-full bg-background/90 opacity-0 group-hover:opacity-100">
-                    <Trash2 className="w-3 h-3" />
-                  </button>
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-1.5 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-foreground/70 to-transparent rounded-b-lg">
+                    <div className="flex gap-0.5">
+                      <button
+                        onClick={() => moveGallery(i, -1)}
+                        disabled={i === 0}
+                        className="p-1 rounded-full bg-background/90 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move left"
+                      >
+                        <ArrowUp className="w-3 h-3 -rotate-90" />
+                      </button>
+                      <button
+                        onClick={() => moveGallery(i, 1)}
+                        disabled={i === p.gallery.length - 1}
+                        className="p-1 rounded-full bg-background/90 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move right"
+                      >
+                        <ArrowDown className="w-3 h-3 -rotate-90" />
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => update({ gallery: p.gallery.filter((_, j) => j !== i) })}
+                      className="p-1 rounded-full bg-background/90 hover:text-destructive"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               ))}
+              {p.gallery.length === 0 && (
+                <p className="col-span-2 text-[11px] text-muted-foreground italic text-center py-3">
+                  No images yet. 1–3 → grid · 4+ → carousel.
+                </p>
+              )}
             </div>
           </div>
         </aside>
