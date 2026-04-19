@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "status" | "home" | "about" | "recommendations" | "footer";
+type Chip = "status" | "home" | "about" | "recommendations" | "footer" | "header_footer";
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "status", label: "Site Status" },
@@ -21,6 +21,7 @@ const CHIPS: { id: Chip; label: string }[] = [
   { id: "about", label: "About Me" },
   { id: "recommendations", label: "Recommendations" },
   { id: "footer", label: "Footer" },
+  { id: "header_footer", label: "Header & Footer" },
 ];
 
 function AdminSettings() {

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Linkedin } from "lucide-react";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
+import { SiteLogo } from "./SiteLogo";
 
 export function Footer() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -28,6 +29,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-6 lg:px-10 py-16">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
+            <SiteLogo className="mb-4 opacity-90" />
             <p className="font-display text-3xl tracking-tight">
               {lead ? `${lead} ` : ""}
               <em className="text-accent not-italic">{last}</em>
