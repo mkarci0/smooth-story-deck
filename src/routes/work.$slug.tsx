@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
-import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type OutcomeItem } from "@/lib/projects";
+import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type SectionItem, type OutcomeItem } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
 
@@ -215,6 +215,55 @@ function ProjectDetail() {
             </div>
           </section>
         ) : null
+      )}
+
+      {/* DYNAMIC SECTIONS — admin-managed */}
+      {project.sections.length > 0 && (
+        <div className="mt-20 md:mt-28 space-y-20 md:space-y-28">
+          {project.sections.map((s: SectionItem, i: number) =>
+            s.heading || s.body || s.image_url ? (
+              <section
+                key={i}
+                className="mx-auto max-w-6xl px-6 lg:px-10"
+              >
+                <Reveal>
+                  <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+                    {String(i + 1).padStart(2, "0")} · Section
+                  </p>
+                  {s.heading && (
+                    <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
+                      {s.heading}
+                    </h2>
+                  )}
+                </Reveal>
+                <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+                  {s.body && (
+                    <Reveal delay={0.05} className={s.image_url ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}>
+                      <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                        {s.body}
+                      </p>
+                    </Reveal>
+                  )}
+                  {s.image_url && (
+                    <Reveal delay={0.1} className={s.body ? "md:col-span-7" : "md:col-span-12"}>
+                      <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
+                        <img
+                          src={resolveImage(s.image_url)}
+                          alt={s.heading ? `${project.title} — ${s.heading}` : `${project.title} — section ${i + 1}`}
+                          width={1600}
+                          height={1000}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full aspect-[16/10] object-cover"
+                        />
+                      </div>
+                    </Reveal>
+                  )}
+                </div>
+              </section>
+            ) : null
+          )}
+        </div>
       )}
 
       {/* 05 — OUTCOME */}

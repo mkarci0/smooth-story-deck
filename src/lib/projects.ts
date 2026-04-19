@@ -19,7 +19,7 @@ export const resolveImage = (url: string | null | undefined): string => {
 };
 
 export type OutcomeItem = { label: string; value: string };
-export type SectionItem = { heading: string; body: string };
+export type SectionItem = { heading: string; body: string; image_url?: string | null };
 export type SectionBlock = { body: string; image_url: string | null };
 
 export type Project = {
@@ -81,6 +81,12 @@ const withDemo = (block: SectionBlock, kind: keyof typeof DEMO_COPY, fallbackIma
   image_url: block.image_url || fallbackImage,
 });
 
+const normalizeSection = (s: any): SectionItem => ({
+  heading: typeof s?.heading === "string" ? s.heading : "",
+  body: typeof s?.body === "string" ? s.body : "",
+  image_url: s?.image_url ?? null,
+});
+
 const normalize = (row: any): Project => {
   const cover = row.cover_url ?? null;
   const research = normalizeBlock(row.research);
@@ -90,7 +96,7 @@ const normalize = (row: any): Project => {
   return {
     ...row,
     outcome,
-    sections: Array.isArray(row.sections) ? row.sections : [],
+    sections: Array.isArray(row.sections) ? row.sections.map(normalizeSection) : [],
     tools: row.tools ?? [],
     gallery: row.gallery ?? [],
     overview:

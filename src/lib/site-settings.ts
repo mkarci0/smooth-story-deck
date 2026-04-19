@@ -25,12 +25,20 @@ export type SiteSettings = {
   booking_banner_cta_label: string;
   booking_banner_cta_email: string;
   linkedin_url: string | null;
+  footer_tagline: string;
+  footer_email: string;
+  footer_copyright: string;
+  footer_credit: string;
 };
 
 const normalize = (row: any): SiteSettings => ({
   ...row,
   experience_items: Array.isArray(row.experience_items) ? row.experience_items : [],
   what_i_do_items: Array.isArray(row.what_i_do_items) ? row.what_i_do_items : [],
+  footer_tagline: row.footer_tagline ?? "Let's build something together.",
+  footer_email: row.footer_email ?? "hello@muratkarci.design",
+  footer_copyright: row.footer_copyright ?? "© Murat Karcı. Designed & built with care.",
+  footer_credit: row.footer_credit ?? "Crafted in warm cream and coral.",
 });
 
 export async function fetchSiteSettings(): Promise<SiteSettings | null> {

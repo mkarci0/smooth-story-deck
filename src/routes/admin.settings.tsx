@@ -13,13 +13,14 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "status" | "home" | "about" | "recommendations";
+type Chip = "status" | "home" | "about" | "recommendations" | "footer";
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "status", label: "Site Status" },
   { id: "home", label: "Home Page" },
   { id: "about", label: "About Me" },
   { id: "recommendations", label: "Recommendations" },
+  { id: "footer", label: "Footer" },
 ];
 
 function AdminSettings() {
@@ -70,6 +71,10 @@ function AdminSettings() {
         booking_banner_cta_label: settings.booking_banner_cta_label,
         booking_banner_cta_email: settings.booking_banner_cta_email,
         linkedin_url: settings.linkedin_url,
+        footer_tagline: settings.footer_tagline,
+        footer_email: settings.footer_email,
+        footer_copyright: settings.footer_copyright,
+        footer_credit: settings.footer_credit,
       })
       .eq("id", settings.id);
     if (error) {
@@ -448,6 +453,50 @@ function AdminSettings() {
             </Field>
           </Section>
           <RecommendationsEditor />
+        </div>
+      )}
+
+      {/* FOOTER */}
+      {activeChip === "footer" && (
+        <div className="space-y-12">
+          <Section title="Footer content" description="Bottom of every page. The last word of the tagline is auto-emphasized in accent color.">
+            <Field label="Tagline" hint="Last word renders in accent color (e.g. “Let's build something together.” → ‘together.’)">
+              <input
+                type="text"
+                value={settings.footer_tagline}
+                onChange={(e) => update("footer_tagline", e.target.value)}
+                className={inputCls}
+                placeholder="Let's build something together."
+              />
+            </Field>
+            <Field label="Contact email" hint="Shown under the tagline as a clickable mailto link.">
+              <input
+                type="email"
+                value={settings.footer_email}
+                onChange={(e) => update("footer_email", e.target.value)}
+                className={inputCls}
+                placeholder="hello@muratkarci.design"
+              />
+            </Field>
+            <Field label="Copyright line" hint="Use {year} to insert the current year automatically.">
+              <input
+                type="text"
+                value={settings.footer_copyright}
+                onChange={(e) => update("footer_copyright", e.target.value)}
+                className={inputCls}
+                placeholder="© {year} Murat Karcı. Designed & built with care."
+              />
+            </Field>
+            <Field label="Credit line" hint="Right-side small text. Leave empty to hide.">
+              <input
+                type="text"
+                value={settings.footer_credit}
+                onChange={(e) => update("footer_credit", e.target.value)}
+                className={inputCls}
+                placeholder="Crafted in warm cream and coral."
+              />
+            </Field>
+          </Section>
         </div>
       )}
 
