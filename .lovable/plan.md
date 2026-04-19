@@ -1,88 +1,79 @@
 
 
-## Plan: Header & Footer logo yönetimi (SVG yükleme)
+## Plan: Faz 5 — SEO + Performans + Dayanıklılık
 
-### Hedefler
-1. Admin'deki "Site Settings" chip yapısının altına **"Header & Footer"** adında yeni bir chip ekle. Ayrı `/admin/logo` rotası ve nav sekmesi kaldırılsın — tüm logo yönetimi Site Settings chip'leri arasına insın.
-2. Mevcut **6 tipografik varyant sistemi tamamen kaldırılsın** (Logo.tsx, admin.logo.tsx rotası, logo_variant kolonu).
-3. Yerine **SVG yükleme alanı** gelsin: kullanıcı SVG yükler → header ve footer'da render olur.
-4. Footer'a da logo render edilsin (şu an yok).
-5. Sana **6 farklı stilde örnek SVG** üreteyim, sen beğendiğini admin'den yüklersin.
+### Önce keşif yapacağım, sonra uygulayacağım
+Önce mevcut head/loader yapılarını okuyup eksikleri çıkaracağım, sonra sırayla uygulayacağım. Aşağıda planlanan değişiklikler:
 
-### Yeni veri modeli
-`site_settings` tablosunda:
-- `logo_variant` kolonu → **DROP**
-- `logo_svg_url` kolonu → **ADD** (text, nullable)
+### 1. Per-route `og:image` + head metadata audit
 
-Header ve footer aynı SVG'yi kullanır. Yüklenmemişse fallback olarak `<span>murat karcı</span>` (Satoshi bold) gösterilir.
+**`work.$slug.tsx`** — zaten mevcut, ama `twitter:card` eklenecek:
+- `twitter:card: summary_large_image` ekle
+- `og:image:width`/`height` ekle (1600×1000 cover ratio)
 
-### Admin UX akışı
+**`work.index.tsx`** — audit, eksikse ekle:
+- `title: "Work — Murat Karcı"`, `description`, `og:title/description`
+- İlk projenin cover'ını `og:image` olarak (loader'dan)
 
-`/admin/settings` içindeki chip listesine yeni bir item:
+**`about.tsx`** — audit:
+- `title`, `description`, `og:title/description` doğrula
+- `about_avatar_url` varsa `og:image`
 
-```text
-[Site Status] [Home Page] [About Me] [Recommendations] [Footer] [Header & Footer]
-```
+**`index.tsx`** — audit:
+- Site_settings'ten home hero / featured project cover'ını `og:image` olarak
 
-"Header & Footer" chip'i seçildiğinde gösterilecek tek bir alan:
-- **Logo SVG** uploader
-  - Sürükle-bırak veya "Choose file" butonu
-  - Sadece `.svg` kabul eder (MIME: `image/svg+xml`)
-  - Yüklenen SVG'nin canlı önizlemesi: arka planı `bg-background`, çevresi border'lı bir kutu içinde, hem light hem koyu zemin üzerinde nasıl göründüğünü gösteren 2'li grid
-  - "Remove" butonu → fallback wordmark'a döner
-  - Hint metni: "Bu SVG hem header'da (sol üst) hem de footer'da (sol alt) kullanılır. Önerilen yükseklik: 24-32px. Tek renk currentColor önerilir."
+### 2. Kritik font preload + Google Fonts kırpma
+`__root.tsx`:
+- Satoshi 700 weight için `<link rel="preload" as="font" type="font/woff2" crossorigin>` (Fontshare CDN URL)
+- Google Fonts URL'inden kullanılmayan weight'leri kırp (Fraunces, IBM Plex Mono, Caveat → faz 4'te eklenmişti, hâlâ gerek var mı kontrol et; SiteLogo SVG kullandığı için artık gereksiz olabilir → kaldır)
+- `<link rel="preconnect">` Fontshare ve Supabase storage için
 
-SVG'ler `site-assets` bucket'ına `logo/<timestamp>-<filename>.svg` yoluna yüklenir (bucket zaten public).
+### 3. Image loading stratejisi
+- `index.tsx` hero image (eğer varsa) → `loading="eager"` + `fetchpriority="high"`
+- `work.$slug.tsx` cover → `fetchpriority="high"` ekle (zaten eager)
+- `ProjectGallery` → ilk 2 görsel `eager`, geri kalanı `lazy`
+- `ProjectCard` → `lazy` olduğunu doğrula
+- `decoding="async"` her yerde
 
-### Component değişiklikleri
+### 4. Empty state / fallback'ler
+- `work.index.tsx` → projects boşsa "No projects yet" placeholder
+- `RecommendationsSection` → boşsa hiç render etme (section başlığı bile gözükmesin)
+- `SiteLogo` → SVG load hatası `onError` ile fallback wordmark'a düş
+- `ProjectCard` → cover_url yoksa accent renkli gradient placeholder
 
-**Yeni:** `src/components/site/SiteLogo.tsx` (Logo.tsx'in yerine)
-- Props: `compact?: boolean`, `className?: string`
-- Settings'i fetch eder; `logo_svg_url` varsa `<img src={url} alt="Murat Karcı" className="h-7 w-auto" />` render eder
-- Yoksa `<span className="font-display font-bold tracking-tight">murat karcı</span>` fallback'i
+### 5. Sitemap & robots iyileştirmeleri
+**`sitemap.xml.tsx`:**
+- `xmlns:image` namespace ekle
+- Her project entry'sine `<image:image><image:loc>cover_url</image:loc></image:image>`
+- `<lastmod>` için `updated_at` (varsa)
+- Cache header `max-age=3600` → `max-age=21600`
 
-**Güncellenir:**
-- `Header.tsx` → `<SiteLogo />` kullanır, `Logo` import'u kaldırılır
-- `Footer.tsx` → tagline alanının üstüne `<SiteLogo className="mb-4" />` eklenir
-- `admin.tsx` → nav'dan "Logo" sekmesi kaldırılır, sadece "Projects" ve "Site Settings" kalır
-- `admin.settings.tsx` → CHIPS dizisine `{ id: "header_footer", label: "Header & Footer" }` eklenir, ilgili panel render edilir
-- `lib/site-settings.ts` → `LogoVariant` type'ı silinir, `logo_variant` field'ı `logo_svg_url: string | null` ile değiştirilir
+**`robots.txt.tsx`:**
+- `Disallow: /admin/login`, `Disallow: /admin/preview`, `Disallow: /admin/edit/`
+- `Sitemap:` satırı doğru mu kontrol
 
-**Silinir:**
-- `src/components/site/Logo.tsx`
-- `src/routes/admin.logo.tsx`
+### 6. JSON-LD structured data
+- `index.tsx` → `Person` schema (Murat Karcı, jobTitle, url, sameAs)
+- `work.$slug.tsx` → zaten `CreativeWork` var, `image`/`datePublished` doğrula
+- `about.tsx` → `Person` schema (daha detaylı)
 
-### Migration
-```sql
-ALTER TABLE site_settings DROP COLUMN logo_variant;
-ALTER TABLE site_settings ADD COLUMN logo_svg_url text;
-```
+### 7. 404 ve error boundary cilası
+- `__root.tsx` `notFoundComponent` → site stiliyle uyumlu, Header/Footer ile sarılı, "Go home" + "Browse work" CTA
+- `router.tsx` `defaultErrorComponent` → mevcut iyi durumda, sadece tipografi `font-display` ile uyumlu hale getir
 
-### 6 SVG önerisi (artifact olarak iletilecek)
+### Sıralama (uygulama)
+1. Keşif: `index.tsx`, `work.index.tsx`, `about.tsx`, `__root.tsx`, `sitemap[.]xml.tsx`, `robots[.]txt.tsx`, `RecommendationsSection.tsx`, `ProjectCard.tsx`, `ProjectGallery.tsx`, `SiteLogo.tsx` oku
+2. `__root.tsx` — font preload + preconnect + 404 cila
+3. `index.tsx`, `work.index.tsx`, `about.tsx`, `work.$slug.tsx` — head metadata + og:image + JSON-LD
+4. `sitemap.xml.tsx` + `robots.txt.tsx` — image namespace + disallow
+5. `ProjectGallery.tsx`, `ProjectCard.tsx`, `SiteLogo.tsx` — image loading + onError fallback
+6. `RecommendationsSection.tsx`, `work.index.tsx` — empty states
 
-Tüm SVG'ler `currentColor` kullanır (header/footer renk şemasıyla otomatik uyum), 200×40 viewBox, sade ve baskıya hazır:
-
-1. **wordmark.svg** — Satoshi-benzeri bold lowercase "murat karcı" (path olarak embed)
-2. **editorial.svg** — Serif "Murat *Karcı*" italik vurgulu (Fraunces benzeri path)
-3. **monogram.svg** — Çerçeveli "MK" + kırmızı (#E85A4F) nokta
-4. **architectural.svg** — Mono uppercase "MURAT.KARCI" geniş tracking
-5. **signature.svg** — El yazısı "murat karcı" (Caveat tarzı path)
-6. **minimal.svg** — Sadece "m.k" minimal mark
-
-Tüm SVG'ler `/mnt/documents/logos/` altına yazılır ve her biri `<lov-artifact>` olarak ayrı ayrı sunulur. Beğendiğini indirip admin'den yüklersin.
-
-### Sıralama
-1. SVG dosyalarını üret ve artifact olarak ilet (paralel)
-2. Migration çalıştır (logo_variant drop, logo_svg_url add)
-3. `lib/site-settings.ts` tipini güncelle
-4. Yeni `SiteLogo.tsx` componenti
-5. `Header.tsx` ve `Footer.tsx` güncelle
-6. `admin.settings.tsx` içine "Header & Footer" chip + uploader ekle
-7. `admin.tsx` nav'dan Logo sekmesini kaldır
-8. Eski `Logo.tsx` ve `admin.logo.tsx` dosyalarını sil
+### Beklenen dosya değişimi
+~10 dosya edit, 0 yeni dosya, 0 migration. Build kırılması riski düşük.
 
 ### Notlar
-- Mevcut `site-assets` bucket public olduğu için ek RLS gerekmez; sadece authenticated admin upload yapabilir (mevcut policy'ler yeterli).
-- Build'i kırmamak için tüm `Logo`/`LogoVariant` import'ları aynı anda temizlenecek.
-- Footer'da logo, tagline'ın üstünde küçük (h-6) render edilir; mobilde gizlenmeyecek.
+- Google Fonts'tan Fraunces/IBM Plex Mono/Caveat'i kaldıracağım çünkü SVG logo sistemine geçtik, bu fontlar artık header'da kullanılmıyor (faz 4 artığı).
+- Per-route og:image için her loader'da gerekli alanların varlığını kontrol edeceğim.
+- JSON-LD `sameAs` için kullanıcının LinkedIn/X URL'leri varsa site_settings'ten çekeceğim, yoksa atlayacağım.
 
