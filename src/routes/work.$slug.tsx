@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
 import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type OutcomeItem } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
+import { ProjectGallery } from "@/components/site/ProjectGallery";
 
 export const Route = createFileRoute("/work/$slug")({
   ssr: false,
