@@ -20,9 +20,10 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
         <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-md mx-auto text-balance">
           An unexpected error happened on this page. Try again, or head back home.
         </p>
-        {import.meta.env.DEV && error.message && (
-          <pre className="mt-8 max-h-40 overflow-auto rounded-2xl bg-muted p-4 text-left font-mono text-xs text-destructive">
+        {error?.message && (
+          <pre className="mt-8 max-h-60 overflow-auto rounded-2xl bg-muted p-4 text-left font-mono text-xs text-destructive whitespace-pre-wrap">
             {error.message}
+            {error.stack ? `\n\n${error.stack}` : ""}
           </pre>
         )}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
