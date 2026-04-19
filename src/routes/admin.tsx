@@ -1,10 +1,10 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — Portfolio CMS" }, { name: "robots", content: "noindex" }] }),
   component: AdminLayout,
 });
 
@@ -19,6 +19,13 @@ function AdminLayout() {
     if (loading || isLoginRoute) return;
     if (!session) navigate({ to: "/admin/login" });
   }, [loading, isLoginRoute, session, navigate]);
+
+  const adminHelmet = (
+    <Helmet>
+      <title>Admin — Portfolio CMS</title>
+      <meta name="robots" content="noindex" />
+    </Helmet>
+  );
 
   if (isLoginRoute) {
     return <Outlet />;
@@ -53,6 +60,7 @@ function AdminLayout() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 lg:px-10 py-10">
+      {adminHelmet}
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">Portfolio CMS</p>
