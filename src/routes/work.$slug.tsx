@@ -1,9 +1,25 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
-import { fetchProjectBySlug, fetchProjects, resolveImage, type SectionBlock, type SectionItem, type OutcomeItem } from "@/lib/projects";
+import {
+  fetchProjectBySlug,
+  fetchProjects,
+  resolveImage,
+  type SectionBlock,
+  type SectionItem,
+  type OutcomeItem,
+  type SectionOrderId,
+} from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
+
+const SECTION_LABELS: Record<"overview" | "research" | "design_system" | "final_solution" | "outcome", string> = {
+  overview: "Overview",
+  research: "Research",
+  design_system: "Design System",
+  final_solution: "Final Solution",
+  outcome: "Outcome",
+};
 
 export const Route = createFileRoute("/work/$slug")({
   ssr: false,
