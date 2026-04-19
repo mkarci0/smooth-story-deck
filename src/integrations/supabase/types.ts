@@ -147,6 +147,10 @@ export type Database = {
           created_at: string
           experience_items: Json
           experience_title: string
+          footer_copyright: string
+          footer_credit: string
+          footer_email: string
+          footer_tagline: string
           hero_eyebrow: string
           hero_subtitle: string
           hero_title: string
@@ -173,6 +177,10 @@ export type Database = {
           created_at?: string
           experience_items?: Json
           experience_title?: string
+          footer_copyright?: string
+          footer_credit?: string
+          footer_email?: string
+          footer_tagline?: string
           hero_eyebrow?: string
           hero_subtitle?: string
           hero_title?: string
@@ -199,6 +207,10 @@ export type Database = {
           created_at?: string
           experience_items?: Json
           experience_title?: string
+          footer_copyright?: string
+          footer_credit?: string
+          footer_email?: string
+          footer_tagline?: string
           hero_eyebrow?: string
           hero_subtitle?: string
           hero_title?: string
