@@ -22,6 +22,22 @@ export type OutcomeItem = { label: string; value: string };
 export type SectionItem = { heading: string; body: string; image_url?: string | null };
 export type SectionBlock = { body: string; image_url: string | null };
 
+export type SectionOrderId =
+  | "overview"
+  | "research"
+  | "design_system"
+  | "final_solution"
+  | "outcome"
+  | `custom-${number}`;
+
+export const DEFAULT_SECTION_ORDER: SectionOrderId[] = [
+  "overview",
+  "research",
+  "design_system",
+  "final_solution",
+  "outcome",
+];
+
 export type Project = {
   id: string;
   slug: string;
@@ -48,6 +64,7 @@ export type Project = {
   gallery: string[];
   position: number;
   published: boolean;
+  section_order: SectionOrderId[];
 };
 
 const emptyBlock = (): SectionBlock => ({ body: "", image_url: null });
@@ -87,16 +104,42 @@ const normalizeSection = (s: any): SectionItem => ({
   image_url: s?.image_url ?? null,
 });
 
+const normalizeSectionOrder = (raw: any, sectionsLen: number): SectionOrderId[] => {
+  const valid = new Set<string>([
+    "overview",
+    "research",
+    "design_system",
+    "final_solution",
+    "outcome",
+    ...Array.from({ length: sectionsLen }, (_, i) => `custom-${i}`),
+  ]);
+  const incoming = Array.isArray(raw)
+    ? (raw.filter((x): x is string => typeof x === "string" && valid.has(x)) as SectionOrderId[])
+    : [];
+  // Append any defaults / custom IDs that aren't yet in the order so nothing is lost.
+  const present = new Set(incoming);
+  const result: SectionOrderId[] = [...incoming];
+  for (const id of DEFAULT_SECTION_ORDER) {
+    if (!present.has(id)) result.push(id);
+  }
+  for (let i = 0; i < sectionsLen; i++) {
+    const id = `custom-${i}` as SectionOrderId;
+    if (!present.has(id)) result.push(id);
+  }
+  return result;
+};
+
 const normalize = (row: any): Project => {
   const cover = row.cover_url ?? null;
   const research = normalizeBlock(row.research);
   const design_system = normalizeBlock(row.design_system);
   const final_solution = normalizeBlock(row.final_solution);
   const outcome = Array.isArray(row.outcome) && row.outcome.length > 0 ? row.outcome : DEMO_OUTCOME;
+  const sections = Array.isArray(row.sections) ? row.sections.map(normalizeSection) : [];
   return {
     ...row,
     outcome,
-    sections: Array.isArray(row.sections) ? row.sections.map(normalizeSection) : [],
+    sections,
     tools: row.tools ?? [],
     gallery: row.gallery ?? [],
     overview:
@@ -105,6 +148,7 @@ const normalize = (row: any): Project => {
     research: withDemo(research, "research", cover),
     design_system: withDemo(design_system, "design_system", cover),
     final_solution: withDemo(final_solution, "final_solution", cover),
+    section_order: normalizeSectionOrder(row.section_order, sections.length),
   };
 };
 

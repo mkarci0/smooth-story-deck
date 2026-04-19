@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { resolveImage } from "@/lib/projects";
-import { Reveal } from "./Reveal";
 
 type Props = {
   images: string[];
@@ -11,29 +10,33 @@ type Props = {
 };
 
 /**
- * Project gallery layout rules:
+ * Gallery layout:
  *   1 image  → full-width hero
- *   2 images → 2-column grid
- *   3 images → 3-column grid
- *   4+       → 3-column carousel (left/right arrows + dots)
+ *   2 images → 2-column grid (desktop) / stacked (mobile)
+ *   3+       → horizontal carousel with arrows + dots
+ *
+ * The carousel preserves the natural aspect ratio of each image (so portrait
+ * and landscape uploads both look right) and is swipeable on mobile.
  */
 export function ProjectGallery({ images, accent, title }: Props) {
   if (images.length === 0) return null;
 
-  if (images.length <= 3) {
-    const cols =
-      images.length === 1
-        ? "grid-cols-1"
-        : images.length === 2
-          ? "grid-cols-1 md:grid-cols-2"
-          : "grid-cols-1 md:grid-cols-3";
-
+  if (images.length === 1) {
     return (
-      <div className={`grid gap-6 md:gap-8 ${cols}`}>
+      <Frame src={images[0]} accent={accent} alt={`${title} — screen 1`} priority />
+    );
+  }
+
+  if (images.length === 2) {
+    return (
+      <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2">
         {images.map((img, i) => (
-          <Reveal key={i} delay={i * 0.05}>
-            <Frame src={img} accent={accent} alt={`${title} — screen ${i + 1}`} />
-          </Reveal>
+          <Frame
+            key={i}
+            src={img}
+            accent={accent}
+            alt={`${title} — screen ${i + 1}`}
+          />
         ))}
       </div>
     );
@@ -42,17 +45,54 @@ export function ProjectGallery({ images, accent, title }: Props) {
   return <GalleryCarousel images={images} accent={accent} title={title} />;
 }
 
-function Frame({ src, accent, alt }: { src: string; accent: string; alt: string }) {
+function Frame({
+  src,
+  accent,
+  alt,
+  priority,
+}: {
+  src: string;
+  accent: string;
+  alt: string;
+  priority?: boolean;
+}) {
   return (
     <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
       <img
         src={resolveImage(src)}
         alt={alt}
-        width={1200}
-        height={900}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        className="w-full h-auto object-contain"
+      />
+    </div>
+  );
+}
+
+/**
+ * Carousel frame: keeps the image's natural aspect ratio (portrait or landscape)
+ * by constraining max-height instead of forcing a fixed aspect.
+ */
+function CarouselFrame({
+  src,
+  accent,
+  alt,
+}: {
+  src: string;
+  accent: string;
+  alt: string;
+}) {
+  return (
+    <div
+      className="rounded-3xl overflow-hidden flex items-center justify-center"
+      style={{ backgroundColor: accent }}
+    >
+      <img
+        src={resolveImage(src)}
+        alt={alt}
         loading="lazy"
         decoding="async"
-        className="w-full aspect-[4/3] object-cover"
+        className="w-full h-auto max-h-[70vh] object-contain"
       />
     </div>
   );
@@ -60,9 +100,10 @@ function Frame({ src, accent, alt }: { src: string; accent: string; alt: string 
 
 function GalleryCarousel({ images, accent, title }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
-    align: "start",
+    loop: images.length > 1,
+    align: "center",
     slidesToScroll: 1,
+    containScroll: "trimSnaps",
   });
   const [selected, setSelected] = useState(0);
   const [snapCount, setSnapCount] = useState(0);
@@ -88,9 +129,9 @@ function GalleryCarousel({ images, accent, title }: Props) {
           {images.map((img, i) => (
             <div
               key={i}
-              className="flex-[0_0_85%] sm:flex-[0_0_50%] md:flex-[0_0_33.3333%] min-w-0 pl-4 md:pl-6"
+              className="flex-[0_0_88%] sm:flex-[0_0_70%] md:flex-[0_0_60%] lg:flex-[0_0_55%] min-w-0 pl-4 md:pl-6"
             >
-              <Frame src={img} accent={accent} alt={`${title} — screen ${i + 1}`} />
+              <CarouselFrame src={img} accent={accent} alt={`${title} — screen ${i + 1}`} />
             </div>
           ))}
         </div>
@@ -100,7 +141,7 @@ function GalleryCarousel({ images, accent, title }: Props) {
         type="button"
         onClick={() => emblaApi?.scrollPrev()}
         aria-label="Previous gallery image"
-        className="absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-border bg-background hover:border-accent hover:text-accent flex items-center justify-center transition-colors shadow-[var(--shadow-soft)]"
+        className="hidden sm:flex absolute -left-2 md:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-border bg-background hover:border-accent hover:text-accent items-center justify-center transition-colors shadow-[var(--shadow-soft)]"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
@@ -108,7 +149,7 @@ function GalleryCarousel({ images, accent, title }: Props) {
         type="button"
         onClick={() => emblaApi?.scrollNext()}
         aria-label="Next gallery image"
-        className="absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-border bg-background hover:border-accent hover:text-accent flex items-center justify-center transition-colors shadow-[var(--shadow-soft)]"
+        className="hidden sm:flex absolute -right-2 md:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-border bg-background hover:border-accent hover:text-accent items-center justify-center transition-colors shadow-[var(--shadow-soft)]"
       >
         <ChevronRight className="w-5 h-5" />
       </button>
