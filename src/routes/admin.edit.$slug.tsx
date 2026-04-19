@@ -394,25 +394,119 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function SectionCard({
-  index,
-  title,
-  description,
-  children,
+function BlockEditor({
+  block,
+  meta,
+  uploading,
+  onChange,
+  onUpload,
 }: {
-  index: number;
-  title: string;
-  description: string;
-  children: React.ReactNode;
+  block: SectionBlock;
+  meta: { label: string; description: string };
+  uploading: boolean;
+  onChange: (patch: Partial<SectionBlock>) => void;
+  onUpload: (file: File) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-muted/20 p-5 mb-4">
-      <div className="flex items-baseline gap-3 mb-1">
-        <span className="font-display text-xs text-muted-foreground tabular-nums">0{index}</span>
-        <h4 className="font-display text-lg">{title}</h4>
+    <div>
+      <p className="text-xs text-muted-foreground mb-2">{meta.description}</p>
+      <textarea
+        rows={4}
+        className={inp}
+        placeholder={`${meta.label} body…`}
+        value={block.body}
+        onChange={(e) => onChange({ body: e.target.value })}
+      />
+      <div className="mt-3">
+        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
+        <ImagePicker
+          imageUrl={block.image_url}
+          uploading={uploading}
+          onClear={() => onChange({ image_url: null })}
+          onUpload={onUpload}
+        />
       </div>
-      <p className="text-xs text-muted-foreground mb-4">{description}</p>
-      {children}
+    </div>
+  );
+}
+
+function CustomSectionEditor({
+  section,
+  uploading,
+  onChange,
+  onUpload,
+}: {
+  section: SectionItem;
+  uploading: boolean;
+  onChange: (patch: Partial<SectionItem>) => void;
+  onUpload: (file: File) => void;
+}) {
+  return (
+    <div>
+      <input
+        className={inp + " mb-2"}
+        placeholder="Heading (e.g. Mapping the journey)"
+        value={section.heading}
+        onChange={(e) => onChange({ heading: e.target.value })}
+      />
+      <textarea
+        rows={4}
+        className={inp}
+        placeholder="Body copy…"
+        value={section.body}
+        onChange={(e) => onChange({ body: e.target.value })}
+      />
+      <div className="mt-3">
+        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
+        <ImagePicker
+          imageUrl={section.image_url ?? null}
+          uploading={uploading}
+          onClear={() => onChange({ image_url: null })}
+          onUpload={onUpload}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ImagePicker({
+  imageUrl,
+  uploading,
+  onClear,
+  onUpload,
+}: {
+  imageUrl: string | null;
+  uploading: boolean;
+  onClear: () => void;
+  onUpload: (file: File) => void;
+}) {
+  return (
+    <div className="mt-1.5 flex items-center gap-3">
+      {imageUrl ? (
+        <div className="relative">
+          <img src={resolveImage(imageUrl)} alt="" className="w-32 h-20 object-cover rounded-lg border border-border" />
+          <button
+            onClick={onClear}
+            className="absolute -top-2 -right-2 p-1 rounded-full bg-background border border-border hover:text-destructive"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div className="w-32 h-20 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
+          No image
+        </div>
+      )}
+      <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
+        <Upload className="w-3.5 h-3.5" />
+        {uploading ? "Uploading…" : (imageUrl ? "Replace" : "Upload")}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
+        />
+      </label>
     </div>
   );
 }
