@@ -1,13 +1,22 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Linkedin } from "lucide-react";
+import { fetchSiteSettings } from "@/lib/site-settings";
 
 export function Footer() {
+  const [linkedin, setLinkedin] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSiteSettings().then((s) => setLinkedin(s?.linkedin_url ?? null));
+  }, []);
+
   return (
     <footer className="mt-32 border-t border-border/50">
       <div className="mx-auto max-w-6xl px-6 lg:px-10 py-16">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <h3 className="font-display text-3xl tracking-tight">
-              Let’s build <em className="text-accent not-italic">something</em> together.
+              Let's build <em className="text-accent not-italic">something</em> together.
             </h3>
             <a
               href="mailto:hello@muratkarci.design"
@@ -33,9 +42,19 @@ export function Footer() {
               elsewhere
             </p>
             <ul className="space-y-2">
-              <li><a href="#" className="story-link">LinkedIn</a></li>
-              <li><a href="#" className="story-link">Read.cv</a></li>
-              <li><a href="#" className="story-link">Are.na</a></li>
+              {linkedin ? (
+                <li>
+                  <a
+                    href={linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="story-link inline-flex items-center gap-1.5"
+                    aria-label="Murat Karcı on LinkedIn"
+                  >
+                    <Linkedin className="w-3.5 h-3.5" aria-hidden /> LinkedIn
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>
