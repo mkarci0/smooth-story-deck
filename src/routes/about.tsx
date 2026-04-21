@@ -133,9 +133,14 @@ function AboutPage() {
               <Reveal key={i} delay={i * 0.05}>
                 <li className="grid grid-cols-[1fr_auto] md:grid-cols-3 items-baseline gap-4 py-6 group">
                   <div>
-                    <p className="font-display text-xl md:text-2xl tracking-tight font-medium group-hover:text-accent transition-colors">
-                      {e.role}
-                    </p>
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <p className="font-display text-xl md:text-2xl tracking-tight font-medium group-hover:text-accent transition-colors">
+                        {e.role}
+                      </p>
+                      <p className="text-sm text-muted-foreground md:hidden">
+                        {e.company}
+                      </p>
+                    </div>
                     {e.description && (
                       <p className="text-sm text-muted-foreground mt-1.5 max-w-md">{e.description}</p>
                     )}
