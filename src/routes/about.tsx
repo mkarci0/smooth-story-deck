@@ -84,7 +84,7 @@ function AboutPage() {
           </div>
 
           {settings?.linkedin_url && (
-            
+            <a
               href={settings.linkedin_url}
               target="_blank"
               rel="noopener noreferrer"
@@ -185,7 +185,7 @@ function AboutPage() {
           <h2 className="font-display text-3xl md:text-5xl tracking-tight text-balance font-medium">
             Got a project in mind?
           </h2>
-          
+          <a
             href="mailto:hello@muratkarci.design"
             className="mt-8 btn-accent"
           >
