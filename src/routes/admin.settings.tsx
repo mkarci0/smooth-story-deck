@@ -197,22 +197,29 @@ function AdminSettings() {
   };
 
   const handleAboutAlbumUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !settings) return;
-    if (!file.type.startsWith("image/")) {
-      setStatus({ kind: "error", msg: "Please upload an image file." });
+    const files: File[] = Array.from(e.target.files ?? []);
+    if (files.length === 0 || !settings) return;
+
+    const invalidFile = files.find((file) => !file.type.startsWith("image/"));
+    if (invalidFile) {
+      setStatus({ kind: "error", msg: "Please upload image files only." });
       return;
     }
+
     setUploadingAlbum(true);
-    const url = await uploadFile(file, "about");
+    const uploadedUrls: string[] = [];
+    for (const file of files) {
+      const url = await uploadFile(file, "about");
+      if (url) uploadedUrls.push(url);
+    }
     setUploadingAlbum(false);
-    if (!url) return;
+    if (uploadedUrls.length === 0) return;
 
     const about = parseAboutContent(settings.about_body);
-    const nextBody = serializeAboutContent(about.body, [...about.albumUrls, url]);
+    const nextBody = serializeAboutContent(about.body, [...about.albumUrls, ...uploadedUrls]);
     update("about_body", nextBody);
 
-    setStatus({ kind: "success", msg: "Album image uploaded." });
+    setStatus({ kind: "success", msg: `${uploadedUrls.length} album image(s) uploaded.` });
     setTimeout(() => setStatus({ kind: "idle" }), 2500);
     e.target.value = "";
   };
@@ -536,8 +543,8 @@ function AdminSettings() {
               <div className="space-y-3">
                 <label className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm cursor-pointer hover:bg-accent transition-colors">
                   {uploadingAlbum ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                  {uploadingAlbum ? "Uploading…" : "Add album image"}
-                  <input type="file" accept="image/*" onChange={handleAboutAlbumUpload} className="hidden" disabled={uploadingAlbum} />
+                  {uploadingAlbum ? "Uploading…" : "Add album images"}
+                  <input type="file" multiple accept="image/*" onChange={handleAboutAlbumUpload} className="hidden" disabled={uploadingAlbum} />
                 </label>
 
                 {aboutAlbumUrls.length > 0 ? (

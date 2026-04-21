@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { fetchProjects, resolveImage, type Project } from "@/lib/projects";
-import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
+import { fetchSiteSettings, parseAboutContent, type SiteSettings } from "@/lib/site-settings";
 import { fetchPublishedRecommendations, type Recommendation } from "@/lib/recommendations";
 import { ProjectCard } from "@/components/site/ProjectCard";
 import { Reveal } from "@/components/site/Reveal";
@@ -27,6 +27,8 @@ function HomePage() {
 
   const featuredCover = projects.find((p) => p.cover_url)?.cover_url ?? null;
   const linkedin = settings?.linkedin_url ?? null;
+  const aboutContent = parseAboutContent(settings?.about_body ?? "");
+  const albumUrls = aboutContent.albumUrls;
 
   const personLd = {
     "@context": "https://schema.org",
@@ -77,8 +79,8 @@ function HomePage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-32 pb-20 md:pb-28">
-          <div className="grid md:grid-cols-[1fr_320px] gap-10 items-start">
+        <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-32 pb-14 md:pb-20">
+          <div className="grid md:grid-cols-[minmax(0,1fr)_360px] lg:grid-cols-[minmax(0,1fr)_420px] gap-10 items-start">
             <div>
               <motion.h1
                 initial={{ opacity: 0, y: 24 }}
@@ -118,19 +120,43 @@ function HomePage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="hidden md:block justify-self-end"
+              className="hidden md:block justify-self-end w-full"
             >
               {settings?.about_image_url ? (
                 <img
                   src={resolveImage(settings.about_image_url)}
                   alt="Portrait of Murat Karcı"
-                  className="w-full max-w-[320px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)]"
+                  className="w-full max-w-[420px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)]"
                 />
               ) : (
-                <div className="w-full max-w-[320px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border" />
+                <div className="w-full max-w-[420px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border" />
               )}
             </motion.div>
           </div>
+
+          {albumUrls.length > 0 && (
+            <div className="mt-10 md:mt-12 overflow-x-auto">
+              <div className="min-w-max flex items-end gap-2 md:gap-3 px-1 py-2">
+                {albumUrls.map((url, index) => (
+                  <motion.div
+                    key={`${url}-${index}`}
+                    initial={{ opacity: 0, y: 16, rotate: 0 }}
+                    animate={{ opacity: 1, y: 0, rotate: index % 2 === 0 ? -5 : 5 }}
+                    transition={{ duration: 0.45, delay: index * 0.04 }}
+                    className="bg-background border border-border p-2 rounded-sm shadow-[var(--shadow-soft)]"
+                  >
+                    <img
+                      src={resolveImage(url)}
+                      alt={`Homepage album ${index + 1}`}
+                      className="w-24 h-32 md:w-28 md:h-36 lg:w-32 lg:h-40 object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div

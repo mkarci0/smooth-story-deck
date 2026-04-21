@@ -22,7 +22,6 @@ function AboutPage() {
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
   const aboutContent = parseAboutContent(settings?.about_body ?? "");
   const body = aboutContent.body;
-  const albumUrls = aboutContent.albumUrls;
   const portrait = settings?.about_image_url ?? null;
   const linkedin = settings?.linkedin_url ?? null;
 
@@ -61,31 +60,6 @@ function AboutPage() {
         {portrait && <meta name="twitter:card" content="summary_large_image" />}
         <script type="application/ld+json">{JSON.stringify(profileLd)}</script>
       </Helmet>
-
-      {/* ALBUM */}
-      {albumUrls.length > 0 && (
-        <section className="mb-12 md:mb-16 overflow-x-auto">
-          <div className="min-w-max flex items-end gap-3 md:gap-4 px-2 py-3">
-            {albumUrls.map((url, index) => (
-              <motion.div
-                key={url}
-                initial={{ opacity: 0, y: 16, rotate: 0 }}
-                animate={{ opacity: 1, y: 0, rotate: index % 2 === 0 ? -3 : 3 }}
-                transition={{ duration: 0.45, delay: index * 0.04 }}
-                className="bg-background border border-border shadow-[var(--shadow-soft)] p-2 rounded-sm"
-              >
-                <img
-                  src={resolveImage(url)}
-                  alt={`About album ${index + 1}`}
-                  className="w-28 h-36 md:w-32 md:h-40 object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* INTRO */}
       <section>
