@@ -102,8 +102,6 @@ function AdminSettings() {
         hero_eyebrow: settings.hero_eyebrow,
         hero_title: settings.hero_title,
         hero_subtitle: settings.hero_subtitle,
-        booking_banner_enabled: settings.booking_banner_enabled,
-        booking_banner_text: settings.booking_banner_text,
         about_title: settings.about_title,
         about_intro: settings.about_intro,
         about_body: settings.about_body,
@@ -116,8 +114,6 @@ function AdminSettings() {
         recommendations_title: settings.recommendations_title,
         maintenance_enabled: settings.maintenance_enabled,
         maintenance_message: settings.maintenance_message,
-        booking_banner_cta_label: settings.booking_banner_cta_label,
-        booking_banner_cta_email: settings.booking_banner_cta_email,
         linkedin_url: settings.linkedin_url,
         footer_tagline: settings.footer_tagline,
         footer_email: settings.footer_email,
@@ -410,49 +406,6 @@ function AdminSettings() {
                 onChange={(e) => update("hero_subtitle", e.target.value)}
                 rows={3}
                 className={inputCls}
-              />
-            </Field>
-          </Section>
-
-          <Section title="Currently Booking banner" description="Status pill + CTA button shown above the hero headline.">
-            <Field label="Show banner">
-              <label className="inline-flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.booking_banner_enabled}
-                  onChange={(e) => update("booking_banner_enabled", e.target.checked)}
-                  className="accent-accent w-4 h-4"
-                />
-                <span className="text-sm">{settings.booking_banner_enabled ? "Visible on homepage" : "Hidden"}</span>
-              </label>
-            </Field>
-            <Field label="Status text">
-              <input
-                type="text"
-                value={settings.booking_banner_text}
-                onChange={(e) => update("booking_banner_text", e.target.value)}
-                className={inputCls}
-                disabled={!settings.booking_banner_enabled}
-              />
-            </Field>
-            <Field label="CTA button label" hint="Shown on the red button next to the status text. Leave both CTA fields empty to hide the button.">
-              <input
-                type="text"
-                value={settings.booking_banner_cta_label}
-                onChange={(e) => update("booking_banner_cta_label", e.target.value)}
-                className={inputCls}
-                disabled={!settings.booking_banner_enabled}
-                placeholder="hello@muratkarci.design"
-              />
-            </Field>
-            <Field label="CTA email address" hint="Clicking the button opens the user's mail app addressed here.">
-              <input
-                type="email"
-                value={settings.booking_banner_cta_email}
-                onChange={(e) => update("booking_banner_cta_email", e.target.value)}
-                className={inputCls}
-                disabled={!settings.booking_banner_enabled}
-                placeholder="hello@muratkarci.design"
               />
             </Field>
           </Section>

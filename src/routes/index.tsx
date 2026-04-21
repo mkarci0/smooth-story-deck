@@ -82,6 +82,15 @@ function HomePage() {
         <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-32 pb-14 md:pb-20">
           <div className="grid md:grid-cols-[minmax(0,1fr)_280px] lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
             <div>
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.02 }}
+                className="uppercase tracking-widest text-xs text-muted-foreground"
+              >
+                {settings?.hero_eyebrow ?? "Welcome"}
+              </motion.p>
+
               <motion.h1
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -182,28 +191,6 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-6 lg:px-10 py-24 md:py-32">
         <Reveal className="flex items-end justify-between mb-14">
           <div>
-            {settings?.booking_banner_enabled !== false && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.6 }}
-                className="inline-flex flex-wrap items-center gap-3 mb-5"
-              >
-                <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" aria-hidden />
-                  {settings?.booking_banner_text ?? settings?.hero_eyebrow ?? "Available for select projects · 2025"}
-                </span>
-                {settings?.booking_banner_cta_label && settings?.booking_banner_cta_email && (
-                  <a
-                    href={`mailto:${settings.booking_banner_cta_email}`}
-                    className="inline-flex items-center rounded-full bg-accent text-accent-foreground px-3 py-1.5 text-xs font-medium transition hover:opacity-90"
-                  >
-                    {settings.booking_banner_cta_label}
-                  </a>
-                )}
-              </motion.div>
-            )}
             <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
               Selected work
             </p>
