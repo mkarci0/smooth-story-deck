@@ -80,7 +80,7 @@ function HomePage() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-32 pb-14 md:pb-20">
-          <div className="grid md:grid-cols-[minmax(0,1fr)_360px] lg:grid-cols-[minmax(0,1fr)_420px] gap-10 items-start">
+          <div className="grid md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_380px] gap-10 items-start">
             <div>
               <motion.h1
                 initial={{ opacity: 0, y: 24 }}
@@ -126,10 +126,10 @@ function HomePage() {
                 <img
                   src={resolveImage(settings.about_image_url)}
                   alt="Portrait of Murat Karcı"
-                  className="w-full max-w-[420px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)]"
+                  className="w-full max-w-[380px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)]"
                 />
               ) : (
-                <div className="w-full max-w-[420px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border" />
+                <div className="w-full max-w-[380px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border" />
               )}
             </motion.div>
           </div>
