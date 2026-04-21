@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Upload, FileText, Image as ImageIcon, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchSiteSettings, type SiteSettings, type ExperienceItem, type WhatIDoItem } from "@/lib/site-settings";
+import {
+  fetchSiteSettings,
+  parseAboutContent,
+  serializeAboutContent,
+  type SiteSettings,
+  type ExperienceItem,
+  type WhatIDoItem,
+} from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
 import { Section, Field, inputCls } from "@/components/admin/SettingsField";
 import { ListEditor } from "@/components/admin/ListEditor";
@@ -31,6 +38,7 @@ function AdminSettings() {
   const [activeChip, setActiveChip] = useState<Chip>("status");
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingAlbum, setUploadingAlbum] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoDragOver, setLogoDragOver] = useState(false);
   const hasLocalEditsRef = useRef(false);
@@ -188,6 +196,34 @@ function AdminSettings() {
     update("about_image_url", null);
   };
 
+  const handleAboutAlbumUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !settings) return;
+    if (!file.type.startsWith("image/")) {
+      setStatus({ kind: "error", msg: "Please upload an image file." });
+      return;
+    }
+    setUploadingAlbum(true);
+    const url = await uploadFile(file, "about");
+    setUploadingAlbum(false);
+    if (!url) return;
+
+    const about = parseAboutContent(settings.about_body);
+    const nextBody = serializeAboutContent(about.body, [...about.albumUrls, url]);
+    update("about_body", nextBody);
+
+    setStatus({ kind: "success", msg: "Album image uploaded." });
+    setTimeout(() => setStatus({ kind: "idle" }), 2500);
+    e.target.value = "";
+  };
+
+  const removeAlbumImage = (index: number) => {
+    if (!settings) return;
+    const about = parseAboutContent(settings.about_body);
+    const nextAlbum = about.albumUrls.filter((_, i) => i !== index);
+    update("about_body", serializeAboutContent(about.body, nextAlbum));
+  };
+
   const processLogoFile = async (file: File) => {
     if (!settings) return;
     if (file.type !== "image/svg+xml" && !file.name.toLowerCase().endsWith(".svg")) {
@@ -239,6 +275,9 @@ function AdminSettings() {
       </div>
     );
   }
+
+  const aboutContent = parseAboutContent(settings.about_body);
+  const aboutAlbumUrls = aboutContent.albumUrls;
 
   return (
     <div className="space-y-8 max-w-3xl pb-32">
@@ -451,7 +490,12 @@ function AdminSettings() {
               <textarea value={settings.about_intro} onChange={(e) => update("about_intro", e.target.value)} rows={2} className={inputCls} />
             </Field>
             <Field label="Bio" hint="Separate paragraphs with a blank line.">
-              <textarea value={settings.about_body} onChange={(e) => update("about_body", e.target.value)} rows={8} className={inputCls} />
+              <textarea
+                value={aboutContent.body}
+                onChange={(e) => update("about_body", serializeAboutContent(e.target.value, aboutAlbumUrls))}
+                rows={8}
+                className={inputCls}
+              />
             </Field>
 
             <Field label="LinkedIn URL" hint="Shown as a button under the bio and as a link in the footer. Leave empty to hide.">
@@ -464,7 +508,7 @@ function AdminSettings() {
               />
             </Field>
 
-            <Field label="Profile photo">
+            <Field label="Profile photo" hint="Used in the homepage hero on desktop.">
               <div className="flex items-start gap-4">
                 <div className="w-28 h-32 rounded-2xl overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
                   {settings.about_image_url ? (
@@ -485,6 +529,35 @@ function AdminSettings() {
                     </button>
                   )}
                 </div>
+              </div>
+            </Field>
+
+            <Field label="About album" hint="Shown above the intro text as a stacked photo strip.">
+              <div className="space-y-3">
+                <label className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm cursor-pointer hover:bg-accent transition-colors">
+                  {uploadingAlbum ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploadingAlbum ? "Uploading…" : "Add album image"}
+                  <input type="file" accept="image/*" onChange={handleAboutAlbumUpload} className="hidden" disabled={uploadingAlbum} />
+                </label>
+
+                {aboutAlbumUrls.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {aboutAlbumUrls.map((url, index) => (
+                      <div key={`${url}-${index}`} className="relative rounded-xl overflow-hidden border border-border bg-muted">
+                        <img src={resolveImage(url)} alt={`Album ${index + 1}`} className="w-full h-28 object-cover" />
+                        <button
+                          onClick={() => removeAlbumImage(index)}
+                          className="absolute top-1.5 right-1.5 rounded-full bg-background/90 border border-border p-1 hover:text-destructive"
+                          type="button"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No album images yet.</p>
+                )}
               </div>
             </Field>
           </Section>

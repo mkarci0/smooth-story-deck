@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Linkedin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
+import { fetchSiteSettings, parseAboutContent, type SiteSettings } from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 
@@ -20,8 +20,9 @@ function AboutPage() {
 
   const title = settings?.about_title ?? "About Me";
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
-  const body = settings?.about_body ?? "";
-  const photo = settings?.about_image_url ? resolveImage(settings.about_image_url) : null;
+  const aboutContent = parseAboutContent(settings?.about_body ?? "");
+  const body = aboutContent.body;
+  const albumUrls = aboutContent.albumUrls;
   const portrait = settings?.about_image_url ?? null;
   const linkedin = settings?.linkedin_url ?? null;
 
@@ -61,8 +62,33 @@ function AboutPage() {
         <script type="application/ld+json">{JSON.stringify(profileLd)}</script>
       </Helmet>
 
+      {/* ALBUM */}
+      {albumUrls.length > 0 && (
+        <section className="mb-12 md:mb-16 overflow-x-auto">
+          <div className="min-w-max flex items-end gap-3 md:gap-4 px-2 py-3">
+            {albumUrls.map((url, index) => (
+              <motion.div
+                key={url}
+                initial={{ opacity: 0, y: 16, rotate: 0 }}
+                animate={{ opacity: 1, y: 0, rotate: index % 2 === 0 ? -3 : 3 }}
+                transition={{ duration: 0.45, delay: index * 0.04 }}
+                className="bg-background border border-border shadow-[var(--shadow-soft)] p-2 rounded-sm"
+              >
+                <img
+                  src={resolveImage(url)}
+                  alt={`About album ${index + 1}`}
+                  className="w-28 h-36 md:w-32 md:h-40 object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* INTRO */}
-      <section className="grid md:grid-cols-[1fr_280px] gap-12 items-start">
+      <section>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -74,7 +100,7 @@ function AboutPage() {
           <h1 className="font-display text-4xl md:text-5xl tracking-[-0.02em] leading-[1.05] text-balance font-medium">
             {intro}
           </h1>
-          <div className="mt-8 space-y-5 text-base md:text-lg text-foreground/85 max-w-xl leading-relaxed">
+          <div className="mt-8 space-y-5 text-base md:text-lg text-foreground/85 max-w-3xl leading-relaxed">
             {paragraphs.length > 0 ? (
               paragraphs.map((p, i) => <p key={i}>{p}</p>)
             ) : (
@@ -95,25 +121,6 @@ function AboutPage() {
             </a>
           )}
         </motion.div>
-
-        {photo ? (
-          <motion.img
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            src={photo}
-            alt="Portrait of Murat Karcı"
-            width={560}
-            height={700}
-            loading="eager"
-            decoding="async"
-            className="w-full max-w-[280px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)] justify-self-end"
-          />
-        ) : (
-          <div className="w-full max-w-[280px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border flex items-center justify-center text-xs text-muted-foreground text-center px-4 justify-self-end">
-            <span>Upload a profile photo in Admin → Site Settings</span>
-          </div>
-        )}
       </section>
 
       {/* WHAT I DO */}

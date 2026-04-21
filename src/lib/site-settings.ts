@@ -32,6 +32,41 @@ export type SiteSettings = {
   logo_svg_url: string | null;
 };
 
+const ABOUT_ALBUM_REGEX = /<!--about_album:([^>]*)-->/;
+
+export function parseAboutContent(rawBody: string): { body: string; albumUrls: string[] } {
+  const match = rawBody.match(ABOUT_ALBUM_REGEX);
+  if (!match) {
+    return { body: rawBody, albumUrls: [] };
+  }
+
+  const encodedJson = match[1] ?? "";
+  let albumUrls: string[] = [];
+  try {
+    const parsed = JSON.parse(decodeURIComponent(encodedJson));
+    if (Array.isArray(parsed)) {
+      albumUrls = parsed.filter((item): item is string => typeof item === "string");
+    }
+  } catch {
+    albumUrls = [];
+  }
+
+  const body = rawBody.replace(match[0], "").trim();
+  return { body, albumUrls };
+}
+
+export function serializeAboutContent(body: string, albumUrls: string[]): string {
+  const cleanBody = body.trim();
+  const cleanAlbumUrls = albumUrls.filter(Boolean);
+
+  if (cleanAlbumUrls.length === 0) {
+    return cleanBody;
+  }
+
+  const marker = `<!--about_album:${encodeURIComponent(JSON.stringify(cleanAlbumUrls))}-->`;
+  return cleanBody ? `${cleanBody}\n\n${marker}` : marker;
+}
+
 const normalize = (row: any): SiteSettings => ({
   ...row,
   experience_items: Array.isArray(row.experience_items) ? row.experience_items : [],

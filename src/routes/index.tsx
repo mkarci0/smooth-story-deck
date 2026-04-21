@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { fetchProjects, type Project } from "@/lib/projects";
+import { fetchProjects, resolveImage, type Project } from "@/lib/projects";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
 import { fetchPublishedRecommendations, type Recommendation } from "@/lib/recommendations";
 import { ProjectCard } from "@/components/site/ProjectCard";
@@ -78,39 +78,59 @@ function HomePage() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-32 pb-20 md:pb-28">
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 font-display text-4xl md:text-5xl lg:text-6xl tracking-[-0.02em] leading-[1.05] text-balance max-w-3xl font-medium"
-          >
-            {settings?.hero_title ?? "Hi, I'm Murat. I design calm software."}
-          </motion.h1>
+          <div className="grid md:grid-cols-[1fr_320px] gap-10 items-start">
+            <div>
+              <motion.h1
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-6 font-display text-4xl md:text-5xl lg:text-6xl tracking-[-0.02em] leading-[1.05] text-balance max-w-3xl font-medium"
+              >
+                {settings?.hero_title ?? "Hi, I'm Murat. I design calm software."}
+              </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl text-balance leading-relaxed"
-          >
-            {settings?.hero_subtitle ??
-              "Independent product designer working with founders and product teams on mobile, web and brand."}
-          </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl text-balance leading-relaxed"
+              >
+                {settings?.hero_subtitle ??
+                  "Independent product designer working with founders and product teams on mobile, web and brand."}
+              </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.32 }}
-            className="mt-10 flex flex-wrap gap-3"
-          >
-            <Link to="/work" className="btn-primary group">
-              See selected work
-              <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-            <Link to="/about" className="btn-secondary">
-              About me
-            </Link>
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.32 }}
+                className="mt-10 flex flex-wrap gap-3"
+              >
+                <Link to="/work" className="btn-primary group">
+                  See selected work
+                  <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
+                <Link to="/about" className="btn-secondary">
+                  About me
+                </Link>
+              </motion.div>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="hidden md:block justify-self-end"
+            >
+              {settings?.about_image_url ? (
+                <img
+                  src={resolveImage(settings.about_image_url)}
+                  alt="Portrait of Murat Karcı"
+                  className="w-full max-w-[320px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)]"
+                />
+              ) : (
+                <div className="w-full max-w-[320px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border" />
+              )}
+            </motion.div>
+          </div>
         </div>
 
         <div
