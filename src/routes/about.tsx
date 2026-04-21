@@ -22,8 +22,6 @@ function AboutPage() {
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
   const aboutContent = parseAboutContent(settings?.about_body ?? "");
   const body = aboutContent.body;
-  const photo = settings?.about_image_url ? resolveImage(settings.about_image_url) : null;
-  const portrait = settings?.about_image_url ?? null;
   const linkedin = settings?.linkedin_url ?? null;
 
   const description =
@@ -39,7 +37,6 @@ function AboutPage() {
       jobTitle: "Product Designer",
       url: "https://muratkarci.design",
       description,
-      ...(portrait ? { image: portrait } : {}),
       ...(linkedin ? { sameAs: [linkedin] } : {}),
     },
   };
@@ -56,14 +53,11 @@ function AboutPage() {
         <meta property="og:title" content="About Me — Murat Karcı" />
         <meta property="og:description" content={description} />
         <meta property="og:url" content="https://muratkarci.design/about" />
-        {portrait && <meta property="og:image" content={portrait} />}
-        {portrait && <meta name="twitter:image" content={portrait} />}
-        {portrait && <meta name="twitter:card" content="summary_large_image" />}
         <script type="application/ld+json">{JSON.stringify(profileLd)}</script>
       </Helmet>
 
       {/* INTRO */}
-      <section className="grid md:grid-cols-[1fr_280px] gap-12 items-start">
+      <section className="grid md:grid-cols-1 gap-12 items-start">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -96,25 +90,6 @@ function AboutPage() {
             </a>
           )}
         </motion.div>
-
-        {photo ? (
-          <motion.img
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            src={photo}
-            alt="Portrait of Murat Karcı"
-            width={560}
-            height={700}
-            loading="eager"
-            decoding="async"
-            className="w-full max-w-[280px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)] justify-self-end"
-          />
-        ) : (
-          <div className="w-full max-w-[280px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border flex items-center justify-center text-xs text-muted-foreground text-center px-4 justify-self-end">
-            <span>Upload a profile photo in Admin → Site Settings</span>
-          </div>
-        )}
       </section>
 
       {/* WHAT I DO */}

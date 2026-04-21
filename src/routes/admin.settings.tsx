@@ -483,6 +483,32 @@ function AdminSettings() {
               </div>
             </Field>
           </Section>
+
+          <Section title="Profile photo" description="Shown in the hero section on homepage (desktop view).">
+            <Field label="Profile photo">
+              <div className="flex items-start gap-4">
+                <div className="w-28 h-32 rounded-2xl overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
+                  {settings.about_image_url ? (
+                    <img src={resolveImage(settings.about_image_url)} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <label className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm cursor-pointer hover:bg-accent transition-colors">
+                    {uploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {uploadingPhoto ? "Uploading…" : settings.about_image_url ? "Replace photo" : "Upload photo"}
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />
+                  </label>
+                  {settings.about_image_url && (
+                    <button onClick={removePhoto} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive ml-3">
+                      <X className="w-3 h-3" /> Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </Field>
+          </Section>
         </div>
       )}
 
@@ -513,30 +539,6 @@ function AdminSettings() {
                 className={inputCls}
                 placeholder="https://linkedin.com/in/your-handle"
               />
-            </Field>
-
-            <Field label="Profile photo" hint="Used in the homepage hero on desktop.">
-              <div className="flex items-start gap-4">
-                <div className="w-28 h-32 rounded-2xl overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
-                  {settings.about_image_url ? (
-                    <img src={resolveImage(settings.about_image_url)} alt="About" className="w-full h-full object-cover" />
-                  ) : (
-                    <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <label className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 text-sm cursor-pointer hover:bg-accent transition-colors">
-                    {uploadingPhoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    {uploadingPhoto ? "Uploading…" : settings.about_image_url ? "Replace photo" : "Upload photo"}
-                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />
-                  </label>
-                  {settings.about_image_url && (
-                    <button onClick={removePhoto} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive ml-3">
-                      <X className="w-3 h-3" /> Remove
-                    </button>
-                  )}
-                </div>
-              </div>
             </Field>
 
             <Field label="About album" hint="Shown above the intro text as a stacked photo strip.">
