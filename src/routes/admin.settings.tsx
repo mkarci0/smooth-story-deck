@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Upload, FileText, Image as ImageIcon, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchSiteSettings, type SiteSettings, type ExperienceItem, type WhatIDoItem } from "@/lib/site-settings";
@@ -33,20 +33,57 @@ function AdminSettings() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoDragOver, setLogoDragOver] = useState(false);
+  const hasLocalEditsRef = useRef(false);
+  const loadRequestRef = useRef(0);
+  const prevSnapshotRef = useRef<string>("");
 
-  const load = () => {
+  const load = (source: string) => {
+    const requestId = ++loadRequestRef.current;
+    console.log("[admin.settings] load:start", { source, requestId });
     setLoading(true);
     fetchSiteSettings().then((s) => {
-      setSettings(s);
+      console.log("[admin.settings] load:resolved", {
+        source,
+        requestId,
+        hasLocalEdits: hasLocalEditsRef.current,
+        hasData: Boolean(s),
+      });
+      setSettings((current) => {
+        if (hasLocalEditsRef.current && current) {
+          console.log("[admin.settings] load:ignored-to-prevent-overwrite", { source, requestId });
+          return current;
+        }
+        console.log("[admin.settings] load:applied", { source, requestId });
+        return s;
+      });
       setLoading(false);
     });
   };
 
-  useEffect(load, []);
+  useEffect(() => {
+    load("mount");
+  }, []);
 
   const update = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
+    hasLocalEditsRef.current = true;
+    console.log("[admin.settings] update", { key, value });
     setSettings((s) => (s ? { ...s, [key]: value } : s));
   };
+
+  useEffect(() => {
+    if (!settings) return;
+    const snapshot = JSON.stringify({
+      experience_items: settings.experience_items,
+      what_i_do_items: settings.what_i_do_items,
+    });
+    if (prevSnapshotRef.current && prevSnapshotRef.current !== snapshot) {
+      console.log("[admin.settings] list-state-changed", {
+        previous: JSON.parse(prevSnapshotRef.current),
+        next: JSON.parse(snapshot),
+      });
+    }
+    prevSnapshotRef.current = snapshot;
+  }, [settings]);
 
   const save = async () => {
     if (!settings) return;
@@ -84,6 +121,7 @@ function AdminSettings() {
       setStatus({ kind: "error", msg: error.message });
       return;
     }
+    hasLocalEditsRef.current = false;
     setStatus({ kind: "success", msg: "Saved." });
     setTimeout(() => setStatus({ kind: "idle" }), 2500);
   };
@@ -455,7 +493,10 @@ function AdminSettings() {
             <Field label="Section title">
               <input type="text" value={settings.what_i_do_title} onChange={(e) => update("what_i_do_title", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="Items">
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium block">
+                Items
+              </span>
               <ListEditor<WhatIDoItem>
                 items={settings.what_i_do_items}
                 onChange={(items) => update("what_i_do_items", items)}
@@ -466,14 +507,17 @@ function AdminSettings() {
                 addLabel="Add capability"
                 emptyMessage="No capabilities yet."
               />
-            </Field>
+            </div>
           </Section>
 
           <Section title="Experience" description="Work history timeline.">
             <Field label="Section title">
               <input type="text" value={settings.experience_title} onChange={(e) => update("experience_title", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="Roles">
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium block">
+                Roles
+              </span>
               <ListEditor<ExperienceItem>
                 items={settings.experience_items}
                 onChange={(items) => update("experience_items", items)}
@@ -486,7 +530,7 @@ function AdminSettings() {
                 addLabel="Add role"
                 emptyMessage="No roles yet."
               />
-            </Field>
+            </div>
           </Section>
         </div>
       )}

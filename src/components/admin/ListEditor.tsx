@@ -1,3 +1,4 @@
+import { useEffect, useRef, type MouseEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { inputCls } from "./SettingsField";
 
@@ -12,11 +13,33 @@ type Props<T extends ListItem> = {
 };
 
 export function ListEditor<T extends ListItem>({ items, onChange, fields, addLabel = "Add item", emptyMessage = "No items yet." }: Props<T>) {
+  const idCounterRef = useRef(0);
+  const itemIdsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    const currentIds = itemIdsRef.current;
+    if (items.length > currentIds.length) {
+      const missing = items.length - currentIds.length;
+      const nextIds = Array.from({ length: missing }, () => {
+        idCounterRef.current += 1;
+        return `list-item-${idCounterRef.current}`;
+      });
+      itemIdsRef.current = [...currentIds, ...nextIds];
+      return;
+    }
+    if (items.length < currentIds.length) {
+      itemIdsRef.current = currentIds.slice(0, items.length);
+    }
+  }, [items.length]);
+
   const add = () => {
     const empty = Object.fromEntries(fields.map((f) => [f.key, ""])) as T;
     onChange([...items, empty]);
   };
-  const remove = (i: number) => onChange(items.filter((_, idx) => idx !== i));
+  const remove = (i: number) => {
+    itemIdsRef.current = itemIdsRef.current.filter((_: string, idx: number) => idx !== i);
+    onChange(items.filter((_, idx) => idx !== i));
+  };
   const update = (i: number, key: keyof T & string, value: string) =>
     onChange(items.map((it, idx) => (idx === i ? { ...it, [key]: value } : it)));
 
@@ -29,13 +52,17 @@ export function ListEditor<T extends ListItem>({ items, onChange, fields, addLab
       ) : (
         <ul className="space-y-3">
           {items.map((item, i) => (
-            <li key={i} className="border border-border rounded-xl p-4 space-y-2.5 bg-muted/20">
+            <li key={itemIdsRef.current[i] ?? `list-item-fallback-${i}`} className="border border-border rounded-xl p-4 space-y-2.5 bg-muted/20">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">
                   Item {i + 1}
                 </span>
                 <button
-                  onClick={() => remove(i)}
+                  type="button"
+                  onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                    event.stopPropagation();
+                    remove(i);
+                  }}
                   className="text-muted-foreground hover:text-destructive p-1"
                   title="Remove"
                 >
@@ -68,6 +95,7 @@ export function ListEditor<T extends ListItem>({ items, onChange, fields, addLab
         </ul>
       )}
       <button
+        type="button"
         onClick={add}
         className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
       >
