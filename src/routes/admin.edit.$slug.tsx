@@ -75,6 +75,15 @@ function EditProject() {
     file: File,
     target: "cover" | "gallery" | { kind: "section"; index: number }
   ) => {
+    if (target === "cover") {
+      const isGif = file.type === "image/gif" || file.name.toLowerCase().endsWith(".gif");
+      const isMp4 = file.type === "video/mp4" || file.name.toLowerCase().endsWith(".mp4");
+      const isImage = file.type.startsWith("image/");
+      if (!isImage && !isGif && !isMp4) {
+        return alert("Cover için sadece görsel, GIF veya MP4 yükleyebilirsiniz.");
+      }
+    }
+
     const targetKey =
       typeof target === "string" ? target : `section-${target.index}`;
     setUploading(targetKey);
@@ -381,11 +390,24 @@ function EditProject() {
           <div className="rounded-2xl border border-border p-4">
             <label className="text-xs uppercase tracking-widest text-muted-foreground">Cover image</label>
             <div className="mt-2 rounded-xl overflow-hidden aspect-[4/3]" style={{ backgroundColor: p.accent }}>
-              {p.cover_url && <img src={resolveImage(p.cover_url)} alt="" className="w-full h-full object-cover" />}
+              {p.cover_url && (
+                resolveImage(p.cover_url).toLowerCase().endsWith(".mp4") ? (
+                  <video
+                    src={resolveImage(p.cover_url)}
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                    loop
+                    autoPlay
+                  />
+                ) : (
+                  <img src={resolveImage(p.cover_url)} alt="" className="w-full h-full object-cover" />
+                )
+              )}
             </div>
             <label className="mt-3 inline-flex items-center gap-2 cursor-pointer text-sm story-link">
               <Upload className="w-4 h-4" /> {uploading === "cover" ? "Uploading…" : "Upload new cover"}
-              <input type="file" accept="image/*" className="hidden"
+              <input type="file" accept="image/*,image/gif,video/mp4" className="hidden"
                 onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "cover")} />
             </label>
           </div>
