@@ -22,6 +22,7 @@ function AboutPage() {
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
   const aboutContent = parseAboutContent(settings?.about_body ?? "");
   const body = aboutContent.body;
+  const photo = settings?.about_image_url ? resolveImage(settings.about_image_url) : null;
   const portrait = settings?.about_image_url ?? null;
   const linkedin = settings?.linkedin_url ?? null;
 
@@ -62,7 +63,7 @@ function AboutPage() {
       </Helmet>
 
       {/* INTRO */}
-      <section>
+      <section className="grid md:grid-cols-[1fr_280px] gap-12 items-start">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -74,7 +75,7 @@ function AboutPage() {
           <h1 className="font-display text-4xl md:text-5xl tracking-[-0.02em] leading-[1.05] text-balance font-medium">
             {intro}
           </h1>
-          <div className="mt-8 space-y-5 text-base md:text-lg text-foreground/85 max-w-3xl leading-relaxed">
+          <div className="mt-8 space-y-5 text-base md:text-lg text-foreground/85 leading-relaxed">
             {paragraphs.length > 0 ? (
               paragraphs.map((p, i) => <p key={i}>{p}</p>)
             ) : (
@@ -83,7 +84,7 @@ function AboutPage() {
           </div>
 
           {settings?.linkedin_url && (
-            <a
+            
               href={settings.linkedin_url}
               target="_blank"
               rel="noopener noreferrer"
@@ -95,6 +96,25 @@ function AboutPage() {
             </a>
           )}
         </motion.div>
+
+        {photo ? (
+          <motion.img
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            src={photo}
+            alt="Portrait of Murat Karcı"
+            width={560}
+            height={700}
+            loading="eager"
+            decoding="async"
+            className="w-full max-w-[280px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)] justify-self-end"
+          />
+        ) : (
+          <div className="w-full max-w-[280px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border flex items-center justify-center text-xs text-muted-foreground text-center px-4 justify-self-end">
+            <span>Upload a profile photo in Admin → Site Settings</span>
+          </div>
+        )}
       </section>
 
       {/* WHAT I DO */}
@@ -102,11 +122,8 @@ function AboutPage() {
         <section className="mt-28 md:mt-36">
           <Reveal>
             <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
-              {settings?.what_i_do_title ?? "What I do"}
+              {settings?.what_i_do_title ?? "How I work"}
             </p>
-            <h2 className="font-display text-3xl md:text-4xl tracking-tight font-medium">
-              {whatIDo.length} ways we can work together.
-            </h2>
           </Reveal>
 
           <div className="mt-12 grid sm:grid-cols-2 gap-px bg-border rounded-3xl overflow-hidden border border-border">
@@ -134,9 +151,6 @@ function AboutPage() {
             <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
               {settings?.experience_title ?? "Experience"}
             </p>
-            <h2 className="font-display text-3xl md:text-4xl tracking-tight font-medium">
-              A short timeline.
-            </h2>
           </Reveal>
 
           <ul className="mt-12 divide-y divide-border border-y border-border">
@@ -166,12 +180,12 @@ function AboutPage() {
       <section className="mt-28 md:mt-36 mb-24 rounded-3xl bg-foreground text-background p-10 md:p-16 text-center">
         <Reveal>
           <p className="uppercase tracking-widest text-xs text-background/60 mb-4">
-            Currently booking — Q2 / Q3 2025
+            Open to new opportunities
           </p>
           <h2 className="font-display text-3xl md:text-5xl tracking-tight text-balance font-medium">
             Got a project in mind?
           </h2>
-          <a
+          
             href="mailto:hello@muratkarci.design"
             className="mt-8 btn-accent"
           >
