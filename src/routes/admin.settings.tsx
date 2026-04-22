@@ -110,6 +110,10 @@ function AdminSettings() {
         about_body: settings.about_body,
         about_image_url: settings.about_image_url,
         resume_url: settings.resume_url,
+        booking_banner_enabled: settings.booking_banner_enabled,
+        booking_banner_text: settings.booking_banner_text,
+        booking_banner_cta_label: settings.booking_banner_cta_label,
+        booking_banner_cta_email: settings.booking_banner_cta_email,
         experience_title: settings.experience_title,
         experience_items: settings.experience_items,
         what_i_do_title: settings.what_i_do_title,
@@ -124,6 +128,7 @@ function AdminSettings() {
         footer_email: settings.footer_email,
         footer_copyright: settings.footer_copyright,
         footer_credit: settings.footer_credit,
+        logo_svg_url: settings.logo_svg_url,
       })
       .eq("id", settings.id);
     if (error) {
