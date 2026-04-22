@@ -9,10 +9,12 @@ import {
   type SiteSettings,
   type ExperienceItem,
   type WhatIDoItem,
+  type ToolItem,
 } from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
 import { Section, Field, inputCls } from "@/components/admin/SettingsField";
 import { ListEditor } from "@/components/admin/ListEditor";
+import { ToolsListEditor } from "@/components/admin/ToolsListEditor";
 import { RecommendationsEditor } from "@/components/admin/RecommendationsEditor";
 
 export const Route = createFileRoute("/admin/settings")({
@@ -20,13 +22,14 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "status" | "home" | "about" | "recommendations" | "footer" | "header_footer";
+type Chip = "status" | "home" | "about" | "tools" | "recommendations" | "footer" | "header_footer";
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "status", label: "Site Status" },
   { id: "header_footer", label: "Header" },
   { id: "home", label: "Home Page" },
   { id: "about", label: "About Me" },
+  { id: "tools", label: "Tools & Tech" },
   { id: "recommendations", label: "Recommendations" },
   { id: "footer", label: "Footer" },
 ];
@@ -111,6 +114,8 @@ function AdminSettings() {
         experience_items: settings.experience_items,
         what_i_do_title: settings.what_i_do_title,
         what_i_do_items: settings.what_i_do_items,
+        tools_technologies_title: settings.tools_technologies_title,
+        tools_technologies: settings.tools_technologies,
         recommendations_title: settings.recommendations_title,
         maintenance_enabled: settings.maintenance_enabled,
         maintenance_message: settings.maintenance_message,
@@ -564,6 +569,26 @@ function AdminSettings() {
                 ]}
                 addLabel="Add role"
                 emptyMessage="No roles yet."
+              />
+            </div>
+          </Section>
+        </div>
+      )}
+
+      {/* TOOLS & TECHNOLOGIES */}
+      {activeChip === "tools" && (
+        <div className="space-y-12">
+          <Section title="Tools & Technologies" description="Display above the Experience section with logo grid. Shown with 4-column responsive layout.">
+            <Field label="Section title">
+              <input type="text" value={settings.tools_technologies_title} onChange={(e) => update("tools_technologies_title", e.target.value)} className={inputCls} />
+            </Field>
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium block">
+                Tools
+              </span>
+              <ToolsListEditor
+                items={settings.tools_technologies}
+                onChange={(items) => update("tools_technologies", items)}
               />
             </div>
           </Section>

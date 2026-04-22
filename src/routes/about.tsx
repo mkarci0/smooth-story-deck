@@ -119,6 +119,40 @@ function AboutPage() {
         </section>
       )}
 
+      {/* TOOLS & TECHNOLOGIES */}
+      {settings?.tools_technologies && settings.tools_technologies.length > 0 && (
+        <section className="mt-28 md:mt-36">
+          <Reveal>
+            <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
+              {settings.tools_technologies_title ?? "Tools & Technologies"}
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {settings.tools_technologies.map((tool, i) => (
+              <Reveal
+                key={i}
+                delay={i * 0.05}
+                className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors"
+              >
+                {tool.logo_url && (
+                  <div className="w-16 h-16 rounded-lg bg-background flex items-center justify-center border border-border/50">
+                    <img
+                      src={tool.logo_url}
+                      alt={tool.name}
+                      className="w-12 h-12 object-contain"
+                    />
+                  </div>
+                )}
+                <p className="font-display text-sm md:text-base text-center font-medium">
+                  {tool.name}
+                </p>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* EXPERIENCE */}
       {experience.length > 0 && (
         <section className="mt-28 md:mt-36">

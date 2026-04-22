@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type ExperienceItem = { role: string; company: string; years: string; description: string };
 export type WhatIDoItem = { title: string; description: string };
+export type ToolItem = { name: string; logo_url: string };
 
 export type SiteSettings = {
   id: string;
@@ -19,6 +20,8 @@ export type SiteSettings = {
   experience_items: ExperienceItem[];
   what_i_do_title: string;
   what_i_do_items: WhatIDoItem[];
+  tools_technologies_title: string;
+  tools_technologies: ToolItem[];
   recommendations_title: string;
   maintenance_enabled: boolean;
   maintenance_message: string;
@@ -71,6 +74,8 @@ const normalize = (row: any): SiteSettings => ({
   ...row,
   experience_items: Array.isArray(row.experience_items) ? row.experience_items : [],
   what_i_do_items: Array.isArray(row.what_i_do_items) ? row.what_i_do_items : [],
+  tools_technologies_title: row.tools_technologies_title ?? "Tools & Technologies",
+  tools_technologies: Array.isArray(row.tools_technologies) ? row.tools_technologies : [],
   footer_tagline: row.footer_tagline ?? "Let's build something together.",
   footer_email: row.footer_email ?? "hello@muratkarci.design",
   footer_copyright: row.footer_copyright ?? "© Murat Karcı. Designed & built with care.",
