@@ -706,7 +706,7 @@ function AdminSettings() {
       )}
 
       {/* SAVE BAR */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-3xl flex items-center justify-between gap-4 rounded-2xl border border-border bg-background/95 backdrop-blur p-4 shadow-[var(--shadow-lift)] z-30">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-3xl flex items-center justify-between gap-4 rounded-2xl border border-border bg-background/95 backdrop-blur p-4 shadow-[var(--shadow-lift)] z-[100] pointer-events-auto">
         <p className="text-sm text-muted-foreground">
           {status.kind === "success" && <span className="text-foreground">✓ {status.msg}</span>}
           {status.kind === "error" && <span className="text-destructive">✕ {status.msg}</span>}
@@ -714,6 +714,7 @@ function AdminSettings() {
           {status.kind === "saving" && "Saving…"}
         </p>
         <button
+          type="button"
           onClick={save}
           disabled={status.kind === "saving"}
           className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
