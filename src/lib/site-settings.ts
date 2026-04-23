@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type ExperienceItem = { role: string; company: string; years: string; description: string };
 export type WhatIDoItem = { title: string; description: string };
-export type ToolItem = { name: string; logo_url: string };
+export type AboutToolItem = { name: string };
 
 export type SiteSettings = {
   id: string;
@@ -20,8 +20,6 @@ export type SiteSettings = {
   experience_items: ExperienceItem[];
   what_i_do_title: string;
   what_i_do_items: WhatIDoItem[];
-  tools_technologies_title: string;
-  tools_technologies: ToolItem[];
   recommendations_title: string;
   maintenance_enabled: boolean;
   maintenance_message: string;
@@ -36,46 +34,68 @@ export type SiteSettings = {
 };
 
 const ABOUT_ALBUM_REGEX = /<!--about_album:([^>]*)-->/;
+const ABOUT_TOOLS_REGEX = /<!--about_tools:([^>]*)-->/;
 
-export function parseAboutContent(rawBody: string): { body: string; albumUrls: string[] } {
-  const match = rawBody.match(ABOUT_ALBUM_REGEX);
-  if (!match) {
-    return { body: rawBody, albumUrls: [] };
-  }
+export function parseAboutContent(rawBody: string): { body: string; albumUrls: string[]; tools: AboutToolItem[] } {
+  const albumMatch = rawBody.match(ABOUT_ALBUM_REGEX);
+  const toolsMatch = rawBody.match(ABOUT_TOOLS_REGEX);
 
-  const encodedJson = match[1] ?? "";
   let albumUrls: string[] = [];
-  try {
-    const parsed = JSON.parse(decodeURIComponent(encodedJson));
-    if (Array.isArray(parsed)) {
-      albumUrls = parsed.filter((item): item is string => typeof item === "string");
+  if (albumMatch) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(albumMatch[1] ?? ""));
+      if (Array.isArray(parsed)) {
+        albumUrls = parsed.filter((item): item is string => typeof item === "string");
+      }
+    } catch {
+      albumUrls = [];
     }
-  } catch {
-    albumUrls = [];
   }
 
-  const body = rawBody.replace(match[0], "").trim();
-  return { body, albumUrls };
+  let tools: AboutToolItem[] = [];
+  if (toolsMatch) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(toolsMatch[1] ?? ""));
+      if (Array.isArray(parsed)) {
+        tools = parsed
+          .filter((item): item is { name?: string } => typeof item === "object" && item !== null)
+          .map((item) => ({ name: String(item.name ?? "").trim() }))
+          .filter((item) => item.name.length > 0);
+      }
+    } catch {
+      tools = [];
+    }
+  }
+
+  const body = rawBody
+    .replace(albumMatch?.[0] ?? "", "")
+    .replace(toolsMatch?.[0] ?? "", "")
+    .trim();
+  return { body, albumUrls, tools };
 }
 
-export function serializeAboutContent(body: string, albumUrls: string[]): string {
+export function serializeAboutContent(body: string, albumUrls: string[], tools: AboutToolItem[]): string {
   const cleanBody = body.trim();
   const cleanAlbumUrls = albumUrls.filter(Boolean);
+  const cleanTools = tools
+    .map((tool) => ({ name: tool.name.trim() }))
+    .filter((tool) => tool.name.length > 0);
 
-  if (cleanAlbumUrls.length === 0) {
-    return cleanBody;
+  const markers: string[] = [];
+  if (cleanAlbumUrls.length > 0) {
+    markers.push(`<!--about_album:${encodeURIComponent(JSON.stringify(cleanAlbumUrls))}-->`);
   }
-
-  const marker = `<!--about_album:${encodeURIComponent(JSON.stringify(cleanAlbumUrls))}-->`;
-  return cleanBody ? `${cleanBody}\n\n${marker}` : marker;
+  if (cleanTools.length > 0) {
+    markers.push(`<!--about_tools:${encodeURIComponent(JSON.stringify(cleanTools))}-->`);
+  }
+  if (markers.length === 0) return cleanBody;
+  return cleanBody ? `${cleanBody}\n\n${markers.join("\n")}` : markers.join("\n");
 }
 
 const normalize = (row: any): SiteSettings => ({
   ...row,
   experience_items: Array.isArray(row.experience_items) ? row.experience_items : [],
   what_i_do_items: Array.isArray(row.what_i_do_items) ? row.what_i_do_items : [],
-  tools_technologies_title: row.tools_technologies_title ?? "Tools & Technologies",
-  tools_technologies: Array.isArray(row.tools_technologies) ? row.tools_technologies : [],
   footer_tagline: row.footer_tagline ?? "Let's build something together.",
   footer_email: row.footer_email ?? "hello@muratkarci.design",
   footer_copyright: row.footer_copyright ?? "© Murat Karcı. Designed & built with care.",

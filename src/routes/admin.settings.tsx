@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Upload, FileText, Image as ImageIcon, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,12 +9,10 @@ import {
   type SiteSettings,
   type ExperienceItem,
   type WhatIDoItem,
-  type ToolItem,
 } from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
 import { Section, Field, inputCls } from "@/components/admin/SettingsField";
 import { ListEditor } from "@/components/admin/ListEditor";
-import { ToolsListEditor } from "@/components/admin/ToolsListEditor";
 import { RecommendationsEditor } from "@/components/admin/RecommendationsEditor";
 
 export const Route = createFileRoute("/admin/settings")({
@@ -22,18 +20,16 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "success"; msg: string } | { kind: "error"; msg: string };
-type Chip = "status" | "home" | "about" | "tools" | "recommendations" | "footer" | "header_footer";
+type Chip = "status" | "home" | "about" | "recommendations" | "footer" | "header_footer";
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "status", label: "Site Status" },
   { id: "header_footer", label: "Header" },
   { id: "home", label: "Home Page" },
   { id: "about", label: "About Me" },
-  { id: "tools", label: "Tools & Tech" },
   { id: "recommendations", label: "Recommendations" },
   { id: "footer", label: "Footer" },
 ];
-const ADMIN_SETTINGS_BUILD_MARKER = "2026-04-23-1";
 
 function AdminSettings() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -45,57 +41,20 @@ function AdminSettings() {
   const [uploadingAlbum, setUploadingAlbum] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoDragOver, setLogoDragOver] = useState(false);
-  const hasLocalEditsRef = useRef(false);
-  const loadRequestRef = useRef(0);
-  const prevSnapshotRef = useRef<string>("");
 
-  const load = (source: string) => {
-    const requestId = ++loadRequestRef.current;
-    console.log("[admin.settings] load:start", { source, requestId });
+  const load = () => {
     setLoading(true);
     fetchSiteSettings().then((s) => {
-      console.log("[admin.settings] load:resolved", {
-        source,
-        requestId,
-        hasLocalEdits: hasLocalEditsRef.current,
-        hasData: Boolean(s),
-      });
-      setSettings((current) => {
-        if (hasLocalEditsRef.current && current) {
-          console.log("[admin.settings] load:ignored-to-prevent-overwrite", { source, requestId });
-          return current;
-        }
-        console.log("[admin.settings] load:applied", { source, requestId });
-        return s;
-      });
+      setSettings(s);
       setLoading(false);
     });
   };
 
-  useEffect(() => {
-    load("mount");
-  }, []);
+  useEffect(load, []);
 
   const update = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
-    hasLocalEditsRef.current = true;
-    console.log("[admin.settings] update", { key, value });
     setSettings((s) => (s ? { ...s, [key]: value } : s));
   };
-
-  useEffect(() => {
-    if (!settings) return;
-    const snapshot = JSON.stringify({
-      experience_items: settings.experience_items,
-      what_i_do_items: settings.what_i_do_items,
-    });
-    if (prevSnapshotRef.current && prevSnapshotRef.current !== snapshot) {
-      console.log("[admin.settings] list-state-changed", {
-        previous: JSON.parse(prevSnapshotRef.current),
-        next: JSON.parse(snapshot),
-      });
-    }
-    prevSnapshotRef.current = snapshot;
-  }, [settings]);
 
   const save = async () => {
     if (!settings) return;
@@ -119,8 +78,6 @@ function AdminSettings() {
         experience_items: settings.experience_items,
         what_i_do_title: settings.what_i_do_title,
         what_i_do_items: settings.what_i_do_items,
-        tools_technologies_title: settings.tools_technologies_title,
-        tools_technologies: settings.tools_technologies,
         recommendations_title: settings.recommendations_title,
         maintenance_enabled: settings.maintenance_enabled,
         maintenance_message: settings.maintenance_message,
@@ -136,7 +93,6 @@ function AdminSettings() {
       setStatus({ kind: "error", msg: error.message });
       return;
     }
-    hasLocalEditsRef.current = false;
     setStatus({ kind: "success", msg: "Saved." });
     setTimeout(() => setStatus({ kind: "idle" }), 2500);
   };
@@ -223,7 +179,7 @@ function AdminSettings() {
     if (uploadedUrls.length === 0) return;
 
     const about = parseAboutContent(settings.about_body);
-    const nextBody = serializeAboutContent(about.body, [...about.albumUrls, ...uploadedUrls]);
+    const nextBody = serializeAboutContent(about.body, [...about.albumUrls, ...uploadedUrls], about.tools);
     update("about_body", nextBody);
 
     setStatus({ kind: "success", msg: `${uploadedUrls.length} album image(s) uploaded.` });
@@ -235,7 +191,7 @@ function AdminSettings() {
     if (!settings) return;
     const about = parseAboutContent(settings.about_body);
     const nextAlbum = about.albumUrls.filter((_, i) => i !== index);
-    update("about_body", serializeAboutContent(about.body, nextAlbum));
+    update("about_body", serializeAboutContent(about.body, nextAlbum, about.tools));
   };
 
   const processLogoFile = async (file: File) => {
@@ -292,9 +248,10 @@ function AdminSettings() {
 
   const aboutContent = parseAboutContent(settings.about_body);
   const aboutAlbumUrls = aboutContent.albumUrls;
+  const aboutTools = aboutContent.tools;
 
   return (
-    <div className="space-y-8 max-w-3xl pb-32" data-build-marker={ADMIN_SETTINGS_BUILD_MARKER}>
+    <div className="space-y-8 max-w-3xl pb-32">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl tracking-tight font-semibold">Site Settings</h2>
@@ -489,11 +446,26 @@ function AdminSettings() {
             <Field label="Bio" hint="Separate paragraphs with a blank line.">
               <textarea
                 value={aboutContent.body}
-                onChange={(e) => update("about_body", serializeAboutContent(e.target.value, aboutAlbumUrls))}
+                onChange={(e) => update("about_body", serializeAboutContent(e.target.value, aboutAlbumUrls, aboutTools))}
                 rows={8}
                 className={inputCls}
               />
             </Field>
+
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium block">
+                Tools & Technologies
+              </span>
+              <ListEditor<{ name: string }>
+                items={aboutTools}
+                onChange={(items) => update("about_body", serializeAboutContent(aboutContent.body, aboutAlbumUrls, items))}
+                fields={[
+                  { key: "name", label: "Tool name (e.g. Figma)" },
+                ]}
+                addLabel="Add tool"
+                emptyMessage="No tools yet."
+              />
+            </div>
 
             <Field label="LinkedIn URL" hint="Shown as a button under the bio and as a link in the footer. Leave empty to hide.">
               <input
@@ -575,26 +547,6 @@ function AdminSettings() {
                 ]}
                 addLabel="Add role"
                 emptyMessage="No roles yet."
-              />
-            </div>
-          </Section>
-        </div>
-      )}
-
-      {/* TOOLS & TECHNOLOGIES */}
-      {activeChip === "tools" && (
-        <div className="space-y-12">
-          <Section title="Tools & Technologies" description="Display above the Experience section with logo grid. Shown with 4-column responsive layout.">
-            <Field label="Section title">
-              <input type="text" value={settings.tools_technologies_title} onChange={(e) => update("tools_technologies_title", e.target.value)} className={inputCls} />
-            </Field>
-            <div className="space-y-2">
-              <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium block">
-                Tools
-              </span>
-              <ToolsListEditor
-                items={settings.tools_technologies}
-                onChange={(items) => update("tools_technologies", items)}
               />
             </div>
           </Section>

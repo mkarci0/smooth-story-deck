@@ -4,9 +4,7 @@ import { Linkedin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { fetchSiteSettings, parseAboutContent, type SiteSettings } from "@/lib/site-settings";
-import { resolveImage } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
-import { AnimatedLabel } from "@/components/site/AnimatedLabel";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
@@ -23,6 +21,7 @@ function AboutPage() {
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
   const aboutContent = parseAboutContent(settings?.about_body ?? "");
   const body = aboutContent.body;
+  const tools = aboutContent.tools;
   const linkedin = settings?.linkedin_url ?? null;
 
   const description =
@@ -78,6 +77,24 @@ function AboutPage() {
             )}
           </div>
 
+          {tools.length > 0 && (
+            <div className="mt-8">
+              <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
+                Tools & Technologies
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {tools.map((tool, i) => (
+                  <span
+                    key={`${tool.name}-${i}`}
+                    className="inline-flex items-center rounded-full border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground/85"
+                  >
+                    {tool.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {settings?.linkedin_url && (
             <a
               href={settings.linkedin_url}
@@ -114,35 +131,6 @@ function AboutPage() {
                   <h3 className="font-display text-xl md:text-2xl tracking-tight font-medium">{s.title}</h3>
                 </div>
                 <p className="text-muted-foreground">{s.description}</p>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* TOOLS & TECHNOLOGIES */}
-      {settings?.tools_technologies && settings.tools_technologies.length > 0 && (
-        <section className="mt-28 md:mt-36">
-          <Reveal>
-            <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
-              {settings.tools_technologies_title ?? "Tools & Technologies"}
-            </p>
-          </Reveal>
-
-          <AnimatedLabel labels={settings.tools_technologies.map(t => t.name)} interval={2000} />
-
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {settings.tools_technologies.map((tool, i) => (
-              <Reveal
-                key={i}
-                delay={i * 0.05}
-                className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors"
-              >
-                <div className="w-16 h-16 rounded-lg bg-background flex items-center justify-center border border-border/50">
-  <span className="font-display text-base md:text-lg text-center font-bold text-accent">
-    {tool.name}
-  </span>
-</div>
               </Reveal>
             ))}
           </div>
