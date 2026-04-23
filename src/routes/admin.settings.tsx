@@ -33,6 +33,7 @@ const CHIPS: { id: Chip; label: string }[] = [
   { id: "recommendations", label: "Recommendations" },
   { id: "footer", label: "Footer" },
 ];
+const ADMIN_SETTINGS_BUILD_MARKER = "2026-04-23-1";
 
 function AdminSettings() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -293,7 +294,7 @@ function AdminSettings() {
   const aboutAlbumUrls = aboutContent.albumUrls;
 
   return (
-    <div className="space-y-8 max-w-3xl pb-32">
+    <div className="space-y-8 max-w-3xl pb-32" data-build-marker={ADMIN_SETTINGS_BUILD_MARKER}>
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl tracking-tight font-semibold">Site Settings</h2>
