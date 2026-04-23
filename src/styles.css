@@ -255,6 +255,15 @@
     animation: float-slow 6s ease-in-out infinite;
   }
 
+  /* Fade in animation for animated labels */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-in-out;
+  }
+
   /* Skip-to-content link — visible on focus only */
   .skip-link {
     position: absolute;

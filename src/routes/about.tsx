@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import { fetchSiteSettings, parseAboutContent, type SiteSettings } from "@/lib/site-settings";
 import { resolveImage } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
+import { AnimatedLabel } from "@/components/site/AnimatedLabel";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
@@ -128,6 +129,8 @@ function AboutPage() {
             </p>
           </Reveal>
 
+          <AnimatedLabel labels={settings.tools_technologies.map(t => t.name)} interval={2000} />
+
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {settings.tools_technologies.map((tool, i) => (
               <Reveal
@@ -135,18 +138,11 @@ function AboutPage() {
                 delay={i * 0.05}
                 className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors"
               >
-                {tool.logo_url && (
-                  <div className="w-16 h-16 rounded-lg bg-background flex items-center justify-center border border-border/50">
-                    <img
-                      src={tool.logo_url}
-                      alt={tool.name}
-                      className="w-12 h-12 object-contain"
-                    />
-                  </div>
-                )}
-                <p className="font-display text-sm md:text-base text-center font-medium">
-                  {tool.name}
-                </p>
+                <div className="w-16 h-16 rounded-lg bg-background flex items-center justify-center border border-border/50">
+  <span className="font-display text-base md:text-lg text-center font-bold text-accent">
+    {tool.name}
+  </span>
+</div>
               </Reveal>
             ))}
           </div>
