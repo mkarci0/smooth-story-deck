@@ -21,7 +21,7 @@ function AboutPage() {
   const intro = settings?.about_intro ?? "I help teams ship software people actually want to use.";
   const aboutContent = parseAboutContent(settings?.about_body ?? "");
   const body = aboutContent.body;
-  const tools = aboutContent.tools;
+  const tools = aboutContent.tools.filter((tool) => tool.name.trim().length > 0);
   const linkedin = settings?.linkedin_url ?? null;
 
   const description =

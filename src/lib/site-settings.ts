@@ -59,8 +59,7 @@ export function parseAboutContent(rawBody: string): { body: string; albumUrls: s
       if (Array.isArray(parsed)) {
         tools = parsed
           .filter((item): item is { name?: string } => typeof item === "object" && item !== null)
-          .map((item) => ({ name: String(item.name ?? "").trim() }))
-          .filter((item) => item.name.length > 0);
+          .map((item) => ({ name: String(item.name ?? "") }));
       }
     } catch {
       tools = [];
@@ -77,9 +76,7 @@ export function parseAboutContent(rawBody: string): { body: string; albumUrls: s
 export function serializeAboutContent(body: string, albumUrls: string[], tools: AboutToolItem[]): string {
   const cleanBody = body.trim();
   const cleanAlbumUrls = albumUrls.filter(Boolean);
-  const cleanTools = tools
-    .map((tool) => ({ name: tool.name.trim() }))
-    .filter((tool) => tool.name.length > 0);
+  const cleanTools = tools.map((tool) => ({ name: String(tool.name ?? "") }));
 
   const markers: string[] = [];
   if (cleanAlbumUrls.length > 0) {
