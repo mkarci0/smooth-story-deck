@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type ExperienceItem = { role: string; company: string; years: string; description: string };
 export type WhatIDoItem = { title: string; description: string };
-export type AboutToolItem = { name: string };
+export type AboutToolItem = { name: string; logo_url: string };
 
 export type SiteSettings = {
   id: string;
@@ -58,8 +58,11 @@ export function parseAboutContent(rawBody: string): { body: string; albumUrls: s
       const parsed = JSON.parse(decodeURIComponent(toolsMatch[1] ?? ""));
       if (Array.isArray(parsed)) {
         tools = parsed
-          .filter((item): item is { name?: string } => typeof item === "object" && item !== null)
-          .map((item) => ({ name: String(item.name ?? "") }));
+          .filter((item): item is { name?: string; logo_url?: string } => typeof item === "object" && item !== null)
+          .map((item) => ({
+            name: String(item.name ?? ""),
+            logo_url: item.logo_url ? String(item.logo_url) : "",
+          }));
       }
     } catch {
       tools = [];
@@ -76,7 +79,10 @@ export function parseAboutContent(rawBody: string): { body: string; albumUrls: s
 export function serializeAboutContent(body: string, albumUrls: string[], tools: AboutToolItem[]): string {
   const cleanBody = body.trim();
   const cleanAlbumUrls = albumUrls.filter(Boolean);
-  const cleanTools = tools.map((tool) => ({ name: String(tool.name ?? "") }));
+  const cleanTools = tools.map((tool) => ({
+    name: String(tool.name ?? ""),
+    logo_url: String(tool.logo_url ?? ""),
+  }));
 
   const markers: string[] = [];
   if (cleanAlbumUrls.length > 0) {

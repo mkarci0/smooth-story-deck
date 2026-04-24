@@ -77,24 +77,6 @@ function AboutPage() {
             )}
           </div>
 
-          {tools.length > 0 && (
-            <div className="mt-8">
-              <p className="uppercase tracking-widest text-xs text-muted-foreground mb-3">
-                Tools & Technologies
-              </p>
-              <div className="flex flex-wrap gap-2.5">
-                {tools.map((tool, i) => (
-                  <span
-                    key={`${tool.name}-${i}`}
-                    className="inline-flex items-center rounded-full border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground/85"
-                  >
-                    {tool.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
           {settings?.linkedin_url && (
             <a
               href={settings.linkedin_url}
@@ -109,6 +91,35 @@ function AboutPage() {
           )}
         </motion.div>
       </section>
+
+      {/* TOOLS & TECHNOLOGIES */}
+      {tools.length > 0 && (
+        <section className="mt-16 md:mt-20">
+          <Reveal>
+            <p className="uppercase tracking-widest text-xs text-muted-foreground mb-4">
+              Tools & Technologies
+            </p>
+          </Reveal>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+            {tools.map((tool, i) => (
+              <Reveal key={`${tool.name}-${i}`} delay={i * 0.03}>
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 h-full flex flex-col items-center justify-center gap-2 text-center">
+                  {tool.logo_url ? (
+                    <img
+                      src={tool.logo_url}
+                      alt={tool.name}
+                      className="w-10 h-10 object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : null}
+                  <span className="text-sm text-foreground/85 leading-tight">{tool.name}</span>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* WHAT I DO */}
       {whatIDo.length > 0 && (

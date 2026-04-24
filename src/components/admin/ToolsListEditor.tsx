@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
 import { Plus, Trash2, Upload, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { inputCls } from "./SettingsField";
@@ -14,7 +14,7 @@ type Props = {
 export function ToolsListEditor({ items, onChange }: Props) {
   const idCounterRef = useRef(0);
   const itemIdsRef = useRef<string[]>([]);
-  const uploadingRef = useRef<Record<number, boolean>>({});
+  const [uploadingByIndex, setUploadingByIndex] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const currentIds = itemIdsRef.current;
@@ -45,9 +45,7 @@ export function ToolsListEditor({ items, onChange }: Props) {
     onChange(items.map((it, idx) => (idx === i ? { ...it, [field]: value } : it)));
 
   const uploadToolLogo = async (index: number, file: File) => {
-    uploadingRef.current[index] = true;
-
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
+    setUploadingByIndex((state) => ({ ...state, [index]: true }));
     const path = `tools/${Date.now()}-${file.name.replace(/[^a-z0-9.-]/gi, "_")}`;
 
     const { error: upErr } = await supabase.storage
@@ -56,16 +54,16 @@ export function ToolsListEditor({ items, onChange }: Props) {
 
     if (upErr) {
       alert(`Upload failed: ${upErr.message}`);
-      uploadingRef.current[index] = false;
+      setUploadingByIndex((state) => ({ ...state, [index]: false }));
       return;
     }
 
     const { data } = supabase.storage.from("site-assets").getPublicUrl(path);
     update(index, "logo_url", data.publicUrl);
-    uploadingRef.current[index] = false;
+    setUploadingByIndex((state) => ({ ...state, [index]: false }));
   };
 
-  const handleLogoUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (index: number, e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) await uploadToolLogo(index, file);
     e.target.value = "";
@@ -119,18 +117,18 @@ export function ToolsListEditor({ items, onChange }: Props) {
 
                 <div className="flex-1 space-y-2">
                   <label className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-3 py-1.5 text-xs cursor-pointer hover:bg-accent transition-colors">
-                    {uploadingRef.current[i] ? (
+                    {uploadingByIndex[i] ? (
                       <Loader2 className="w-3 h-3 animate-spin" />
                     ) : (
                       <Upload className="w-3 h-3" />
                     )}
-                    {uploadingRef.current[i] ? "Uploading…" : item.logo_url ? "Replace" : "Upload"}
+                    {uploadingByIndex[i] ? "Uploading…" : item.logo_url ? "Replace" : "Upload"}
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleLogoUpload(i, e)}
                       className="hidden"
-                      disabled={uploadingRef.current[i]}
+                      disabled={uploadingByIndex[i]}
                     />
                   </label>
 

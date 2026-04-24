@@ -13,6 +13,7 @@ import {
 import { resolveImage } from "@/lib/projects";
 import { Section, Field, inputCls } from "@/components/admin/SettingsField";
 import { ListEditor } from "@/components/admin/ListEditor";
+import { ToolsListEditor } from "@/components/admin/ToolsListEditor";
 import { RecommendationsEditor } from "@/components/admin/RecommendationsEditor";
 
 export const Route = createFileRoute("/admin/settings")({
@@ -456,14 +457,9 @@ function AdminSettings() {
               <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium block">
                 Tools & Technologies
               </span>
-              <ListEditor<{ name: string }>
+              <ToolsListEditor
                 items={aboutTools}
                 onChange={(items) => update("about_body", serializeAboutContent(aboutContent.body, aboutAlbumUrls, items))}
-                fields={[
-                  { key: "name", label: "Tool name (e.g. Figma)" },
-                ]}
-                addLabel="Add tool"
-                emptyMessage="No tools yet."
               />
             </div>
 
