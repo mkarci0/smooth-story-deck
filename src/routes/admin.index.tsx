@@ -47,7 +47,7 @@ function AdminIndex() {
     const slug = `new-project-${Date.now()}`;
     const { data, error } = await supabase
       .from("projects")
-      .insert({ slug, title: "Untitled project", position: projects.length + 1, published: false })
+      .insert({ slug, title: "Untitled project", position: projects.length + 1, published: true })
       .select().single();
     if (error) return alert(error.message);
     navigate({ to: "/admin/edit/$slug", params: { slug: data.slug } });
