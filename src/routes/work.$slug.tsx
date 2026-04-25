@@ -130,6 +130,13 @@ function SectionRenderer({
       </Reveal>
       {hasImage && isStacked ? (
         <div className="space-y-8">
+          {hasBody && (
+            <Reveal delay={0.05} className="max-w-3xl">
+              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                {section.body}
+              </p>
+            </Reveal>
+          )}
           <Reveal delay={0.1}>
             <div className="rounded-3xl overflow-hidden aspect-[16/10]" style={{ backgroundColor: accent }}>
               <img
@@ -141,13 +148,6 @@ function SectionRenderer({
               />
             </div>
           </Reveal>
-          {hasBody && (
-            <Reveal delay={0.15} className="max-w-3xl">
-              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                {section.body}
-              </p>
-            </Reveal>
-          )}
         </div>
       ) : (
         <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">

@@ -46,7 +46,7 @@ function AboutPage() {
   const experience = settings?.experience_items ?? [];
 
   return (
-    <div className="mx-auto max-w-5xl page-shell pt-20 md:pt-28">
+    <div className="mx-auto max-w-6xl page-shell pt-20 md:pt-28">
       <Helmet>
         <title>About Me — Murat Karcı, Product Designer</title>
         <meta name="description" content={description} />
