@@ -1,29 +1,51 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronRight, Lock } from "lucide-react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
+  fetchProjectAccessBySlug,
   fetchProjectBySlug,
   fetchProjects,
+  hashPassword,
   resolveImage,
   type UnifiedSection,
   type OutcomeItem,
 } from "@/lib/projects";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
+import { CaseStudySideNav } from "@/components/site/CaseStudySideNav";
+
+function unlockKeyForSlug(slug: string): string {
+  return `project-unlock:${slug}`;
+}
 
 export const Route = createFileRoute("/work/$slug")({
   loader: async ({ params }) => {
-    const [project, all] = await Promise.all([
-      fetchProjectBySlug(params.slug),
-      fetchProjects(),
-    ]);
-    if (!project) throw notFound();
+    const access = await fetchProjectAccessBySlug(params.slug);
+    if (!access || !access.isVisible) throw notFound();
+
+    const unlocked =
+      !access.isPasswordProtected ||
+      (typeof window !== "undefined" &&
+        window.sessionStorage.getItem(unlockKeyForSlug(params.slug)) === "1");
+
+    if (!unlocked) {
+      return {
+        locked: true as const,
+        project: access,
+        prev: null,
+        next: null,
+      };
+    }
+
+    const [project, all] = await Promise.all([fetchProjectBySlug(params.slug), fetchProjects()]);
+    if (!project || !project.isVisible) throw notFound();
     const idx = all.findIndex((x) => x.slug === project.slug);
     const total = all.length;
     const prev = total > 1 ? all[(idx - 1 + total) % total] : null;
     const next = total > 1 ? all[(idx + 1) % total] : null;
-    return { project, prev, next };
+    return { locked: false as const, project, prev, next };
   },
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-32 text-center">
@@ -38,6 +60,66 @@ export const Route = createFileRoute("/work/$slug")({
   component: ProjectDetail,
 });
 
+function PasswordRequired({
+  title,
+  slug,
+  passwordHash,
+}: {
+  title: string;
+  slug: string;
+  passwordHash: string;
+}) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [unlocking, setUnlocking] = useState(false);
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setUnlocking(true);
+    setError("");
+    const hashed = await hashPassword(password.trim());
+    if (hashed !== passwordHash) {
+      setError("Incorrect password, please try again");
+      setUnlocking(false);
+      return;
+    }
+    window.sessionStorage.setItem(unlockKeyForSlug(slug), "1");
+    window.location.reload();
+  };
+
+  return (
+    <section className="mx-auto max-w-6xl page-shell py-24 md:py-32">
+      <div className="mx-auto max-w-md rounded-3xl border border-border bg-background p-8 md:p-10 text-center">
+        <div className="mx-auto mb-4 w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+          <Lock className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <h1 className="font-display text-3xl tracking-tight">Password Required</h1>
+        <p className="mt-3 text-sm text-muted-foreground text-balance">
+          This case study is protected. Enter the password to unlock <span className="text-foreground">{title}</span>.
+        </p>
+        <form onSubmit={onSubmit} className="mt-6 space-y-3">
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-accent"
+            placeholder="Enter password"
+            required
+          />
+          <button
+            type="submit"
+            disabled={unlocking}
+            className="w-full rounded-full bg-foreground text-background px-5 py-2.5 text-sm transition-colors hover:bg-accent disabled:opacity-70"
+          >
+            {unlocking ? "Unlocking..." : "Unlock"}
+          </button>
+        </form>
+        {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+      </div>
+    </section>
+  );
+}
+
 function isOverviewLike(s: UnifiedSection, i: number): boolean {
   return (
     i === 0 &&
@@ -48,16 +130,36 @@ function isOverviewLike(s: UnifiedSection, i: number): boolean {
   );
 }
 
+function hasRenderableContent(section: UnifiedSection): boolean {
+  return (
+    !!section.heading ||
+    !!section.body ||
+    !!section.image_url ||
+    section.metrics.length > 0
+  );
+}
+
+function createSectionId(baseLabel: string): string {
+  const normalized = baseLabel
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+  return normalized.length > 0 ? `case-${normalized}` : "case-section";
+}
+
 function SectionRenderer({
   section,
   displayIndex,
   accent,
   title,
+  sectionId,
 }: {
   section: UnifiedSection;
   displayIndex: number;
   accent: string;
   title: string;
+  sectionId: string;
 }) {
   const indexLabel = String(displayIndex + 1).padStart(2, "0");
   const hasMetrics = section.metrics.length > 0;
@@ -72,7 +174,7 @@ function SectionRenderer({
 
   if (isOverviewLike(section, displayIndex)) {
     return (
-      <section className="mx-auto max-w-3xl page-shell mt-20 md:mt-28">
+      <section id={sectionId} className="mx-auto max-w-3xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
             {indexLabel} · {section.heading}
@@ -87,7 +189,7 @@ function SectionRenderer({
 
   if (hasMetrics && !hasBody && !hasImage) {
     return (
-      <section className="mx-auto max-w-6xl page-shell mt-20 md:mt-28">
+      <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
             {indexLabel} · {section.heading || "Outcome"}
@@ -117,7 +219,7 @@ function SectionRenderer({
   }
 
   return (
-    <section className="mx-auto max-w-6xl page-shell mt-20 md:mt-28">
+    <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
       <Reveal>
         <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
           {indexLabel} · {section.heading || "Section"}
@@ -197,7 +299,8 @@ function SectionRenderer({
 }
 
 function ProjectDetail() {
-  const { project, prev, next } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData();
+  const { project, prev, next } = loaderData;
   const reduce = useReducedMotion();
   const params = Route.useParams();
 
@@ -205,9 +308,53 @@ function ProjectDetail() {
   const description = project.tagline || "Product design case study by Murat Karcı.";
   const url = `https://muratkarci.design/work/${params.slug}`;
 
-  const overviewSection = project.sections.find(
-    (s) => s.heading.trim().toLowerCase() === "overview"
-  );
+  if (loaderData.locked) {
+    return (
+      <article>
+        <Helmet>
+          <title>{project.title} — Password required</title>
+          <meta name="description" content="This case study is password protected." />
+          <meta name="robots" content="noindex" />
+        </Helmet>
+        <div className="mx-auto max-w-6xl page-shell pt-8 md:pt-10">
+          <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
+            <ol className="flex items-center gap-2 flex-wrap">
+              <li><Link to="/" className="hover:text-foreground transition-colors">home</Link></li>
+              <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+              <li><Link to="/work" className="hover:text-foreground transition-colors">work</Link></li>
+              <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+              <li className="text-foreground font-medium truncate">{project.title}</li>
+            </ol>
+          </nav>
+        </div>
+        <PasswordRequired
+          title={project.title}
+          slug={project.slug}
+          passwordHash={project.passwordHash}
+        />
+      </article>
+    );
+  }
+
+  const overviewSection = project.sections.find((s) => s.heading.trim().toLowerCase() === "overview");
+  const sectionIdCounts: Record<string, number> = {};
+  const renderedSections = project.sections
+    .map((section, index) => {
+      const fallbackLabel = `Section ${index + 1}`;
+      const label = section.heading.trim() || fallbackLabel;
+      const baseId = createSectionId(label);
+      const count = sectionIdCounts[baseId] ?? 0;
+      sectionIdCounts[baseId] = count + 1;
+      const id = count === 0 ? baseId : `${baseId}-${count + 1}`;
+      return {
+        section,
+        index,
+        id,
+        label,
+        indexLabel: String(index + 1).padStart(2, "0"),
+      };
+    })
+    .filter((item) => hasRenderableContent(item.section));
 
   const creativeWorkLd = {
     "@context": "https://schema.org",
@@ -261,6 +408,8 @@ function ProjectDetail() {
           </ol>
         </nav>
       </div>
+
+      <CaseStudySideNav items={renderedSections.map(({ id, label, indexLabel }) => ({ id, label, indexLabel }))} />
 
       {/* HERO */}
       <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
@@ -329,13 +478,14 @@ function ProjectDetail() {
       </section>
 
       {/* UNIFIED ORDERED SECTIONS */}
-      {project.sections.map((s: UnifiedSection, i: number) => (
+      {renderedSections.map(({ section, index, id }) => (
         <SectionRenderer
-          key={s.id}
-          section={s}
-          displayIndex={i}
+          key={section.id}
+          section={section}
+          displayIndex={index}
           accent={project.accent}
           title={project.title}
+          sectionId={id}
         />
       ))}
 

@@ -15,6 +15,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import {
   fetchProjectBySlug,
+  saveProject,
+  hashPassword,
   resolveImage,
   newSection,
   detectOrientation,
@@ -38,7 +40,7 @@ function EditProject() {
   const [uploading, setUploading] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProjectBySlug(slug).then(setP).finally(() => setLoading(false));
+    fetchProjectBySlug(slug, { includeHidden: true }).then(setP).finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) return <p className="text-muted-foreground">Loading…</p>;
@@ -48,24 +50,12 @@ function EditProject() {
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("projects").update({
-      slug: p.slug,
-      title: p.title,
-      tagline: p.tagline,
-      category: p.category,
-      year: p.year,
-      cover_url: p.cover_url,
-      accent: p.accent,
-      role: p.role,
-      timeline: p.timeline,
-      team: p.team,
-      tools: p.tools,
-      gallery: p.gallery,
-      position: p.position,
-      published: p.published,
-      unified_sections: p.sections,
-      gallery_meta: p.gallery_meta,
-    } as never).eq("id", p.id);
+    let error: Error | null = null;
+    try {
+      await saveProject(p);
+    } catch (err) {
+      error = err as Error;
+    }
     setSaving(false);
     if (error) return alert(error.message);
     if (p.slug !== slug) navigate({ to: "/admin/edit/$slug", params: { slug: p.slug } });
@@ -440,6 +430,44 @@ function EditProject() {
               <input type="checkbox" checked={p.published} onChange={(e) => update({ published: e.target.checked })} />
               Published (visible on site)
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={p.isVisible} onChange={(e) => update({ isVisible: e.target.checked })} />
+              Visible in project list
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={p.isPasswordProtected}
+                onChange={(e) =>
+                  update({
+                    isPasswordProtected: e.target.checked,
+                    passwordHash: e.target.checked ? p.passwordHash : "",
+                  })
+                }
+              />
+              Password protected
+            </label>
+            {p.isPasswordProtected && (
+              <Field label="Case study password">
+                <input
+                  type="password"
+                  className={inp}
+                  placeholder={p.passwordHash ? "Enter new password to replace current one" : "Set a password"}
+                  onChange={async (e) => {
+                    const nextPassword = e.target.value;
+                    if (nextPassword.trim().length === 0) {
+                      update({ passwordHash: "" });
+                      return;
+                    }
+                    const hashed = await hashPassword(nextPassword.trim());
+                    update({ passwordHash: hashed });
+                  }}
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Password is hashed before save. Leave empty to keep current hash.
+                </p>
+              </Field>
+            )}
           </div>
 
           <div className="rounded-2xl border border-border p-4">

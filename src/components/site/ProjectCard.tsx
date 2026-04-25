@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Lock } from "lucide-react";
 import { useRef, useState } from "react";
 import { resolveImage, type Project } from "@/lib/projects";
 
@@ -92,6 +92,11 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
           </p>
           <h3 className="mt-2 font-display text-3xl md:text-4xl tracking-tight group-hover:text-accent transition-colors">
             {project.title}
+            {project.isPasswordProtected && (
+              <span className="ml-2 inline-flex align-middle text-muted-foreground" aria-label="Password protected case study">
+                <Lock className="w-4 h-4" />
+              </span>
+            )}
           </h3>
           <p className="mt-2 text-muted-foreground text-balance max-w-md">
             {project.tagline}

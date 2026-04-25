@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2, ExternalLink, GripVertical } from "lucide-react";
+import { Pencil, Plus, Trash2, ExternalLink, GripVertical, Lock, EyeOff } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -150,6 +150,20 @@ function SortableRow({ project, onDelete }: { project: Project; onDelete: (p: Pr
         <p className="text-xs text-muted-foreground truncate">
           /{project.slug} · {project.category || "—"} · {project.published ? "published" : "draft"} · #{project.position}
         </p>
+        <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+          {!project.isVisible && (
+            <span className="inline-flex items-center gap-1">
+              <EyeOff className="w-3 h-3" />
+              hidden
+            </span>
+          )}
+          {project.isPasswordProtected && (
+            <span className="inline-flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              password
+            </span>
+          )}
+        </div>
       </div>
       <Link
         to="/work/$slug" params={{ slug: project.slug }}

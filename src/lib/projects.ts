@@ -59,6 +59,15 @@ export type Project = {
   gallery_meta: GalleryMeta[];
   position: number;
   published: boolean;
+  isVisible: boolean;
+  isPasswordProtected: boolean;
+  passwordHash: string;
+};
+
+type AccessSettings = {
+  isVisible: boolean;
+  isPasswordProtected: boolean;
+  passwordHash: string;
 };
 
 const uid = () =>
@@ -97,6 +106,17 @@ const normalizeGalleryMeta = (raw: any, count: number): GalleryMeta[] => {
 
 const normalize = (row: any): Project => {
   const gallery: string[] = row.gallery ?? [];
+  const designSystem = row.design_system && typeof row.design_system === "object"
+    ? row.design_system
+    : {};
+  const access = (designSystem.access && typeof designSystem.access === "object"
+    ? designSystem.access
+    : {}) as Partial<AccessSettings>;
+  const parsedAccess: AccessSettings = {
+    isVisible: access.isVisible ?? true,
+    isPasswordProtected: access.isPasswordProtected ?? false,
+    passwordHash: access.passwordHash ?? "",
+  };
   return {
     id: row.id,
     slug: row.slug,
@@ -117,8 +137,28 @@ const normalize = (row: any): Project => {
     gallery_meta: normalizeGalleryMeta(row.gallery_meta, gallery.length),
     position: row.position ?? 0,
     published: row.published ?? true,
+    isVisible: parsedAccess.isVisible,
+    isPasswordProtected: parsedAccess.isPasswordProtected,
+    passwordHash: parsedAccess.passwordHash,
   };
 };
+
+function withAccessSettings(project: Project, row: any): any {
+  const designSystem = row.design_system && typeof row.design_system === "object"
+    ? row.design_system
+    : {};
+  return {
+    ...row,
+    design_system: {
+      ...designSystem,
+      access: {
+        isVisible: project.isVisible,
+        isPasswordProtected: project.isPasswordProtected,
+        passwordHash: project.passwordHash,
+      },
+    },
+  };
+}
 
 export async function fetchProjects(): Promise<Project[]> {
   const { data, error } = await supabase
@@ -127,7 +167,7 @@ export async function fetchProjects(): Promise<Project[]> {
     .eq("published", true)
     .order("position", { ascending: true });
   if (error) throw error;
-  return (data ?? []).map(normalize);
+  return (data ?? []).map(normalize).filter((project) => project.isVisible);
 }
 
 export async function fetchAllProjects(): Promise<Project[]> {
@@ -139,14 +179,83 @@ export async function fetchAllProjects(): Promise<Project[]> {
   return (data ?? []).map(normalize);
 }
 
-export async function fetchProjectBySlug(slug: string): Promise<Project | null> {
+export async function fetchProjectBySlug(
+  slug: string,
+  options?: { includeHidden?: boolean }
+): Promise<Project | null> {
   const { data, error } = await supabase
     .from("projects")
     .select("*")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
-  return data ? normalize(data) : null;
+  if (!data) return null;
+  const normalized = normalize(data);
+  if (!options?.includeHidden && !normalized.isVisible) return null;
+  return normalized;
+}
+
+export async function fetchProjectAccessBySlug(
+  slug: string
+): Promise<Pick<Project, "id" | "slug" | "title" | "tagline" | "cover_url" | "isVisible" | "isPasswordProtected" | "passwordHash"> | null> {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const normalized = normalize(data);
+  return {
+    id: normalized.id,
+    slug: normalized.slug,
+    title: normalized.title,
+    tagline: normalized.tagline,
+    cover_url: normalized.cover_url,
+    isVisible: normalized.isVisible,
+    isPasswordProtected: normalized.isPasswordProtected,
+    passwordHash: normalized.passwordHash,
+  };
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  const encoded = new TextEncoder().encode(password);
+  const digest = await crypto.subtle.digest("SHA-256", encoded);
+  const bytes = Array.from(new Uint8Array(digest));
+  return bytes.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function saveProject(project: Project): Promise<void> {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("id", project.id)
+    .single();
+  if (error) throw error;
+  const row = withAccessSettings(project, data);
+  const { error: updateError } = await supabase
+    .from("projects")
+    .update({
+      slug: project.slug,
+      title: project.title,
+      tagline: project.tagline,
+      category: project.category,
+      year: project.year,
+      cover_url: project.cover_url,
+      accent: project.accent,
+      role: project.role,
+      timeline: project.timeline,
+      team: project.team,
+      tools: project.tools,
+      gallery: project.gallery,
+      position: project.position,
+      published: project.published,
+      unified_sections: project.sections,
+      gallery_meta: project.gallery_meta,
+      design_system: row.design_system,
+    } as never)
+    .eq("id", project.id);
+  if (updateError) throw updateError;
 }
 
 export const newSection = (heading = ""): UnifiedSection => ({
