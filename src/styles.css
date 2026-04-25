@@ -134,6 +134,38 @@
     text-wrap: balance;
   }
 
+  .page-shell {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .page-shell {
+      padding-left: 2.5rem;
+      padding-right: 2.5rem;
+    }
+  }
+
+  .hero-heading {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+  }
+
+  @media (min-width: 768px) {
+    .hero-heading {
+      font-size: 3rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-heading {
+      font-size: 3.75rem;
+    }
+  }
+
   /* ─────────────────────────────────────────────────────────────
      Unified interactive states — keep every primary, secondary,
      accent button and text-link visually consistent across the site.

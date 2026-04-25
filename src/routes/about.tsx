@@ -46,7 +46,7 @@ function AboutPage() {
   const experience = settings?.experience_items ?? [];
 
   return (
-    <div className="mx-auto max-w-5xl px-6 lg:px-10 pt-20 md:pt-28">
+    <div className="mx-auto max-w-5xl page-shell pt-20 md:pt-28">
       <Helmet>
         <title>About Me — Murat Karcı, Product Designer</title>
         <meta name="description" content={description} />
@@ -66,7 +66,7 @@ function AboutPage() {
           <p className="uppercase tracking-widest text-xs text-muted-foreground mb-4">
             {title}
           </p>
-          <h1 className="font-display text-4xl md:text-5xl tracking-[-0.02em] leading-[1.05] text-balance font-medium">
+          <h1 className="hero-heading text-balance">
             {intro}
           </h1>
           <div className="mt-8 space-y-5 text-base md:text-lg text-foreground/85 leading-relaxed">

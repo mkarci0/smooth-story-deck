@@ -22,6 +22,7 @@ import {
   type UnifiedSection,
   type Orientation,
   type GalleryMeta,
+  type SectionLayout,
 } from "@/lib/projects";
 
 export const Route = createFileRoute("/admin/edit/$slug")({
@@ -264,6 +265,21 @@ function EditProject() {
                       value={s.body}
                       onChange={(e) => updateSection(i, { body: e.target.value })}
                     />
+                    <div className="mt-2">
+                      <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                        Layout
+                      </label>
+                      <select
+                        className={inp + " mt-1.5"}
+                        value={s.layout}
+                        onChange={(e) =>
+                          updateSection(i, { layout: e.target.value as SectionLayout })
+                        }
+                      >
+                        <option value="side-by-side">Side-by-side (image + text columns)</option>
+                        <option value="stacked">Stacked (image full-width, text below)</option>
+                      </select>
+                    </div>
 
                     {/* Image */}
                     <div className="mt-3">

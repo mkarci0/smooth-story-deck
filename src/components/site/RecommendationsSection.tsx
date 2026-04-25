@@ -16,7 +16,7 @@ export function RecommendationsSection({ title, items }: Props) {
   if (items.length <= 2) {
     return (
       <section
-        className="mx-auto max-w-5xl px-6 lg:px-10 py-20 md:py-28"
+        className="mx-auto max-w-5xl page-shell py-20 md:py-28"
         aria-labelledby="recs-heading-static"
       >
         <Reveal className="text-center mb-12">
@@ -76,7 +76,7 @@ function RecommendationsCarousel({ title, items }: Props) {
 
   return (
     <section
-      className="mx-auto max-w-6xl px-6 lg:px-10 py-20 md:py-28"
+      className="mx-auto max-w-6xl page-shell py-20 md:py-28"
       aria-labelledby="recs-heading"
     >
       <Reveal className="text-center mb-12">

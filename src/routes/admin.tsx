@@ -59,7 +59,7 @@ function AdminLayout() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 lg:px-10 py-10">
+    <div className="mx-auto max-w-6xl page-shell py-10">
       {adminHelmet}
       <div className="flex items-center justify-between mb-6">
         <div>

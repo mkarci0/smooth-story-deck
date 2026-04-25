@@ -64,12 +64,15 @@ function SectionRenderer({
   const hasBody = !!section.body;
   const hasImage = !!section.image_url;
   const hasHeading = !!section.heading;
+  const isStacked = section.layout === "stacked";
+  const imageShapeClass =
+    section.image_orientation === "portrait" ? "aspect-[1/2] max-w-md mx-auto" : "aspect-[4/3]";
 
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
 
   if (isOverviewLike(section, displayIndex)) {
     return (
-      <section className="mx-auto max-w-3xl px-6 lg:px-10 mt-20 md:mt-28">
+      <section className="mx-auto max-w-3xl page-shell mt-20 md:mt-28">
         <Reveal>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
             {indexLabel} · {section.heading}
@@ -84,7 +87,7 @@ function SectionRenderer({
 
   if (hasMetrics && !hasBody && !hasImage) {
     return (
-      <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
+      <section className="mx-auto max-w-6xl page-shell mt-20 md:mt-28">
         <Reveal>
           <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
             {indexLabel} · {section.heading || "Outcome"}
@@ -114,7 +117,7 @@ function SectionRenderer({
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-20 md:mt-28">
+    <section className="mx-auto max-w-6xl page-shell mt-20 md:mt-28">
       <Reveal>
         <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
           {indexLabel} · {section.heading || "Section"}
@@ -125,22 +128,10 @@ function SectionRenderer({
           </h2>
         )}
       </Reveal>
-      <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
-        {hasBody && (
-          <Reveal delay={0.05} className={hasImage ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}>
-            <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-              {section.body}
-            </p>
-          </Reveal>
-        )}
-        {hasImage && (
-          <Reveal delay={0.1} className={hasBody ? "md:col-span-7" : "md:col-span-12"}>
-            <div
-              className={`rounded-3xl overflow-hidden ${
-                section.image_orientation === "portrait" ? "aspect-[1/2] max-w-md mx-auto" : "aspect-[4/3]"
-              }`}
-              style={{ backgroundColor: accent }}
-            >
+      {hasImage && isStacked ? (
+        <div className="space-y-8">
+          <Reveal delay={0.1}>
+            <div className="rounded-3xl overflow-hidden aspect-[16/10]" style={{ backgroundColor: accent }}>
               <img
                 src={resolveImage(section.image_url)}
                 alt={`${title} — ${section.heading || "section"}`}
@@ -150,8 +141,41 @@ function SectionRenderer({
               />
             </div>
           </Reveal>
-        )}
-      </div>
+          {hasBody && (
+            <Reveal delay={0.15} className="max-w-3xl">
+              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                {section.body}
+              </p>
+            </Reveal>
+          )}
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+          {hasBody && (
+            <Reveal
+              delay={0.05}
+              className={hasImage ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}
+            >
+              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
+                {section.body}
+              </p>
+            </Reveal>
+          )}
+          {hasImage && (
+            <Reveal delay={0.1} className={hasBody ? "md:col-span-7" : "md:col-span-12"}>
+              <div className={`rounded-3xl overflow-hidden ${imageShapeClass}`} style={{ backgroundColor: accent }}>
+                <img
+                  src={resolveImage(section.image_url)}
+                  alt={`${title} — ${section.heading || "section"}`}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </Reveal>
+          )}
+        </div>
+      )}
       {hasMetrics && (
         <div className="mt-10 grid sm:grid-cols-3 gap-6">
           {section.metrics.map((m: OutcomeItem, i: number) => (
@@ -226,7 +250,7 @@ function ProjectDetail() {
       </Helmet>
 
       {/* BREADCRUMB */}
-      <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-8 md:pt-10">
+      <div className="mx-auto max-w-6xl page-shell pt-8 md:pt-10">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
           <ol className="flex items-center gap-2 flex-wrap">
             <li><Link to="/" className="hover:text-foreground transition-colors">home</Link></li>
@@ -239,7 +263,7 @@ function ProjectDetail() {
       </div>
 
       {/* HERO */}
-      <header className="mx-auto max-w-6xl px-6 lg:px-10 pt-10 md:pt-14 pb-12">
+      <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -271,7 +295,7 @@ function ProjectDetail() {
         initial={reduce ? false : { opacity: 0, scale: 0.98 }}
         animate={reduce ? undefined : { opacity: 1, scale: 1 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto max-w-6xl px-6 lg:px-10"
+        className="mx-auto max-w-6xl page-shell"
       >
         <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
           <img
@@ -288,7 +312,7 @@ function ProjectDetail() {
       </motion.div>
 
       {/* META */}
-      <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-16 md:mt-24">
+      <section className="mx-auto max-w-6xl page-shell mt-16 md:mt-24">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden border border-border">
           {[
             { label: "Role", value: project.role },
@@ -317,7 +341,7 @@ function ProjectDetail() {
 
       {/* GALLERY */}
       {project.gallery.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-24 md:mt-32">
+        <section className="mx-auto max-w-6xl page-shell mt-24 md:mt-32">
           <ProjectGallery
             images={project.gallery}
             meta={project.gallery_meta}
@@ -329,7 +353,7 @@ function ProjectDetail() {
 
       {/* NEXT / PREV */}
       {(prev || next) && (
-        <section className="mx-auto max-w-6xl px-6 lg:px-10 mt-32">
+        <section className="mx-auto max-w-6xl page-shell mt-32">
           <div className="flex items-center justify-between mb-8">
             <Link to="/work" className="inline-flex items-center gap-2 text-sm story-link">
               <ArrowLeft className="w-4 h-4" /> back to all work

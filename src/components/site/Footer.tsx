@@ -26,7 +26,7 @@ export function Footer() {
   return (
     <footer className="mt-32 border-t border-border/50" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Site footer</h2>
-      <div className="mx-auto max-w-6xl px-6 lg:px-10 py-16">
+      <div className="mx-auto max-w-6xl page-shell py-16">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <SiteLogo className="mb-4 opacity-90" />

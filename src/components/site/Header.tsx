@@ -21,7 +21,7 @@ export function Header() {
       transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
       className="sticky top-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/40"
     >
-      <div className="mx-auto max-w-6xl px-6 lg:px-10 h-16 flex items-center justify-between">
+      <div className="mx-auto max-w-6xl page-shell h-16 flex items-center justify-between">
         <Link
           to="/"
           className="flex items-center group rounded-md"

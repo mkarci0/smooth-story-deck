@@ -21,6 +21,7 @@ export const resolveImage = (url: string | null | undefined): string => {
 export type Orientation = "landscape" | "portrait";
 
 export type OutcomeItem = { label: string; value: string };
+export type SectionLayout = "side-by-side" | "stacked";
 
 /**
  * Unified, fully-dynamic case-study section.
@@ -34,6 +35,7 @@ export type UnifiedSection = {
   body: string;
   image_url: string | null;
   image_orientation: Orientation | null;
+  layout: SectionLayout;
   metrics: OutcomeItem[];
 };
 
@@ -73,6 +75,7 @@ const normalizeSection = (s: any): UnifiedSection => ({
     s?.image_orientation === "portrait" || s?.image_orientation === "landscape"
       ? s.image_orientation
       : null,
+  layout: s?.layout === "stacked" ? "stacked" : "side-by-side",
   metrics: Array.isArray(s?.metrics)
     ? s.metrics.map((m: any) => ({
         label: typeof m?.label === "string" ? m.label : "",
@@ -152,6 +155,7 @@ export const newSection = (heading = ""): UnifiedSection => ({
   body: "",
   image_url: null,
   image_orientation: null,
+  layout: "side-by-side",
   metrics: [],
 });
 

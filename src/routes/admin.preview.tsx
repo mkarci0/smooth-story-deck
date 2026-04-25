@@ -34,7 +34,7 @@ function PreviewMode() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* CONTROL BAR */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
-        <div className="px-6 lg:px-10 py-3 flex flex-wrap items-center gap-3 justify-between">
+        <div className="page-shell py-3 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />

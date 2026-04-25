@@ -32,7 +32,7 @@ function WorkPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-28 pb-10">
+    <div className="mx-auto max-w-6xl page-shell pt-20 md:pt-28 pb-10">
       <Helmet>
         <title>Work — Murat Karcı, Product Designer</title>
         <meta
@@ -60,7 +60,7 @@ function WorkPage() {
         <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-4">
           Index — {projects.length} project{projects.length === 1 ? "" : "s"}
         </p>
-        <h1 className="font-display text-5xl md:text-7xl tracking-tight leading-[0.95] text-balance">
+        <h1 className="hero-heading text-balance">
           A small archive of <em className="text-accent not-italic">work</em> I'm proud of.
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-xl text-balance">

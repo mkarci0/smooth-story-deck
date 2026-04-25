@@ -79,7 +79,7 @@ function HomePage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl px-6 lg:px-10 pt-20 md:pt-32 pb-14 md:pb-20">
+        <div className="mx-auto max-w-6xl page-shell pt-20 md:pt-32 pb-14 md:pb-20">
           <div className="grid md:grid-cols-[minmax(0,1fr)_280px] lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
             <div>
               <motion.p
@@ -95,7 +95,7 @@ function HomePage() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-6 font-display text-4xl md:text-5xl lg:text-6xl tracking-[-0.02em] leading-[1.05] text-balance max-w-3xl font-medium"
+                className="mt-6 hero-heading text-balance max-w-3xl"
               >
                 {settings?.hero_title ?? "Hi, I'm Murat. I design calm software."}
               </motion.h1>
@@ -188,7 +188,7 @@ function HomePage() {
       </section>
 
       {/* SELECTED WORK */}
-      <section className="mx-auto max-w-6xl px-6 lg:px-10 py-24 md:py-32">
+      <section className="mx-auto max-w-6xl page-shell py-24 md:py-32">
         <Reveal className="flex items-end justify-between mb-14">
           <div>
             <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
