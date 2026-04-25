@@ -281,10 +281,10 @@ function ProjectDetail() {
               </span>
             )}
           </div>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] tracking-tight leading-[0.95] text-balance">
+          <h1 className="hero-heading text-balance max-w-3xl">
             {project.title}
           </h1>
-          <p className="mt-6 text-xl md:text-2xl text-muted-foreground max-w-3xl text-balance">
+          <p className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl text-balance leading-relaxed">
             {project.tagline}
           </p>
         </motion.div>
