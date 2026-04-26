@@ -79,7 +79,7 @@ function PasswordRequired({
       setUnlocking(false);
       return;
     }
-    window.sessionStorage.setItem(unlockKeyForSlug(slug), "1");
+    markProjectUnlocked(slug);
     window.location.reload();
   };
 
