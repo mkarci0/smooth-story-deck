@@ -117,7 +117,7 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
         </nav>
       </div>
 
-      <aside className="hidden lg:block fixed left-4 xl:left-6 top-28 z-30">
+      <aside className="hidden lg:block fixed right-4 xl:right-6 top-1/2 -translate-y-1/2 z-30">
         <nav
           aria-label="Case study sections"
           className="rounded-2xl border border-border/60 bg-background/85 backdrop-blur-sm p-3"
@@ -130,7 +130,9 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
                   <button
                     onClick={() => scrollToSection(item.id)}
                     className={`w-full text-left text-xs xl:text-sm px-2 py-1.5 rounded-md transition-colors duration-200 ${
-                      isActive ? "text-foreground bg-muted" : "text-gray-400 hover:text-foreground"
+                      isActive
+                        ? "text-foreground bg-muted font-semibold"
+                        : "text-gray-400 hover:text-foreground font-normal"
                     }`}
                   >
                     <span className="mr-1.5 tabular-nums">{item.indexLabel}</span>
@@ -145,8 +147,24 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
 
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed left-4 bottom-4 z-40 text-[10px] sm:text-xs tracking-[0.12em] text-gray-400 hover:text-foreground transition-colors"
+        aria-label="Back to top"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/85 backdrop-blur-sm px-4 py-2 text-[10px] sm:text-xs tracking-[0.12em] text-gray-400 hover:text-foreground hover:border-foreground/40 shadow-lg transition-all duration-200"
       >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 19V5" />
+          <path d="m5 12 7-7 7 7" />
+        </svg>
         BACK TO TOP
       </button>
     </>
