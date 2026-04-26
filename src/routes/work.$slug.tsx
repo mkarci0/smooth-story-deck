@@ -300,15 +300,11 @@ function SectionRenderer({
 
 function ProjectDetail() {
   const loaderData = Route.useLoaderData();
-  const { project, prev, next } = loaderData;
   const reduce = useReducedMotion();
   const params = Route.useParams();
 
-  const title = `${project.title} — Case study by Murat Karcı`;
-  const description = project.tagline || "Product design case study by Murat Karcı.";
-  const url = `https://muratkarci.design/work/${params.slug}`;
-
   if (loaderData.locked) {
+    const { project } = loaderData;
     return (
       <article>
         <Helmet>
@@ -335,6 +331,11 @@ function ProjectDetail() {
       </article>
     );
   }
+
+  const { project, prev, next } = loaderData;
+  const title = `${project.title} — Case study by Murat Karcı`;
+  const description = project.tagline || "Product design case study by Murat Karcı.";
+  const url = `https://muratkarci.design/work/${params.slug}`;
 
   const overviewSection = project.sections.find((s) => s.heading.trim().toLowerCase() === "overview");
   const sectionIdCounts: Record<string, number> = {};
