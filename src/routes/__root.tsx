@@ -91,6 +91,7 @@ function RootComponent() {
         <Outlet />
       </main>
       <Footer />
+      {!isAdminRoute && <CookieConsent />}
     </div>
   );
 }
