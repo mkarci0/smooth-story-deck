@@ -17,9 +17,12 @@ function getProgress(): number {
   return Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100));
 }
 
+const BACK_TO_TOP_THRESHOLD = 320; // px scrolled before button appears
+
 export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
   const [activeId, setActiveId] = useState<string>(items[0]?.id ?? "");
   const [progress, setProgress] = useState<number>(0);
+  const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
@@ -58,7 +61,10 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
   }, [itemIds]);
 
   useEffect(() => {
-    const onScroll = () => setProgress(getProgress());
+    const onScroll = () => {
+      setProgress(getProgress());
+      setShowBackToTop(window.scrollY > BACK_TO_TOP_THRESHOLD);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
@@ -105,8 +111,11 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
                     buttonRefs.current[item.id] = element;
                   }}
                   onClick={() => scrollToSection(item.id)}
-                  className={`shrink-0 rounded-full px-3.5 py-2 text-sm transition-colors duration-200 ${
-                    isActive ? "text-foreground bg-muted" : "text-gray-400 hover:text-foreground"
+                  aria-current={isActive ? "true" : undefined}
+                  className={`shrink-0 rounded-full px-3.5 py-2 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                    isActive
+                      ? "text-foreground bg-muted font-semibold"
+                      : "text-muted-foreground hover:text-accent"
                   }`}
                 >
                   {item.label}
@@ -129,10 +138,11 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
                 <li key={item.id}>
                   <button
                     onClick={() => scrollToSection(item.id)}
-                    className={`w-full text-left text-xs xl:text-sm px-2 py-1.5 rounded-md transition-colors duration-200 ${
+                    aria-current={isActive ? "true" : undefined}
+                    className={`w-full text-left text-xs xl:text-sm px-2 py-1.5 rounded-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                       isActive
                         ? "text-foreground bg-muted font-semibold"
-                        : "text-gray-400 hover:text-foreground font-normal"
+                        : "text-muted-foreground hover:text-accent font-normal"
                     }`}
                   >
                     <span className="mr-1.5 tabular-nums">{item.indexLabel}</span>
@@ -148,7 +158,13 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Back to top"
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/85 backdrop-blur-sm px-4 py-2 text-[10px] sm:text-xs tracking-[0.12em] text-gray-400 hover:text-foreground hover:border-foreground/40 shadow-lg transition-all duration-200"
+        aria-hidden={!showBackToTop}
+        tabIndex={showBackToTop ? 0 : -1}
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/85 backdrop-blur-sm px-4 py-2 text-[10px] sm:text-xs tracking-[0.12em] text-muted-foreground shadow-lg transition-all duration-300 hover:text-accent hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+          showBackToTop
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 translate-y-3 pointer-events-none"
+        }`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
