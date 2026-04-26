@@ -111,6 +111,9 @@ function PasswordRequired({
           </button>
         </form>
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        <p className="mt-5 text-xs text-muted-foreground">
+          Accept cookies and we'll remember this unlock for your next visit.
+        </p>
       </div>
     </section>
   );
