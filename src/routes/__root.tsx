@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ComingSoon } from "@/components/site/ComingSoon";
+import { CookieConsent } from "@/components/site/CookieConsent";
 import { fetchSiteSettings, type SiteSettings } from "@/lib/site-settings";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -90,6 +91,7 @@ function RootComponent() {
         <Outlet />
       </main>
       <Footer />
+      {!isAdminRoute && <CookieConsent />}
     </div>
   );
 }

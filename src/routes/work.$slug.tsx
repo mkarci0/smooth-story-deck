@@ -12,13 +12,10 @@ import {
   type UnifiedSection,
   type OutcomeItem,
 } from "@/lib/projects";
+import { isProjectUnlocked, markProjectUnlocked } from "@/lib/cookies";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
 import { CaseStudySideNav } from "@/components/site/CaseStudySideNav";
-
-function unlockKeyForSlug(slug: string): string {
-  return `project-unlock:${slug}`;
-}
 
 export const Route = createFileRoute("/work/$slug")({
   loader: async ({ params }) => {
@@ -27,8 +24,7 @@ export const Route = createFileRoute("/work/$slug")({
 
     const unlocked =
       !access.isPasswordProtected ||
-      (typeof window !== "undefined" &&
-        window.sessionStorage.getItem(unlockKeyForSlug(params.slug)) === "1");
+      (typeof window !== "undefined" && isProjectUnlocked(params.slug));
 
     if (!unlocked) {
       return {
@@ -83,7 +79,7 @@ function PasswordRequired({
       setUnlocking(false);
       return;
     }
-    window.sessionStorage.setItem(unlockKeyForSlug(slug), "1");
+    markProjectUnlocked(slug);
     window.location.reload();
   };
 
@@ -115,6 +111,9 @@ function PasswordRequired({
           </button>
         </form>
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        <p className="mt-5 text-xs text-muted-foreground">
+          Accept cookies and we'll remember this unlock for your next visit.
+        </p>
       </div>
     </section>
   );
