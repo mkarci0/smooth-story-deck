@@ -24,8 +24,7 @@ export const Route = createFileRoute("/work/$slug")({
 
     const unlocked =
       !access.isPasswordProtected ||
-      (typeof window !== "undefined" &&
-        window.sessionStorage.getItem(unlockKeyForSlug(params.slug)) === "1");
+      (typeof window !== "undefined" && isProjectUnlocked(params.slug));
 
     if (!unlocked) {
       return {
