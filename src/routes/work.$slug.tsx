@@ -332,6 +332,11 @@ function ProjectDetail() {
     );
   }
 
+  const { project, prev, next } = loaderData;
+  const title = `${project.title} — Case study by Murat Karcı`;
+  const description = project.tagline || "Product design case study by Murat Karcı.";
+  const url = `https://muratkarci.design/work/${params.slug}`;
+
   const overviewSection = project.sections.find((s) => s.heading.trim().toLowerCase() === "overview");
   const sectionIdCounts: Record<string, number> = {};
   const renderedSections = project.sections
