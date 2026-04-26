@@ -12,13 +12,10 @@ import {
   type UnifiedSection,
   type OutcomeItem,
 } from "@/lib/projects";
+import { isProjectUnlocked, markProjectUnlocked } from "@/lib/cookies";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
 import { CaseStudySideNav } from "@/components/site/CaseStudySideNav";
-
-function unlockKeyForSlug(slug: string): string {
-  return `project-unlock:${slug}`;
-}
 
 export const Route = createFileRoute("/work/$slug")({
   loader: async ({ params }) => {
