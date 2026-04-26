@@ -1,30 +1,47 @@
+## Amaç
 
-## Hedef
-`admin.muratkarci.com` subdomain'ine girildiğinde otomatik `/admin/login`'e yönlendir.
+Anasayfa hero'nun altında otomatik kayan disipline/uzmanlık bandını yenilemek. Mevcut "+" ikonları biraz jenerik duruyor — siteyi daha "architectural / calm software" konseptine yaklaştıracak alternatif bir ayraç ve düzen seçelim.
 
-## Değişiklik
-**Tek dosya:** `src/main.tsx` — `createRoot(...).render(...)` çağrısından ÖNCE host kontrolü ekle:
+## Mevcut Durum
 
-```ts
-if (typeof window !== "undefined") {
-  const host = window.location.hostname;
-  const path = window.location.pathname;
-  if (host === "admin.muratkarci.com" && !path.startsWith("/admin")) {
-    window.location.replace("/admin/login");
-  }
-}
+`src/routes/index.tsx` (satır 171-187): yatay kayan, `Product Design + Mobile & Web + ...` şeklinde, kırmızı `+` ayraçlı bir marquee. Tipografi `font-display`, hız sabit, dokunma yok.
+
+## Alternatif Yönler (birini seç)
+
+**A. Minimal nokta + büyük tipografi (önerilen)**  
+"+" yerine küçük bir kırmızı disk (`•` ya da dolu daire). Tipografi büyür (3xl/4xl), spacing genişler, hız yavaşlar. Daha "manifesto" hissi verir, sitedeki büyük heading diliyle uyumlu. Hover'da kayma durur.
+
+```text
+Product Design  ●  Mobile & Web  ●  Brand Systems  ●  Design Strategy
 ```
 
-## Davranış
-- `admin.muratkarci.com` → `/admin/login`'e replace (history kirletmez)
-- `admin.muratkarci.com/admin/*` → dokunmaz (sonsuz loop önlenir, mevcut admin guard'ları çalışır)
-- `muratkarci.com` ve diğer hostlar → etkilenmez
-- Lovable preview / Vercel preview URL'leri → etkilenmez
+**B. Slash ayraçlı küçük etiket bandı**  
+"+" yerine ince `/` ayraç (muted renkte), kelimeler küçük caps + tracking-wide. Daha editorial/teknik bir his. Üstte küçük "Disciplines" eyebrow.
 
-## Senin yapman gerekenler (kod push edildikten sonra)
-1. **Vercel → Project → Settings → Domains** → `admin.muratkarci.com` ekle
-2. Vercel'in verdiği CNAME kaydını domain registrar'da `admin` subdomain için ekle
-3. SSL otomatik provision olur (~5-30 dk)
-4. Propagation sonrası subdomain redirect devreye girer
+```text
+PRODUCT DESIGN / MOBILE & WEB / BRAND SYSTEMS / DESIGN STRATEGY
+```
 
-GitHub bağlıysa kod değişikliği otomatik push olur, Vercel otomatik deploy eder.
+**C. Çift sıra zıt yön marquee**  
+Üst sıra sola, alt sıra sağa hareket eder; aralarda ince bir çizgi. Ayraç yok, kelimeler arası geniş boşluk. Hareketli ama daha sakin, "kinetic typography" hissi.
+
+**D. Statik grid / chip ızgarası (marquee yerine)**  
+Kayan bandı tamamen kaldır, yerine 4-6 sütunlu küçük chip ızgarası koy. Her chip: bir disiplin adı, hover'da kırmızı altçizgi. Daha sakin ve okunaklı, scroll'a saygılı. Reduced-motion kullanıcıları için doğal kazanım.
+
+**E. Sayı + etiket sıralı kayan bant**  
+`01 — Product Design   02 — Mobile & Web   03 — Brand Systems` formatı. Sayılar muted, etiketler ink. Daha "case study index" hissi.
+
+## Tüm Yönler İçin Ortak İyileştirmeler
+
+- **Reduced motion**: `prefers-reduced-motion` durumunda animasyonu durdur, içerik statik kalsın.
+- **Hover-pause**: İmleç bandın üzerine geldiğinde kayma duraksın (okuma kolaylığı).
+- **Erişilebilirlik**: `aria-hidden` kalır, ama içerik okunaklı font ağırlığında olsun. İçerik dekoratif kalmaya devam etsin.
+- **Renk**: Kırmızı vurgu (`--coral`) daha az, daha kıymetli kullanılsın — tüm ayraçlarda değil, sadece seçilmiş yerlerde.
+
+## Önerim
+
+**A (minimal nokta + büyük tipografi) + hover-pause + reduced-motion**. Sitenin "calm software / architectural" tonuna en uygun. İstersen B veya D ile birleştirebiliriz (örn. mobilde D grid, masaüstünde A marquee).
+
+## Karar Bekleyen
+
+Hangi yönü uygulayalım (A / B / C / D / E)? Birden fazla yönü harmanlamak ister misin (ör. responsive olarak farklı davranış)? Disiplin listesi aynı mı kalsın yoksa güncelleyelim mi?
