@@ -171,16 +171,21 @@ function HomePage() {
         <div
           aria-hidden="true"
           role="presentation"
-          className="border-y border-border/60 bg-muted/30 py-5 overflow-hidden"
+          className="marquee-pause border-y border-border/60 bg-muted/30 py-8 md:py-10 overflow-hidden"
         >
-          <div className="flex gap-12 animate-marquee whitespace-nowrap font-display text-xl md:text-2xl text-foreground/70 tracking-tight">
+          <div className="flex gap-14 md:gap-20 animate-marquee whitespace-nowrap font-display text-3xl md:text-5xl lg:text-6xl text-foreground tracking-tight font-medium">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="flex gap-12 shrink-0">
-                <span>Product Design</span><span className="text-accent">+</span>
-                <span>Mobile & Web</span><span className="text-accent">+</span>
-                <span>Brand Systems</span><span className="text-accent">+</span>
-                <span>Design Strategy</span><span className="text-accent">+</span>
-                <span>Prototyping</span><span className="text-accent">+</span>
+              <div key={i} className="flex items-center gap-14 md:gap-20 shrink-0">
+                <span>Product Design</span>
+                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span>Mobile &amp; Web</span>
+                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span>Brand Systems</span>
+                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span>Design Strategy</span>
+                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span>Prototyping</span>
+                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
               </div>
             ))}
           </div>
