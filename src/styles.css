@@ -335,3 +335,74 @@
     animation: none !important;
   }
 }
+
+/* Rich-text body copy authored via the admin RichTextEditor (markdown) */
+@layer components {
+  .prose-rich {
+    color: oklch(from var(--color-foreground) l c h / 0.85);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  @media (min-width: 768px) {
+    .prose-rich { font-size: 1.125rem; }
+  }
+  .prose-rich > * + * { margin-top: 1em; }
+  .prose-rich h1,
+  .prose-rich h2,
+  .prose-rich h3 {
+    font-family: var(--font-display, inherit);
+    color: var(--color-foreground);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+  .prose-rich h1 { font-size: 1.875rem; }
+  .prose-rich h2 { font-size: 1.5rem; }
+  .prose-rich h3 { font-size: 1.25rem; }
+  .prose-rich p { margin: 0; }
+  .prose-rich strong { color: var(--color-foreground); font-weight: 600; }
+  .prose-rich em { font-style: italic; }
+  .prose-rich a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .prose-rich a:hover { text-decoration-thickness: 2px; }
+  .prose-rich ul,
+  .prose-rich ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+  .prose-rich ul { list-style: disc; }
+  .prose-rich ol { list-style: decimal; }
+  .prose-rich li { margin: 0.35em 0; }
+  .prose-rich li::marker { color: var(--color-accent); }
+  .prose-rich blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1rem;
+    color: oklch(from var(--color-foreground) l c h / 0.7);
+    font-style: italic;
+    margin: 1em 0;
+  }
+  .prose-rich code {
+    background: var(--color-muted);
+    padding: 0.125em 0.375em;
+    border-radius: 0.375rem;
+    font-size: 0.9em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .prose-rich pre {
+    background: var(--color-muted);
+    padding: 1em;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+  }
+  .prose-rich pre code { background: transparent; padding: 0; }
+  .prose-rich hr {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    margin: 2em 0;
+  }
+}
