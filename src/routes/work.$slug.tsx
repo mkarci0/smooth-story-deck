@@ -250,9 +250,7 @@ function SectionRenderer({
         <div className="space-y-8">
           {hasBody && (
             <Reveal delay={0.05} className="max-w-3xl">
-              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                {section.body}
-              </p>
+              <SectionBody>{section.body}</SectionBody>
             </Reveal>
           )}
           <Reveal delay={0.1}>
@@ -274,9 +272,7 @@ function SectionRenderer({
               delay={0.05}
               className={hasImage ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}
             >
-              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                {section.body}
-              </p>
+              <SectionBody>{section.body}</SectionBody>
             </Reveal>
           )}
           {hasImage && (
