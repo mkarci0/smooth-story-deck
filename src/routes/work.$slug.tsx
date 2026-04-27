@@ -172,13 +172,13 @@ function SectionRenderer({
 
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
 
-  // Text-only sections (no image, no metrics): use full-width layout with large body type.
+  // Text-only sections (no image, no metrics): fill full content width on the right.
   if (!hasImage && !hasMetrics && hasBody) {
     return (
       <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
           {hasHeading ? (
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6 max-w-3xl">
+            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6">
               <span className="text-muted-foreground/60 mr-2 text-base md:text-lg align-middle">
                 {indexLabel}
               </span>
