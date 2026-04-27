@@ -16,6 +16,7 @@ import { isProjectUnlocked, markProjectUnlocked } from "@/lib/cookies";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
 import { CaseStudySideNav } from "@/components/site/CaseStudySideNav";
+import { SectionBody } from "@/components/site/SectionBody";
 
 export const Route = createFileRoute("/work/$slug")({
   loader: async ({ params }) => {
@@ -188,9 +189,7 @@ function SectionRenderer({
               {indexLabel}
             </p>
           )}
-          <p className="text-base md:text-lg leading-relaxed text-foreground/85 whitespace-pre-line">
-            {section.body}
-          </p>
+          <SectionBody>{section.body}</SectionBody>
         </Reveal>
       </section>
     );
@@ -251,9 +250,7 @@ function SectionRenderer({
         <div className="space-y-8">
           {hasBody && (
             <Reveal delay={0.05} className="max-w-3xl">
-              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                {section.body}
-              </p>
+              <SectionBody>{section.body}</SectionBody>
             </Reveal>
           )}
           <Reveal delay={0.1}>
@@ -275,9 +272,7 @@ function SectionRenderer({
               delay={0.05}
               className={hasImage ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}
             >
-              <p className="text-foreground/85 leading-relaxed text-lg whitespace-pre-line">
-                {section.body}
-              </p>
+              <SectionBody>{section.body}</SectionBody>
             </Reveal>
           )}
           {hasImage && (
