@@ -16,6 +16,7 @@ import { isProjectUnlocked, markProjectUnlocked } from "@/lib/cookies";
 import { Reveal } from "@/components/site/Reveal";
 import { ProjectGallery } from "@/components/site/ProjectGallery";
 import { CaseStudySideNav } from "@/components/site/CaseStudySideNav";
+import { SectionBody } from "@/components/site/SectionBody";
 
 export const Route = createFileRoute("/work/$slug")({
   loader: async ({ params }) => {
