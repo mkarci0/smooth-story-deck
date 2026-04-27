@@ -171,21 +171,21 @@ function HomePage() {
         <div
           aria-hidden="true"
           role="presentation"
-          className="marquee-pause border-y border-border/60 bg-muted/30 py-8 md:py-10 overflow-hidden"
+          className="marquee-pause border-y border-border/60 bg-muted/30 py-5 md:py-6 overflow-hidden"
         >
-          <div className="flex gap-14 md:gap-20 animate-marquee whitespace-nowrap font-display text-3xl md:text-5xl lg:text-6xl text-foreground tracking-tight font-medium">
+          <div className="flex gap-8 md:gap-10 animate-marquee whitespace-nowrap font-display text-lg md:text-xl text-foreground tracking-tight">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-14 md:gap-20 shrink-0">
+              <div key={i} className="flex items-center gap-8 md:gap-10 shrink-0">
                 <span>Product Design</span>
-                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 <span>Mobile &amp; Web</span>
-                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 <span>Brand Systems</span>
-                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 <span>Design Strategy</span>
-                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 <span>Prototyping</span>
-                <span className="inline-block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-accent shrink-0" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
               </div>
             ))}
           </div>
