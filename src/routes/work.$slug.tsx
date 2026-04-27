@@ -189,9 +189,7 @@ function SectionRenderer({
               {indexLabel}
             </p>
           )}
-          <p className="text-base md:text-lg leading-relaxed text-foreground/85 whitespace-pre-line">
-            {section.body}
-          </p>
+          <SectionBody>{section.body}</SectionBody>
         </Reveal>
       </section>
     );
