@@ -248,12 +248,11 @@ function EditProject() {
                       value={s.heading}
                       onChange={(e) => updateSection(i, { heading: e.target.value })}
                     />
-                    <textarea
-                      rows={4}
-                      className={inp}
-                      placeholder="Body copy…"
+                    <RichTextEditor
                       value={s.body}
-                      onChange={(e) => updateSection(i, { body: e.target.value })}
+                      onChange={(next) => updateSection(i, { body: next })}
+                      placeholder="Body copy…"
+                      rows={6}
                     />
                     <div className="mt-2">
                       <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
