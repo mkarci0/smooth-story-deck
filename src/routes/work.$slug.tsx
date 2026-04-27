@@ -177,8 +177,8 @@ function SectionRenderer({
       <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
           {hasHeading ? (
-            <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
-              <span className="text-muted-foreground/60 mr-3 text-2xl md:text-3xl align-middle">
+            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6 max-w-3xl">
+              <span className="text-muted-foreground/60 mr-2 text-base md:text-lg align-middle">
                 {indexLabel}
               </span>
               {section.heading}
@@ -188,7 +188,7 @@ function SectionRenderer({
               {indexLabel}
             </p>
           )}
-          <p className="font-display text-2xl md:text-3xl leading-snug tracking-tight text-balance text-foreground/90 whitespace-pre-line">
+          <p className="text-base md:text-lg leading-relaxed text-foreground/85 whitespace-pre-line">
             {section.body}
           </p>
         </Reveal>
