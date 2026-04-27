@@ -171,14 +171,24 @@ function SectionRenderer({
 
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
 
-  if (isOverviewLike(section, displayIndex)) {
+  // Text-only sections (no image, no metrics): use full-width layout with large body type.
+  if (!hasImage && !hasMetrics && hasBody) {
     return (
-      <section id={sectionId} className="mx-auto max-w-3xl page-shell mt-20 md:mt-28 scroll-mt-32">
+      <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
-          <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-            {indexLabel} · {section.heading}
-          </p>
-          <p className="font-display text-3xl md:text-4xl leading-tight tracking-tight text-balance">
+          {hasHeading ? (
+            <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
+              <span className="text-muted-foreground/60 mr-3 text-2xl md:text-3xl align-middle">
+                {indexLabel}
+              </span>
+              {section.heading}
+            </h2>
+          ) : (
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+              {indexLabel}
+            </p>
+          )}
+          <p className="font-display text-2xl md:text-3xl leading-snug tracking-tight text-balance text-foreground/90 whitespace-pre-line">
             {section.body}
           </p>
         </Reveal>
@@ -190,13 +200,17 @@ function SectionRenderer({
     return (
       <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
-          <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-            {indexLabel} · {section.heading || "Outcome"}
-          </p>
-          {hasHeading && (
+          {hasHeading ? (
             <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-10">
-              By the numbers.
+              <span className="text-muted-foreground/60 mr-3 text-2xl md:text-3xl align-middle">
+                {indexLabel}
+              </span>
+              {section.heading}
             </h2>
+          ) : (
+            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+              {indexLabel} · Outcome
+            </p>
           )}
         </Reveal>
         <div className="grid sm:grid-cols-3 gap-6">
@@ -220,13 +234,17 @@ function SectionRenderer({
   return (
     <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
       <Reveal>
-        <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-          {indexLabel} · {section.heading || "Section"}
-        </p>
-        {hasHeading && (
+        {hasHeading ? (
           <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-8 max-w-3xl">
+            <span className="text-muted-foreground/60 mr-3 text-2xl md:text-3xl align-middle">
+              {indexLabel}
+            </span>
             {section.heading}
           </h2>
+        ) : (
+          <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+            {indexLabel}
+          </p>
         )}
       </Reveal>
       {hasImage && isStacked ? (
