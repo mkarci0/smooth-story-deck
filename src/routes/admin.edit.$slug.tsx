@@ -26,6 +26,7 @@ import {
   type GalleryMeta,
   type SectionLayout,
 } from "@/lib/projects";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export const Route = createFileRoute("/admin/edit/$slug")({
   component: EditProject,
