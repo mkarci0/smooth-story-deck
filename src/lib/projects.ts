@@ -29,6 +29,13 @@ export type SectionLayout = "side-by-side" | "stacked";
  * shares this shape. Heading, body, image and metrics are all optional, so a
  * section can be a paragraph, an image-led block, a metrics row, or a mix.
  */
+export type SubSection = {
+  id: string;
+  body: string;
+  image_url: string | null;
+  image_orientation: Orientation | null;
+};
+
 export type UnifiedSection = {
   id: string;
   heading: string;
@@ -37,6 +44,7 @@ export type UnifiedSection = {
   image_orientation: Orientation | null;
   layout: SectionLayout;
   metrics: OutcomeItem[];
+  subSections: SubSection[];
 };
 
 export type GalleryMeta = { orientation: Orientation };
