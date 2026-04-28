@@ -126,7 +126,7 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
         </nav>
       </div>
 
-      <aside className="hidden lg:block fixed right-4 xl:right-6 top-24 bottom-6 z-30">
+      <aside className="hidden xl:block fixed right-4 2xl:right-6 top-24 bottom-6 z-30">
         <div className="h-full w-[220px] rounded-2xl border border-border/60 bg-background/88 backdrop-blur-sm p-3 flex flex-col">
           <nav aria-label="Case study sections" className="min-h-0 flex-1 overflow-y-auto pr-1">
             <ol className="space-y-1.5">
