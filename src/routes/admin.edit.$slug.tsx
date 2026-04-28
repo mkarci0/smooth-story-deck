@@ -498,6 +498,23 @@ function EditProject() {
                                 placeholder="Sub-section body…"
                                 rows={4}
                               />
+                              <div className="mt-2">
+                                <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                                  Layout
+                                </label>
+                                <select
+                                  className={inp + " mt-1"}
+                                  value={sub.layout}
+                                  onChange={(e) =>
+                                    updateSubSection(i, si, {
+                                      layout: e.target.value as SectionLayout,
+                                    })
+                                  }
+                                >
+                                  <option value="side-by-side">Side-by-side (image + text columns)</option>
+                                  <option value="stacked">Stacked (image full-width, text below)</option>
+                                </select>
+                              </div>
                               <div className="mt-2 flex items-center gap-3">
                                 {sub.image_url ? (
                                   <div className="relative">

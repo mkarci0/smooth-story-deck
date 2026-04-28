@@ -153,26 +153,52 @@ function SubSectionBlock({
   const hasBody = !!sub.body;
   const hasImage = !!sub.image_url;
   if (!hasBody && !hasImage) return null;
+  const isStacked = sub.layout === "stacked";
+  const imageWrapperClass =
+    sub.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
+
+  if (isStacked || !hasImage || !hasBody) {
+    return (
+      <div className="space-y-6">
+        {hasBody && (
+          <Reveal>
+            <SectionBody>{sub.body}</SectionBody>
+          </Reveal>
+        )}
+        {hasImage && (
+          <Reveal delay={0.05}>
+            <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
+              <img
+                src={resolveImage(sub.image_url)}
+                alt={`${title} — sub section`}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-auto block"
+              />
+            </div>
+          </Reveal>
+        )}
+      </div>
+    );
+  }
+
+  // side-by-side
   return (
-    <div className="space-y-6">
-      {hasBody && (
-        <Reveal>
-          <SectionBody>{sub.body}</SectionBody>
-        </Reveal>
-      )}
-      {hasImage && (
-        <Reveal delay={0.05}>
-          <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
-            <img
-              src={resolveImage(sub.image_url)}
-              alt={`${title} — sub section`}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-auto block"
-            />
-          </div>
-        </Reveal>
-      )}
+    <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+      <Reveal className="md:col-span-5">
+        <SectionBody>{sub.body}</SectionBody>
+      </Reveal>
+      <Reveal delay={0.05} className="md:col-span-7">
+        <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
+          <img
+            src={resolveImage(sub.image_url)}
+            alt={`${title} — sub section`}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-auto block"
+          />
+        </div>
+      </Reveal>
     </div>
   );
 }
