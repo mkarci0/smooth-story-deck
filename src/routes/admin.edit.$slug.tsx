@@ -149,7 +149,39 @@ function EditProject() {
     update({ sections: next });
   };
 
-  // Gallery helpers
+  // Sub-section helpers
+  const addSubSection = (sectionIndex: number) => {
+    const next = [...p.sections];
+    const subs = [...(next[sectionIndex].subSections ?? []), newSubSection()];
+    next[sectionIndex] = { ...next[sectionIndex], subSections: subs };
+    update({ sections: next });
+  };
+  const updateSubSection = (
+    sectionIndex: number,
+    subIndex: number,
+    patch: Partial<SubSection>
+  ) => {
+    const next = [...p.sections];
+    const subs = [...(next[sectionIndex].subSections ?? [])];
+    subs[subIndex] = { ...subs[subIndex], ...patch };
+    next[sectionIndex] = { ...next[sectionIndex], subSections: subs };
+    update({ sections: next });
+  };
+  const removeSubSection = (sectionIndex: number, subIndex: number) => {
+    const next = [...p.sections];
+    const subs = (next[sectionIndex].subSections ?? []).filter((_, j) => j !== subIndex);
+    next[sectionIndex] = { ...next[sectionIndex], subSections: subs };
+    update({ sections: next });
+  };
+  const moveSubSection = (sectionIndex: number, subIndex: number, dir: -1 | 1) => {
+    const next = [...p.sections];
+    const subs = [...(next[sectionIndex].subSections ?? [])];
+    const j = subIndex + dir;
+    if (j < 0 || j >= subs.length) return;
+    [subs[subIndex], subs[j]] = [subs[j], subs[subIndex]];
+    next[sectionIndex] = { ...next[sectionIndex], subSections: subs };
+    update({ sections: next });
+  };
   const moveGallery = (i: number, dir: -1 | 1) => {
     const j = i + dir;
     if (j < 0 || j >= p.gallery.length) return;
