@@ -11,6 +11,7 @@ import {
   resolveImage,
   type UnifiedSection,
   type OutcomeItem,
+  type SubSection,
 } from "@/lib/projects";
 import { isProjectUnlocked, markProjectUnlocked } from "@/lib/cookies";
 import { Reveal } from "@/components/site/Reveal";
@@ -135,7 +136,44 @@ function hasRenderableContent(section: UnifiedSection): boolean {
     !!section.heading ||
     !!section.body ||
     !!section.image_url ||
-    section.metrics.length > 0
+    section.metrics.length > 0 ||
+    (section.subSections?.length ?? 0) > 0
+  );
+}
+
+function SubSectionBlock({
+  sub,
+  accent,
+  title,
+}: {
+  sub: SubSection;
+  accent: string;
+  title: string;
+}) {
+  const hasBody = !!sub.body;
+  const hasImage = !!sub.image_url;
+  if (!hasBody && !hasImage) return null;
+  return (
+    <div className="space-y-6">
+      {hasBody && (
+        <Reveal>
+          <SectionBody>{sub.body}</SectionBody>
+        </Reveal>
+      )}
+      {hasImage && (
+        <Reveal delay={0.05}>
+          <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
+            <img
+              src={resolveImage(sub.image_url)}
+              alt={`${title} — sub section`}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto block"
+            />
+          </div>
+        </Reveal>
+      )}
+    </div>
   );
 }
 
@@ -166,31 +204,44 @@ function SectionRenderer({
   const hasBody = !!section.body;
   const hasImage = !!section.image_url;
   const hasHeading = !!section.heading;
+  const subSections = section.subSections ?? [];
+  const hasSubs = subSections.length > 0;
   const isStacked = section.layout === "stacked";
   const imageWrapperClass =
     section.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
 
-  if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
+  if (!hasHeading && !hasBody && !hasImage && !hasMetrics && !hasSubs) return null;
 
-  // Text-only sections (no image, no metrics): fill full content width on the right.
+  const Heading = hasHeading ? (
+    <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6">
+      <span className="text-muted-foreground/60 mr-2 text-base md:text-lg align-middle">
+        {indexLabel}
+      </span>
+      {section.heading}
+    </h2>
+  ) : (
+    <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
+      {indexLabel}
+    </p>
+  );
+
+  const SubSectionsBlock = hasSubs ? (
+    <div className="mt-12 space-y-12">
+      {subSections.map((sub) => (
+        <SubSectionBlock key={sub.id} sub={sub} accent={accent} title={title} />
+      ))}
+    </div>
+  ) : null;
+
+  // Text-only sections (no image, no metrics): fill full content width.
   if (!hasImage && !hasMetrics && hasBody) {
     return (
       <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
-          {hasHeading ? (
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6">
-              <span className="text-muted-foreground/60 mr-2 text-base md:text-lg align-middle">
-                {indexLabel}
-              </span>
-              {section.heading}
-            </h2>
-          ) : (
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-              {indexLabel}
-            </p>
-          )}
+          {Heading}
           <SectionBody>{section.body}</SectionBody>
         </Reveal>
+        {SubSectionsBlock}
       </section>
     );
   }
@@ -198,20 +249,7 @@ function SectionRenderer({
   if (hasMetrics && !hasBody && !hasImage) {
     return (
       <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
-        <Reveal>
-          {hasHeading ? (
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-8">
-              <span className="text-muted-foreground/60 mr-2 text-base md:text-lg align-middle">
-                {indexLabel}
-              </span>
-              {section.heading}
-            </h2>
-          ) : (
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-              {indexLabel} · Outcome
-            </p>
-          )}
-        </Reveal>
+        <Reveal>{Heading}</Reveal>
         <div className="grid sm:grid-cols-3 gap-6">
           {section.metrics.map((m: OutcomeItem, i: number) => (
             <Reveal
@@ -226,30 +264,28 @@ function SectionRenderer({
             </Reveal>
           ))}
         </div>
+        {SubSectionsBlock}
+      </section>
+    );
+  }
+
+  // Heading-only section that just groups sub-sections.
+  if (!hasBody && !hasImage && !hasMetrics && hasSubs) {
+    return (
+      <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
+        <Reveal>{Heading}</Reveal>
+        {SubSectionsBlock}
       </section>
     );
   }
 
   return (
     <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
-      <Reveal>
-        {hasHeading ? (
-          <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6 max-w-3xl">
-            <span className="text-muted-foreground/60 mr-2 text-base md:text-lg align-middle">
-              {indexLabel}
-            </span>
-            {section.heading}
-          </h2>
-        ) : (
-          <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-            {indexLabel}
-          </p>
-        )}
-      </Reveal>
+      <Reveal>{Heading}</Reveal>
       {hasImage && isStacked ? (
         <div className="space-y-8">
           {hasBody && (
-            <Reveal delay={0.05} className="max-w-3xl">
+            <Reveal delay={0.05}>
               <SectionBody>{section.body}</SectionBody>
             </Reveal>
           )}
@@ -270,7 +306,7 @@ function SectionRenderer({
           {hasBody && (
             <Reveal
               delay={0.05}
-              className={hasImage ? "md:col-span-5" : "md:col-span-12 max-w-3xl"}
+              className={hasImage ? "md:col-span-5" : "md:col-span-12"}
             >
               <SectionBody>{section.body}</SectionBody>
             </Reveal>
@@ -306,6 +342,7 @@ function SectionRenderer({
           ))}
         </div>
       )}
+      {SubSectionsBlock}
     </section>
   );
 }

@@ -29,6 +29,13 @@ export type SectionLayout = "side-by-side" | "stacked";
  * shares this shape. Heading, body, image and metrics are all optional, so a
  * section can be a paragraph, an image-led block, a metrics row, or a mix.
  */
+export type SubSection = {
+  id: string;
+  body: string;
+  image_url: string | null;
+  image_orientation: Orientation | null;
+};
+
 export type UnifiedSection = {
   id: string;
   heading: string;
@@ -37,6 +44,7 @@ export type UnifiedSection = {
   image_orientation: Orientation | null;
   layout: SectionLayout;
   metrics: OutcomeItem[];
+  subSections: SubSection[];
 };
 
 export type GalleryMeta = { orientation: Orientation };
@@ -75,6 +83,16 @@ const uid = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+const normalizeSubSection = (s: any): SubSection => ({
+  id: typeof s?.id === "string" && s.id ? s.id : uid(),
+  body: typeof s?.body === "string" ? s.body : "",
+  image_url: s?.image_url ?? null,
+  image_orientation:
+    s?.image_orientation === "portrait" || s?.image_orientation === "landscape"
+      ? s.image_orientation
+      : null,
+});
+
 const normalizeSection = (s: any): UnifiedSection => ({
   id: typeof s?.id === "string" && s.id ? s.id : uid(),
   heading: typeof s?.heading === "string" ? s.heading : "",
@@ -90,6 +108,9 @@ const normalizeSection = (s: any): UnifiedSection => ({
         label: typeof m?.label === "string" ? m.label : "",
         value: typeof m?.value === "string" ? m.value : "",
       }))
+    : [],
+  subSections: Array.isArray(s?.subSections)
+    ? s.subSections.map(normalizeSubSection)
     : [],
 });
 
@@ -266,6 +287,14 @@ export const newSection = (heading = ""): UnifiedSection => ({
   image_orientation: null,
   layout: "side-by-side",
   metrics: [],
+  subSections: [],
+});
+
+export const newSubSection = (): SubSection => ({
+  id: uid(),
+  body: "",
+  image_url: null,
+  image_orientation: null,
 });
 
 /** Detect orientation from a File by reading its intrinsic dimensions. */
