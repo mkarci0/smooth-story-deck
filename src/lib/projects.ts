@@ -34,6 +34,7 @@ export type SubSection = {
   body: string;
   image_url: string | null;
   image_orientation: Orientation | null;
+  layout: SectionLayout;
 };
 
 export type UnifiedSection = {
