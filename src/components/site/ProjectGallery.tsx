@@ -72,18 +72,17 @@ function Frame({
   src,
   accent,
   alt,
-  orientation,
   priority,
 }: {
   src: string;
   accent: string;
   alt: string;
-  orientation: "landscape" | "portrait";
+  orientation?: "landscape" | "portrait";
   priority?: boolean;
 }) {
   return (
     <div
-      className={`rounded-3xl overflow-hidden ${ratioClass(orientation)}`}
+      className="rounded-3xl overflow-hidden"
       style={{ backgroundColor: accent }}
     >
       <img
@@ -91,7 +90,7 @@ function Frame({
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
-        className="w-full h-full object-cover"
+        className="w-full h-auto block"
       />
     </div>
   );
