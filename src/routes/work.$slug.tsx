@@ -145,10 +145,12 @@ function SubSectionBlock({
   sub,
   accent,
   title,
+  index,
 }: {
   sub: SubSection;
   accent: string;
   title: string;
+  index: number;
 }) {
   const hasBody = !!sub.body;
   const hasImage = !!sub.image_url;
@@ -182,23 +184,40 @@ function SubSectionBlock({
     );
   }
 
-  // side-by-side
+  // side-by-side — alternate: even = image-right, odd = image-left
+  const imageLeft = index % 2 === 1;
+  const bodyEl = (
+    <Reveal className="md:col-span-5">
+      <SectionBody>{sub.body}</SectionBody>
+    </Reveal>
+  );
+  const imageEl = (
+    <Reveal delay={0.05} className="md:col-span-7">
+      <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
+        <img
+          src={resolveImage(sub.image_url)}
+          alt={`${title} — sub section`}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-auto block"
+        />
+      </div>
+    </Reveal>
+  );
+
   return (
     <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
-      <Reveal className="md:col-span-5">
-        <SectionBody>{sub.body}</SectionBody>
-      </Reveal>
-      <Reveal delay={0.05} className="md:col-span-7">
-        <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
-          <img
-            src={resolveImage(sub.image_url)}
-            alt={`${title} — sub section`}
-            loading="lazy"
-            decoding="async"
-            className="w-full h-auto block"
-          />
-        </div>
-      </Reveal>
+      {imageLeft ? (
+        <>
+          {imageEl}
+          {bodyEl}
+        </>
+      ) : (
+        <>
+          {bodyEl}
+          {imageEl}
+        </>
+      )}
     </div>
   );
 }
