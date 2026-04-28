@@ -136,7 +136,44 @@ function hasRenderableContent(section: UnifiedSection): boolean {
     !!section.heading ||
     !!section.body ||
     !!section.image_url ||
-    section.metrics.length > 0
+    section.metrics.length > 0 ||
+    (section.subSections?.length ?? 0) > 0
+  );
+}
+
+function SubSectionBlock({
+  sub,
+  accent,
+  title,
+}: {
+  sub: SubSection;
+  accent: string;
+  title: string;
+}) {
+  const hasBody = !!sub.body;
+  const hasImage = !!sub.image_url;
+  if (!hasBody && !hasImage) return null;
+  return (
+    <div className="space-y-6">
+      {hasBody && (
+        <Reveal>
+          <SectionBody>{sub.body}</SectionBody>
+        </Reveal>
+      )}
+      {hasImage && (
+        <Reveal delay={0.05}>
+          <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
+            <img
+              src={resolveImage(sub.image_url)}
+              alt={`${title} — sub section`}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto block"
+            />
+          </div>
+        </Reveal>
+      )}
+    </div>
   );
 }
 
