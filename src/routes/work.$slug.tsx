@@ -52,7 +52,9 @@ export const Route = createFileRoute("/work/$slug")({
         <meta name="robots" content="noindex" />
       </Helmet>
       <h1 className="font-display text-5xl">Case study not found</h1>
-      <Link to="/work" className="mt-6 inline-block story-link">← Back to all work</Link>
+      <Link to="/work" className="mt-6 inline-block story-link">
+        ← Back to all work
+      </Link>
     </div>
   ),
   component: ProjectDetail,
@@ -93,7 +95,8 @@ function PasswordRequired({
         </div>
         <h1 className="font-display text-3xl tracking-tight">Password Required</h1>
         <p className="mt-3 text-sm text-muted-foreground text-balance">
-          This case study is protected. Enter the password to unlock <span className="text-foreground">{title}</span>.
+          This case study is protected. Enter the password to unlock{" "}
+          <span className="text-foreground">{title}</span>.
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-3">
           <input
@@ -122,13 +125,7 @@ function PasswordRequired({
 }
 
 function isOverviewLike(s: UnifiedSection, i: number): boolean {
-  return (
-    i === 0 &&
-    !s.image_url &&
-    s.metrics.length === 0 &&
-    !!s.body &&
-    !!s.heading
-  );
+  return i === 0 && !s.image_url && s.metrics.length === 0 && !!s.body && !!s.heading;
 }
 
 function hasRenderableContent(section: UnifiedSection): boolean {
@@ -156,8 +153,7 @@ function SubSectionBlock({
   const hasImage = !!sub.image_url;
   if (!hasBody && !hasImage) return null;
   const isStacked = sub.layout === "stacked";
-  const imageWrapperClass =
-    sub.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
+  const imageWrapperClass = sub.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
 
   if (isStacked || !hasImage || !hasBody) {
     return (
@@ -169,7 +165,10 @@ function SubSectionBlock({
         )}
         {hasImage && (
           <Reveal delay={0.05}>
-            <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
+            <div
+              className={`rounded-3xl overflow-hidden ${imageWrapperClass}`}
+              style={{ backgroundColor: accent }}
+            >
               <img
                 src={resolveImage(sub.image_url)}
                 alt={`${title} — sub section`}
@@ -193,7 +192,10 @@ function SubSectionBlock({
   );
   const imageEl = (
     <Reveal delay={0.05} className="md:col-span-7">
-      <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
+      <div
+        className={`rounded-3xl overflow-hidden ${imageWrapperClass}`}
+        style={{ backgroundColor: accent }}
+      >
         <img
           src={resolveImage(sub.image_url)}
           alt={`${title} — sub section`}
@@ -252,8 +254,7 @@ function SectionRenderer({
   const subSections = section.subSections ?? [];
   const hasSubs = subSections.length > 0;
   const isStacked = section.layout === "stacked";
-  const imageWrapperClass =
-    section.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
+  const imageWrapperClass = section.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
 
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics && !hasSubs) return null;
 
@@ -265,9 +266,7 @@ function SectionRenderer({
       {section.heading}
     </h2>
   ) : (
-    <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">
-      {indexLabel}
-    </p>
+    <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">{indexLabel}</p>
   );
 
   const SubSectionsBlock = hasSubs ? (
@@ -349,16 +348,16 @@ function SectionRenderer({
       ) : (
         <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
           {hasBody && (
-            <Reveal
-              delay={0.05}
-              className={hasImage ? "md:col-span-5" : "md:col-span-12"}
-            >
+            <Reveal delay={0.05} className={hasImage ? "md:col-span-5" : "md:col-span-12"}>
               <SectionBody>{section.body}</SectionBody>
             </Reveal>
           )}
           {hasImage && (
             <Reveal delay={0.1} className={hasBody ? "md:col-span-7" : "md:col-span-12"}>
-              <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
+              <div
+                className={`rounded-3xl overflow-hidden ${imageWrapperClass}`}
+                style={{ backgroundColor: accent }}
+              >
                 <img
                   src={resolveImage(section.image_url)}
                   alt={`${title} — ${section.heading || "section"}`}
@@ -409,9 +408,17 @@ function ProjectDetail() {
         <div className="mx-auto max-w-6xl page-shell pt-8 md:pt-10">
           <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
             <ol className="flex items-center gap-2 flex-wrap">
-              <li><Link to="/" className="hover:text-foreground transition-colors">home</Link></li>
+              <li>
+                <Link to="/" className="hover:text-foreground transition-colors">
+                  home
+                </Link>
+              </li>
               <ChevronRight className="w-3.5 h-3.5 opacity-50" />
-              <li><Link to="/work" className="hover:text-foreground transition-colors">work</Link></li>
+              <li>
+                <Link to="/work" className="hover:text-foreground transition-colors">
+                  work
+                </Link>
+              </li>
               <ChevronRight className="w-3.5 h-3.5 opacity-50" />
               <li className="text-foreground font-medium truncate">{project.title}</li>
             </ol>
@@ -431,7 +438,9 @@ function ProjectDetail() {
   const description = project.tagline || "Product design case study by Murat Karcı.";
   const url = `https://muratkarci.design/work/${params.slug}`;
 
-  const overviewSection = project.sections.find((s) => s.heading.trim().toLowerCase() === "overview");
+  const overviewSection = project.sections.find(
+    (s) => s.heading.trim().toLowerCase() === "overview",
+  );
   const sectionIdCounts: Record<string, number> = {};
   const renderedSections = project.sections
     .map((section, index) => {
@@ -470,7 +479,7 @@ function ProjectDetail() {
   };
 
   return (
-    <article>
+    <article className="lg:pr-[16rem] xl:pr-[18rem]">
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -495,16 +504,26 @@ function ProjectDetail() {
       <div className="mx-auto max-w-6xl page-shell pt-8 md:pt-10">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
           <ol className="flex items-center gap-2 flex-wrap">
-            <li><Link to="/" className="hover:text-foreground transition-colors">home</Link></li>
+            <li>
+              <Link to="/" className="hover:text-foreground transition-colors">
+                home
+              </Link>
+            </li>
             <ChevronRight className="w-3.5 h-3.5 opacity-50" />
-            <li><Link to="/work" className="hover:text-foreground transition-colors">work</Link></li>
+            <li>
+              <Link to="/work" className="hover:text-foreground transition-colors">
+                work
+              </Link>
+            </li>
             <ChevronRight className="w-3.5 h-3.5 opacity-50" />
             <li className="text-foreground font-medium truncate">{project.title}</li>
           </ol>
         </nav>
       </div>
 
-      <CaseStudySideNav items={renderedSections.map(({ id, label, indexLabel }) => ({ id, label, indexLabel }))} />
+      <CaseStudySideNav
+        items={renderedSections.map(({ id, label, indexLabel }) => ({ id, label, indexLabel }))}
+      />
 
       {/* HERO */}
       <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
@@ -525,9 +544,7 @@ function ProjectDetail() {
               </span>
             )}
           </div>
-          <h1 className="hero-heading text-balance max-w-3xl">
-            {project.title}
-          </h1>
+          <h1 className="hero-heading text-balance max-w-3xl">{project.title}</h1>
           <p className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl text-balance leading-relaxed">
             {project.tagline}
           </p>
@@ -565,7 +582,9 @@ function ProjectDetail() {
             { label: "Tools", value: project.tools.join(", ") },
           ].map((item, i) => (
             <Reveal key={item.label} delay={i * 0.05} className="bg-background p-6">
-              <p className="uppercase tracking-[0.2em] text-[10px] text-muted-foreground mb-2">{item.label}</p>
+              <p className="uppercase tracking-[0.2em] text-[10px] text-muted-foreground mb-2">
+                {item.label}
+              </p>
               <p className="font-display text-lg leading-tight">{item.value || "—"}</p>
             </Reveal>
           ))}
@@ -630,7 +649,9 @@ function ProjectDetail() {
                     className="w-full aspect-[16/10] object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/25 to-transparent" />
-                  <div className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end gap-4 text-background ${align === "right" ? "justify-between" : "flex-row-reverse justify-between"}`}>
+                  <div
+                    className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end gap-4 text-background ${align === "right" ? "justify-between" : "flex-row-reverse justify-between"}`}
+                  >
                     <div className={align === "right" ? "" : "text-right"}>
                       <p className="uppercase tracking-[0.2em] text-[10px] opacity-80 mb-1.5">
                         {label} case study
@@ -650,7 +671,7 @@ function ProjectDetail() {
                 </Link>
               ) : (
                 <div key={`empty-${label}`} aria-hidden className="hidden md:block" />
-              )
+              ),
             )}
           </div>
         </section>

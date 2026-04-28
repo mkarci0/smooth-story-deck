@@ -49,7 +49,7 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
         root: null,
         rootMargin: "-28% 0px -58% 0px",
         threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
-      }
+      },
     );
 
     itemIds.forEach((id) => {
@@ -126,63 +126,46 @@ export function CaseStudySideNav({ items }: CaseStudySideNavProps) {
         </nav>
       </div>
 
-      <aside className="hidden lg:block fixed right-4 xl:right-6 top-1/2 -translate-y-1/2 z-30">
-        <nav
-          aria-label="Case study sections"
-          className="rounded-2xl border border-border/60 bg-background/85 backdrop-blur-sm p-3"
-        >
-          <ol className="space-y-1.5">
-            {items.map((item) => {
-              const isActive = activeId === item.id;
-              return (
-                <li key={item.id}>
-                  <button
-                    onClick={() => scrollToSection(item.id)}
-                    aria-current={isActive ? "true" : undefined}
-                    className={`w-full text-left text-xs xl:text-sm px-2 py-1.5 rounded-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                      isActive
-                        ? "text-foreground bg-muted font-semibold"
-                        : "text-muted-foreground hover:text-accent font-normal"
-                    }`}
-                  >
-                    <span className="mr-1.5 tabular-nums">{item.indexLabel}</span>
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+      <aside className="hidden lg:block fixed right-4 xl:right-6 top-24 bottom-6 z-30">
+        <div className="h-full w-[220px] rounded-2xl border border-border/60 bg-background/88 backdrop-blur-sm p-3 flex flex-col">
+          <nav aria-label="Case study sections" className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <ol className="space-y-1.5">
+              {items.map((item) => {
+                const isActive = activeId === item.id;
+                return (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => scrollToSection(item.id)}
+                      aria-current={isActive ? "true" : undefined}
+                      className={`w-full text-left text-xs xl:text-sm px-2 py-1.5 rounded-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                        isActive
+                          ? "text-foreground bg-muted font-semibold"
+                          : "text-muted-foreground hover:text-accent font-normal"
+                      }`}
+                    >
+                      <span className="mr-1.5 tabular-nums">{item.indexLabel}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Back to top"
+            aria-hidden={!showBackToTop}
+            tabIndex={showBackToTop ? 0 : -1}
+            className={`mt-3 w-full rounded-full border border-border px-3 py-2 text-[10px] xl:text-xs tracking-[0.12em] transition-all duration-300 ${
+              showBackToTop
+                ? "opacity-100 pointer-events-auto text-muted-foreground hover:text-accent"
+                : "opacity-35 pointer-events-none text-muted-foreground/60"
+            }`}
+          >
+            BACK TO TOP
+          </button>
+        </div>
       </aside>
-
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Back to top"
-        aria-hidden={!showBackToTop}
-        tabIndex={showBackToTop ? 0 : -1}
-        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/85 backdrop-blur-sm px-4 py-2 text-[10px] sm:text-xs tracking-[0.12em] text-muted-foreground shadow-lg transition-all duration-300 hover:text-accent hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-          showBackToTop
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-3 pointer-events-none"
-        }`}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 19V5" />
-          <path d="m5 12 7-7 7 7" />
-        </svg>
-        BACK TO TOP
-      </button>
     </>
   );
 }
