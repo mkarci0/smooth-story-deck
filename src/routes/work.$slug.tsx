@@ -479,7 +479,7 @@ function ProjectDetail() {
   };
 
   return (
-    <article className="2xl:pr-[15rem]">
+    <article>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -523,159 +523,175 @@ function ProjectDetail() {
 
       <CaseStudySideNav
         items={renderedSections.map(({ id, label, indexLabel }) => ({ id, label, indexLabel }))}
+        showDesktop={false}
       />
 
-      {/* HERO */}
-      <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 24 }}
-          animate={reduce ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            {project.category && (
-              <span className="inline-flex items-center text-xs font-medium px-3 py-1 rounded-full bg-butter">
-                {project.category}
-              </span>
-            )}
-            {project.year && (
-              <span className="inline-flex items-center text-xs font-medium px-3 py-1 rounded-full bg-muted">
-                {project.year}
-              </span>
-            )}
-          </div>
-          <h1 className="hero-heading max-w-3xl">{project.title}</h1>
-          <p className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed">
-            {project.tagline}
-          </p>
-        </motion.div>
-      </header>
-
-      {/* COVER */}
-      <motion.div
-        initial={reduce ? false : { opacity: 0, scale: 0.98 }}
-        animate={reduce ? undefined : { opacity: 1, scale: 1 }}
-        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto max-w-6xl page-shell"
-      >
-        <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: project.accent }}>
-          <img
-            src={resolveImage(project.cover_url)}
-            alt={`${project.title} — cover image`}
-            width={1600}
-            height={1000}
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            className="w-full aspect-[16/10] object-cover"
-          />
-        </div>
-      </motion.div>
-
-      {/* META */}
-      <section className="mx-auto max-w-6xl page-shell mt-16 md:mt-24">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden border border-border">
-          {[
-            { label: "Role", value: project.role },
-            { label: "Timeline", value: project.timeline },
-            { label: "Team", value: project.team },
-            { label: "Tools", value: project.tools.join(", ") },
-          ].map((item, i) => (
-            <Reveal key={item.label} delay={i * 0.05} className="bg-background p-6">
-              <p className="uppercase tracking-[0.2em] text-[10px] text-muted-foreground mb-2">
-                {item.label}
+      <div className="mx-auto max-w-[1450px] xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-8 2xl:gap-10 xl:items-start">
+        <div className="min-w-0">
+          {/* HERO */}
+          <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 24 }}
+              animate={reduce ? undefined : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                {project.category && (
+                  <span className="inline-flex items-center text-xs font-medium px-3 py-1 rounded-full bg-butter">
+                    {project.category}
+                  </span>
+                )}
+                {project.year && (
+                  <span className="inline-flex items-center text-xs font-medium px-3 py-1 rounded-full bg-muted">
+                    {project.year}
+                  </span>
+                )}
+              </div>
+              <h1 className="hero-heading max-w-3xl">{project.title}</h1>
+              <p className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed">
+                {project.tagline}
               </p>
-              <p className="font-display text-lg leading-tight">{item.value || "—"}</p>
-            </Reveal>
+            </motion.div>
+          </header>
+
+          {/* COVER */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, scale: 0.98 }}
+            animate={reduce ? undefined : { opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="mx-auto max-w-6xl page-shell"
+          >
+            <div
+              className="rounded-3xl overflow-hidden"
+              style={{ backgroundColor: project.accent }}
+            >
+              <img
+                src={resolveImage(project.cover_url)}
+                alt={`${project.title} — cover image`}
+                width={1600}
+                height={1000}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                className="w-full aspect-[16/10] object-cover"
+              />
+            </div>
+          </motion.div>
+
+          {/* META */}
+          <section className="mx-auto max-w-6xl page-shell mt-16 md:mt-24">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden border border-border">
+              {[
+                { label: "Role", value: project.role },
+                { label: "Timeline", value: project.timeline },
+                { label: "Team", value: project.team },
+                { label: "Tools", value: project.tools.join(", ") },
+              ].map((item, i) => (
+                <Reveal key={item.label} delay={i * 0.05} className="bg-background p-6">
+                  <p className="uppercase tracking-[0.2em] text-[10px] text-muted-foreground mb-2">
+                    {item.label}
+                  </p>
+                  <p className="font-display text-lg leading-tight">{item.value || "—"}</p>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          {/* UNIFIED ORDERED SECTIONS */}
+          {renderedSections.map(({ section, index, id }) => (
+            <SectionRenderer
+              key={section.id}
+              section={section}
+              displayIndex={index}
+              accent={project.accent}
+              title={project.title}
+              sectionId={id}
+            />
           ))}
-        </div>
-      </section>
 
-      {/* UNIFIED ORDERED SECTIONS */}
-      {renderedSections.map(({ section, index, id }) => (
-        <SectionRenderer
-          key={section.id}
-          section={section}
-          displayIndex={index}
-          accent={project.accent}
-          title={project.title}
-          sectionId={id}
-        />
-      ))}
+          {/* GALLERY */}
+          {project.gallery.length > 0 && (
+            <section className="mx-auto max-w-6xl page-shell mt-24 md:mt-32">
+              <ProjectGallery
+                images={project.gallery}
+                meta={project.gallery_meta}
+                accent={project.accent}
+                title={project.title}
+              />
+            </section>
+          )}
 
-      {/* GALLERY */}
-      {project.gallery.length > 0 && (
-        <section className="mx-auto max-w-6xl page-shell mt-24 md:mt-32">
-          <ProjectGallery
-            images={project.gallery}
-            meta={project.gallery_meta}
-            accent={project.accent}
-            title={project.title}
-          />
-        </section>
-      )}
-
-      {/* NEXT / PREV */}
-      {(prev || next) && (
-        <section className="mx-auto max-w-6xl page-shell mt-32">
-          <div className="flex items-center justify-between mb-8">
-            <Link to="/work" className="inline-flex items-center gap-2 text-sm story-link">
-              <ArrowLeft className="w-4 h-4" /> back to all work
-            </Link>
-            <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">More work</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              { item: prev, label: "Previous" as const, align: "left" as const },
-              { item: next, label: "Next" as const, align: "right" as const },
-            ].map(({ item, label, align }) =>
-              item ? (
-                <Link
-                  key={`${label}-${item.slug}`}
-                  to="/work/$slug"
-                  params={{ slug: item.slug }}
-                  className="group block rounded-3xl overflow-hidden relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
-                  style={{ backgroundColor: item.accent }}
-                  aria-label={`${label} case study: ${item.title}`}
-                >
-                  <img
-                    src={resolveImage(item.cover_url)}
-                    alt={`${item.title} cover`}
-                    width={1200}
-                    height={750}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full aspect-[16/10] object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/25 to-transparent" />
-                  <div
-                    className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end gap-4 text-background ${align === "right" ? "justify-between" : "flex-row-reverse justify-between"}`}
-                  >
-                    <div className={align === "right" ? "" : "text-right"}>
-                      <p className="uppercase tracking-[0.2em] text-[10px] opacity-80 mb-1.5">
-                        {label} case study
-                      </p>
-                      <h3 className="font-display text-2xl md:text-3xl tracking-tight">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-background text-foreground flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
-                      {align === "right" ? (
-                        <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5" />
-                      ) : (
-                        <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-                      )}
-                    </div>
-                  </div>
+          {/* NEXT / PREV */}
+          {(prev || next) && (
+            <section className="mx-auto max-w-6xl page-shell mt-32">
+              <div className="flex items-center justify-between mb-8">
+                <Link to="/work" className="inline-flex items-center gap-2 text-sm story-link">
+                  <ArrowLeft className="w-4 h-4" /> back to all work
                 </Link>
-              ) : (
-                <div key={`empty-${label}`} aria-hidden className="hidden md:block" />
-              ),
-            )}
-          </div>
-        </section>
-      )}
+                <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground">
+                  More work
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { item: prev, label: "Previous" as const, align: "left" as const },
+                  { item: next, label: "Next" as const, align: "right" as const },
+                ].map(({ item, label, align }) =>
+                  item ? (
+                    <Link
+                      key={`${label}-${item.slug}`}
+                      to="/work/$slug"
+                      params={{ slug: item.slug }}
+                      className="group block rounded-3xl overflow-hidden relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+                      style={{ backgroundColor: item.accent }}
+                      aria-label={`${label} case study: ${item.title}`}
+                    >
+                      <img
+                        src={resolveImage(item.cover_url)}
+                        alt={`${item.title} cover`}
+                        width={1200}
+                        height={750}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full aspect-[16/10] object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/25 to-transparent" />
+                      <div
+                        className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end gap-4 text-background ${align === "right" ? "justify-between" : "flex-row-reverse justify-between"}`}
+                      >
+                        <div className={align === "right" ? "" : "text-right"}>
+                          <p className="uppercase tracking-[0.2em] text-[10px] opacity-80 mb-1.5">
+                            {label} case study
+                          </p>
+                          <h3 className="font-display text-2xl md:text-3xl tracking-tight">
+                            {item.title}
+                          </h3>
+                        </div>
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-background text-foreground flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
+                          {align === "right" ? (
+                            <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5" />
+                          ) : (
+                            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div key={`empty-${label}`} aria-hidden className="hidden md:block" />
+                  ),
+                )}
+              </div>
+            </section>
+          )}
+        </div>
+        <div className="hidden xl:block">
+          <CaseStudySideNav
+            items={renderedSections.map(({ id, label, indexLabel }) => ({ id, label, indexLabel }))}
+            showMobile={false}
+          />
+        </div>
+      </div>
     </article>
   );
 }
