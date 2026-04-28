@@ -287,6 +287,14 @@ export const newSection = (heading = ""): UnifiedSection => ({
   image_orientation: null,
   layout: "side-by-side",
   metrics: [],
+  subSections: [],
+});
+
+export const newSubSection = (): SubSection => ({
+  id: uid(),
+  body: "",
+  image_url: null,
+  image_orientation: null,
 });
 
 /** Detect orientation from a File by reading its intrinsic dimensions. */
