@@ -167,8 +167,8 @@ function SectionRenderer({
   const hasImage = !!section.image_url;
   const hasHeading = !!section.heading;
   const isStacked = section.layout === "stacked";
-  const imageShapeClass =
-    section.image_orientation === "portrait" ? "aspect-[1/2] max-w-md mx-auto" : "aspect-[4/3]";
+  const imageWrapperClass =
+    section.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
 
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
 
