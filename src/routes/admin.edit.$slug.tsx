@@ -437,6 +437,121 @@ function EditProject() {
                         </div>
                       )}
                     </div>
+
+                    {/* Sub-sections */}
+                    <div className="mt-5 border-t border-border/60 pt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                          Sub-sections (optional)
+                        </label>
+                        <button
+                          onClick={() => addSubSection(i)}
+                          className="text-xs story-link inline-flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" /> add sub-section
+                        </button>
+                      </div>
+                      {(s.subSections ?? []).length === 0 ? (
+                        <p className="text-[11px] text-muted-foreground">
+                          Bu başlık altına ek text + görsel blokları ekleyebilirsiniz.
+                        </p>
+                      ) : (
+                        <ul className="space-y-3">
+                          {(s.subSections ?? []).map((sub, si) => (
+                            <li
+                              key={sub.id}
+                              className="rounded-xl border border-border bg-background/60 p-3"
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground tabular-nums">
+                                  {String(i + 1).padStart(2, "0")}.{String(si + 1).padStart(2, "0")}
+                                </span>
+                                <div className="inline-flex items-center gap-1">
+                                  <button
+                                    onClick={() => moveSubSection(i, si, -1)}
+                                    disabled={si === 0}
+                                    className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                                    title="Move up"
+                                  >
+                                    <ArrowUp className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => moveSubSection(i, si, 1)}
+                                    disabled={si === (s.subSections?.length ?? 0) - 1}
+                                    className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                                    title="Move down"
+                                  >
+                                    <ArrowDown className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => removeSubSection(i, si)}
+                                    className="p-1 text-muted-foreground hover:text-destructive"
+                                    title="Remove"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                              <RichTextEditor
+                                value={sub.body}
+                                onChange={(next) => updateSubSection(i, si, { body: next })}
+                                placeholder="Sub-section body…"
+                                rows={4}
+                              />
+                              <div className="mt-2 flex items-center gap-3">
+                                {sub.image_url ? (
+                                  <div className="relative">
+                                    <img
+                                      src={resolveImage(sub.image_url)}
+                                      alt=""
+                                      className={`object-cover rounded-lg border border-border ${
+                                        sub.image_orientation === "portrait" ? "w-12 h-24" : "w-24 h-16"
+                                      }`}
+                                    />
+                                    <button
+                                      onClick={() =>
+                                        updateSubSection(i, si, {
+                                          image_url: null,
+                                          image_orientation: null,
+                                        })
+                                      }
+                                      className="absolute -top-2 -right-2 p-0.5 rounded-full bg-background border border-border hover:text-destructive"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="w-24 h-16 rounded-lg border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">
+                                    No image
+                                  </div>
+                                )}
+                                <label className="cursor-pointer text-xs story-link inline-flex items-center gap-1.5">
+                                  <Upload className="w-3.5 h-3.5" />
+                                  {uploading === `sub-${i}-${si}`
+                                    ? "Uploading…"
+                                    : sub.image_url
+                                      ? "Replace"
+                                      : "Upload image"}
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) =>
+                                      e.target.files?.[0] &&
+                                      upload(e.target.files[0], {
+                                        kind: "sub",
+                                        sectionIndex: i,
+                                        subIndex: si,
+                                      })
+                                    }
+                                  />
+                                </label>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
