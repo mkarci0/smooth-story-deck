@@ -167,8 +167,8 @@ function SectionRenderer({
   const hasImage = !!section.image_url;
   const hasHeading = !!section.heading;
   const isStacked = section.layout === "stacked";
-  const imageShapeClass =
-    section.image_orientation === "portrait" ? "aspect-[1/2] max-w-md mx-auto" : "aspect-[4/3]";
+  const imageWrapperClass =
+    section.image_orientation === "portrait" ? "max-w-md mx-auto" : "";
 
   if (!hasHeading && !hasBody && !hasImage && !hasMetrics) return null;
 
@@ -254,13 +254,13 @@ function SectionRenderer({
             </Reveal>
           )}
           <Reveal delay={0.1}>
-            <div className="rounded-3xl overflow-hidden aspect-[16/10]" style={{ backgroundColor: accent }}>
+            <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
               <img
                 src={resolveImage(section.image_url)}
                 alt={`${title} — ${section.heading || "section"}`}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover"
+                className="w-full h-auto block"
               />
             </div>
           </Reveal>
@@ -277,13 +277,13 @@ function SectionRenderer({
           )}
           {hasImage && (
             <Reveal delay={0.1} className={hasBody ? "md:col-span-7" : "md:col-span-12"}>
-              <div className={`rounded-3xl overflow-hidden ${imageShapeClass}`} style={{ backgroundColor: accent }}>
+              <div className={`rounded-3xl overflow-hidden ${imageWrapperClass}`} style={{ backgroundColor: accent }}>
                 <img
                   src={resolveImage(section.image_url)}
                   alt={`${title} — ${section.heading || "section"}`}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto block"
                 />
               </div>
             </Reveal>
