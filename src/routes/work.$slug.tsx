@@ -254,13 +254,13 @@ function SectionRenderer({
             </Reveal>
           )}
           <Reveal delay={0.1}>
-            <div className="rounded-3xl overflow-hidden aspect-[16/10]" style={{ backgroundColor: accent }}>
+            <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: accent }}>
               <img
                 src={resolveImage(section.image_url)}
                 alt={`${title} — ${section.heading || "section"}`}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover"
+                className="w-full h-auto block"
               />
             </div>
           </Reveal>
