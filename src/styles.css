@@ -55,15 +55,15 @@
 
   /* Architectural — pure white canvas, deep charcoal ink, signal red accent.
      All foreground/background pairings meet WCAG AAA contrast. */
-  --background: oklch(1 0 0);                  /* #FFFFFF */
-  --foreground: oklch(0.18 0 0);               /* near #0F0F0F — AAA on white */
+  --background: oklch(1 0 0); /* #FFFFFF */
+  --foreground: oklch(0.18 0 0); /* near #0F0F0F — AAA on white */
 
   --ink: oklch(0.18 0 0);
   --cream: oklch(1 0 0);
-  --coral: oklch(0.58 0.24 27);                /* signal red — primary accent */
-  --sage: oklch(0.92 0 0);                     /* light neutral panel */
-  --butter: oklch(0.97 0 0);                   /* off-white panel */
-  --clay: oklch(0.88 0 0);                     /* divider neutral */
+  --coral: oklch(0.58 0.24 27); /* signal red — primary accent */
+  --sage: oklch(0.92 0 0); /* light neutral panel */
+  --butter: oklch(0.97 0 0); /* off-white panel */
+  --clay: oklch(0.88 0 0); /* divider neutral */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.18 0 0);
@@ -77,9 +77,9 @@
   --secondary-foreground: oklch(0.18 0 0);
 
   --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.40 0 0);         /* ≥7:1 AAA on white at body sizes */
+  --muted-foreground: oklch(0.4 0 0); /* ≥7:1 AAA on white at body sizes */
 
-  --accent: oklch(0.58 0.24 27);               /* signal red */
+  --accent: oklch(0.58 0.24 27); /* signal red */
   --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.577 0.245 27.325);
@@ -106,7 +106,11 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-display);
     letter-spacing: -0.025em;
     font-weight: 500;
@@ -131,18 +135,18 @@
   }
 
   .text-balance {
-    text-wrap: balance;
+    text-wrap: pretty;
   }
 
   .page-shell {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
   @media (min-width: 1024px) {
     .page-shell {
-      padding-left: 2.5rem;
-      padding-right: 2.5rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
     }
   }
 
@@ -212,7 +216,11 @@
     font-size: 0.875rem;
     font-weight: 500;
     border: 1px solid var(--color-foreground);
-    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease,
+      transform 0.25s ease;
   }
   .btn-primary:hover,
   .btn-primary:focus-visible {
@@ -233,7 +241,10 @@
     font-size: 0.875rem;
     font-weight: 500;
     border: 1px solid var(--color-border);
-    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
   }
   .btn-secondary:hover,
   .btn-secondary:focus-visible {
@@ -254,7 +265,10 @@
     font-size: 0.875rem;
     font-weight: 500;
     border: 1px solid var(--color-accent);
-    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
   }
   .btn-accent:hover,
   .btn-accent:focus-visible {
@@ -271,8 +285,12 @@
 
   /* Marquee */
   @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
   .animate-marquee {
     animation: marquee 60s linear infinite;
@@ -285,8 +303,13 @@
 
   /* Floating */
   @keyframes float-slow {
-    0%, 100% { transform: translateY(0px) rotate(-2deg); }
-    50% { transform: translateY(-12px) rotate(-2deg); }
+    0%,
+    100% {
+      transform: translateY(0px) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(-2deg);
+    }
   }
   .animate-float-slow {
     animation: float-slow 6s ease-in-out infinite;
@@ -294,8 +317,12 @@
 
   /* Fade in animation for animated labels */
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   .animate-fade-in {
     animation: fade-in 0.5s ease-in-out;
@@ -344,9 +371,13 @@
     line-height: 1.7;
   }
   @media (min-width: 768px) {
-    .prose-rich { font-size: 1.125rem; }
+    .prose-rich {
+      font-size: 1.125rem;
+    }
   }
-  .prose-rich > * + * { margin-top: 1em; }
+  .prose-rich > * + * {
+    margin-top: 1em;
+  }
   .prose-rich h1,
   .prose-rich h2,
   .prose-rich h3 {
@@ -357,28 +388,51 @@
     margin-top: 1.5em;
     margin-bottom: 0.5em;
   }
-  .prose-rich h1 { font-size: 1.875rem; }
-  .prose-rich h2 { font-size: 1.5rem; }
-  .prose-rich h3 { font-size: 1.25rem; }
-  .prose-rich p { margin: 0; }
-  .prose-rich strong { color: var(--color-foreground); font-weight: 600; }
-  .prose-rich em { font-style: italic; }
+  .prose-rich h1 {
+    font-size: 1.875rem;
+  }
+  .prose-rich h2 {
+    font-size: 1.5rem;
+  }
+  .prose-rich h3 {
+    font-size: 1.25rem;
+  }
+  .prose-rich p {
+    margin: 0;
+  }
+  .prose-rich strong {
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
+  .prose-rich em {
+    font-style: italic;
+  }
   .prose-rich a {
     color: var(--color-accent);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
   }
-  .prose-rich a:hover { text-decoration-thickness: 2px; }
+  .prose-rich a:hover {
+    text-decoration-thickness: 2px;
+  }
   .prose-rich ul,
   .prose-rich ol {
     padding-left: 1.5em;
     margin: 0.5em 0;
   }
-  .prose-rich ul { list-style: disc; }
-  .prose-rich ol { list-style: decimal; }
-  .prose-rich li { margin: 0.35em 0; }
-  .prose-rich li::marker { color: var(--color-accent); }
+  .prose-rich ul {
+    list-style: disc;
+  }
+  .prose-rich ol {
+    list-style: decimal;
+  }
+  .prose-rich li {
+    margin: 0.35em 0;
+  }
+  .prose-rich li::marker {
+    color: var(--color-accent);
+  }
   .prose-rich blockquote {
     border-left: 3px solid var(--color-accent);
     padding-left: 1rem;
@@ -399,7 +453,10 @@
     border-radius: 0.75rem;
     overflow-x: auto;
   }
-  .prose-rich pre code { background: transparent; padding: 0; }
+  .prose-rich pre code {
+    background: transparent;
+    padding: 0;
+  }
   .prose-rich hr {
     border: 0;
     border-top: 1px solid var(--color-border);

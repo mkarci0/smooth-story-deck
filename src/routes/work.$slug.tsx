@@ -479,7 +479,7 @@ function ProjectDetail() {
   };
 
   return (
-    <article className="lg:pr-[16rem] xl:pr-[18rem]">
+    <article>
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
