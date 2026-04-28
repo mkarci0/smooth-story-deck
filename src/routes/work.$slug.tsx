@@ -11,6 +11,7 @@ import {
   resolveImage,
   type UnifiedSection,
   type OutcomeItem,
+  type SubSection,
 } from "@/lib/projects";
 import { isProjectUnlocked, markProjectUnlocked } from "@/lib/cookies";
 import { Reveal } from "@/components/site/Reveal";
