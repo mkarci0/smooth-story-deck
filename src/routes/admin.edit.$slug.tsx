@@ -67,7 +67,11 @@ function EditProject() {
 
   const upload = async (
     file: File,
-    target: "cover" | "gallery" | { kind: "section"; index: number }
+    target:
+      | "cover"
+      | "gallery"
+      | { kind: "section"; index: number }
+      | { kind: "sub"; sectionIndex: number; subIndex: number }
   ) => {
     if (target === "cover") {
       const isGif = file.type === "image/gif" || file.name.toLowerCase().endsWith(".gif");
@@ -79,10 +83,15 @@ function EditProject() {
     }
 
     const targetKey =
-      typeof target === "string" ? target : `section-${target.index}`;
+      typeof target === "string"
+        ? target
+        : target.kind === "section"
+          ? `section-${target.index}`
+          : `sub-${target.sectionIndex}-${target.subIndex}`;
     setUploading(targetKey);
     const orientation: Orientation =
-      target === "gallery" || (typeof target === "object" && target.kind === "section")
+      target === "gallery" ||
+      (typeof target === "object" && (target.kind === "section" || target.kind === "sub"))
         ? await detectOrientation(file)
         : "landscape";
     const ext = file.name.split(".").pop();
@@ -108,6 +117,16 @@ function EditProject() {
         image_url: data.publicUrl,
         image_orientation: orientation,
       };
+      update({ sections: next });
+    } else if (typeof target === "object" && target.kind === "sub") {
+      const next = [...p.sections];
+      const subs = [...(next[target.sectionIndex].subSections ?? [])];
+      subs[target.subIndex] = {
+        ...subs[target.subIndex],
+        image_url: data.publicUrl,
+        image_orientation: orientation,
+      };
+      next[target.sectionIndex] = { ...next[target.sectionIndex], subSections: subs };
       update({ sections: next });
     }
     setUploading(null);
