@@ -272,8 +272,8 @@ function SectionRenderer({
 
   const SubSectionsBlock = hasSubs ? (
     <div className="mt-12 space-y-12">
-      {subSections.map((sub) => (
-        <SubSectionBlock key={sub.id} sub={sub} accent={accent} title={title} />
+      {subSections.map((sub, idx) => (
+        <SubSectionBlock key={sub.id} sub={sub} accent={accent} title={title} index={idx} />
       ))}
     </div>
   ) : null;
