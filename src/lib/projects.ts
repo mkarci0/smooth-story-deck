@@ -83,6 +83,16 @@ const uid = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+const normalizeSubSection = (s: any): SubSection => ({
+  id: typeof s?.id === "string" && s.id ? s.id : uid(),
+  body: typeof s?.body === "string" ? s.body : "",
+  image_url: s?.image_url ?? null,
+  image_orientation:
+    s?.image_orientation === "portrait" || s?.image_orientation === "landscape"
+      ? s.image_orientation
+      : null,
+});
+
 const normalizeSection = (s: any): UnifiedSection => ({
   id: typeof s?.id === "string" && s.id ? s.id : uid(),
   heading: typeof s?.heading === "string" ? s.heading : "",
@@ -98,6 +108,9 @@ const normalizeSection = (s: any): UnifiedSection => ({
         label: typeof m?.label === "string" ? m.label : "",
         value: typeof m?.value === "string" ? m.value : "",
       }))
+    : [],
+  subSections: Array.isArray(s?.subSections)
+    ? s.subSections.map(normalizeSubSection)
     : [],
 });
 
