@@ -92,6 +92,7 @@ const normalizeSubSection = (s: any): SubSection => ({
     s?.image_orientation === "portrait" || s?.image_orientation === "landscape"
       ? s.image_orientation
       : null,
+  layout: s?.layout === "stacked" ? "stacked" : "side-by-side",
 });
 
 const normalizeSection = (s: any): UnifiedSection => ({
@@ -296,6 +297,7 @@ export const newSubSection = (): SubSection => ({
   body: "",
   image_url: null,
   image_orientation: null,
+  layout: "side-by-side",
 });
 
 /** Detect orientation from a File by reading its intrinsic dimensions. */
