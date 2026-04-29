@@ -526,7 +526,7 @@ function ProjectDetail() {
         showDesktop={false}
       />
 
-      <div className="mx-auto max-w-[1450px] xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-8 2xl:gap-10 xl:items-start">
+      <div className="mx-auto max-w-6xl page-shell xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-10">
         <div className="min-w-0">
           {/* HERO */}
           <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
