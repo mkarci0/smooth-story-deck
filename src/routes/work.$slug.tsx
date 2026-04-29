@@ -280,7 +280,7 @@ function SectionRenderer({
   // Text-only sections (no image, no metrics): fill full content width.
   if (!hasImage && !hasMetrics && hasBody) {
     return (
-      <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
+      <section id={sectionId} className="mt-20 md:mt-28 scroll-mt-32">
         <Reveal>
           {Heading}
           <SectionBody>{section.body}</SectionBody>
@@ -292,7 +292,7 @@ function SectionRenderer({
 
   if (hasMetrics && !hasBody && !hasImage) {
     return (
-      <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
+      <section id={sectionId} className="mt-20 md:mt-28 scroll-mt-32">
         <Reveal>{Heading}</Reveal>
         <div className="grid sm:grid-cols-3 gap-6">
           {section.metrics.map((m: OutcomeItem, i: number) => (
@@ -316,7 +316,7 @@ function SectionRenderer({
   // Heading-only section that just groups sub-sections.
   if (!hasBody && !hasImage && !hasMetrics && hasSubs) {
     return (
-      <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
+      <section id={sectionId} className="mt-20 md:mt-28 scroll-mt-32">
         <Reveal>{Heading}</Reveal>
         {SubSectionsBlock}
       </section>
@@ -324,7 +324,7 @@ function SectionRenderer({
   }
 
   return (
-    <section id={sectionId} className="mx-auto max-w-6xl page-shell mt-20 md:mt-28 scroll-mt-32">
+    <section id={sectionId} className="mt-20 md:mt-28 scroll-mt-32">
       <Reveal>{Heading}</Reveal>
       {hasImage && isStacked ? (
         <div className="space-y-8">
@@ -526,10 +526,10 @@ function ProjectDetail() {
         showDesktop={false}
       />
 
-      <div className="mx-auto max-w-[1450px] xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-8 2xl:gap-10 xl:items-start">
+      <div className="mx-auto max-w-6xl page-shell xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-10">
         <div className="min-w-0">
           {/* HERO */}
-          <header className="mx-auto max-w-6xl page-shell pt-10 md:pt-14 pb-12">
+          <header className="pt-10 md:pt-14 pb-12">
             <motion.div
               initial={reduce ? false : { opacity: 0, y: 24 }}
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
@@ -559,7 +559,7 @@ function ProjectDetail() {
             initial={reduce ? false : { opacity: 0, scale: 0.98 }}
             animate={reduce ? undefined : { opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto max-w-6xl page-shell"
+            className=""
           >
             <div
               className="rounded-3xl overflow-hidden"
@@ -579,7 +579,7 @@ function ProjectDetail() {
           </motion.div>
 
           {/* META */}
-          <section className="mx-auto max-w-6xl page-shell mt-16 md:mt-24">
+          <section className="mt-16 md:mt-24">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-3xl overflow-hidden border border-border">
               {[
                 { label: "Role", value: project.role },
@@ -611,7 +611,7 @@ function ProjectDetail() {
 
           {/* GALLERY */}
           {project.gallery.length > 0 && (
-            <section className="mx-auto max-w-6xl page-shell mt-24 md:mt-32">
+            <section className="mt-24 md:mt-32">
               <ProjectGallery
                 images={project.gallery}
                 meta={project.gallery_meta}
@@ -623,7 +623,7 @@ function ProjectDetail() {
 
           {/* NEXT / PREV */}
           {(prev || next) && (
-            <section className="mx-auto max-w-6xl page-shell mt-32">
+            <section className="mt-32">
               <div className="flex items-center justify-between mb-8">
                 <Link to="/work" className="inline-flex items-center gap-2 text-sm story-link">
                   <ArrowLeft className="w-4 h-4" /> back to all work
