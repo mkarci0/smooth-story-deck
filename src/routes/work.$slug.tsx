@@ -269,10 +269,21 @@ function SectionRenderer({
     <p className="uppercase tracking-[0.2em] text-xs text-muted-foreground mb-3">{indexLabel}</p>
   );
 
+  // Alternate sağ-sol ritmi: section'ın kendi body+image'i (varsa) ilk blok
+  // sayılır (index 0 = text+image), alt section'lar bunu takip eder.
+  const sectionCountsAsAlternateSlot = hasBody && hasImage && !isStacked;
+  const subStartIndex = sectionCountsAsAlternateSlot ? 1 : 0;
+
   const SubSectionsBlock = hasSubs ? (
     <div className="mt-12 space-y-12">
       {subSections.map((sub, idx) => (
-        <SubSectionBlock key={sub.id} sub={sub} accent={accent} title={title} index={idx} />
+        <SubSectionBlock
+          key={sub.id}
+          sub={sub}
+          accent={accent}
+          title={title}
+          index={idx + subStartIndex}
+        />
       ))}
     </div>
   ) : null;
