@@ -77,34 +77,111 @@ function HomePage() {
         <script type="application/ld+json">{JSON.stringify(websiteLd)}</script>
       </Helmet>
 
-      {/* HERO */}
+      {/* HERO — Webstack-inspired layout (left info card + oversized headline with inline pill highlights) */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl page-shell pt-20 md:pt-32 pb-14 md:pb-20">
-          <div className="grid md:grid-cols-[minmax(0,1fr)_280px] lg:grid-cols-[minmax(0,1fr)_320px] gap-10 items-start">
-            <div>
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.02 }}
-                className="uppercase tracking-widest text-xs text-muted-foreground"
-              >
-                {settings?.hero_eyebrow ?? "Welcome"}
-              </motion.p>
+        {/* Decorative wavy lines (pure CSS, sits behind content) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "repeating-radial-gradient(circle at 80% 20%, transparent 0, transparent 38px, color-mix(in oklab, var(--color-foreground) 6%, transparent) 38px, color-mix(in oklab, var(--color-foreground) 6%, transparent) 39px)",
+          }}
+        />
 
+        <div className="relative mx-auto max-w-6xl page-shell pt-16 md:pt-24 pb-14 md:pb-20">
+          {/* Top "available" pill, centered above headline area */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex justify-center md:justify-end"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 backdrop-blur px-4 py-1.5 text-xs tracking-wide text-muted-foreground">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              {settings?.hero_eyebrow ?? "Available for select projects"}
+            </span>
+          </motion.div>
+
+          <div className="mt-10 md:mt-14 grid md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)] gap-8 md:gap-12 items-start">
+            {/* LEFT — info card */}
+            <motion.aside
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.05 }}
+              className="md:sticky md:top-24"
+            >
+              <div className="rounded-3xl border border-border bg-background/70 backdrop-blur-sm p-5 shadow-[var(--shadow-soft)]">
+                <div className="flex items-center gap-4">
+                  {settings?.about_image_url ? (
+                    <img
+                      src={resolveImage(settings.about_image_url)}
+                      alt="Portrait of Murat Karcı"
+                      className="w-16 h-16 rounded-full object-cover ring-1 ring-border"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-muted border border-dashed border-border" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-display text-lg leading-tight font-medium truncate">
+                      Murat Karcı
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      Product Designer
+                    </p>
+                  </div>
+                </div>
+
+                {linkedin && (
+                  <div className="mt-5 flex items-center gap-2">
+                    <a
+                      href={linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn"
+                      className="flex items-center justify-center w-9 h-9 rounded-full border border-border text-muted-foreground hover:text-accent hover:border-accent transition-colors"
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                        <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.34 18.34V9.67H5.67v8.67zM7 8.5a1.55 1.55 0 1 0 0-3.1 1.55 1.55 0 0 0 0 3.1m11.34 9.84v-4.75c0-2.55-1.36-3.74-3.18-3.74a2.74 2.74 0 0 0-2.49 1.37h-.04V9.67h-2.56v8.67h2.66v-4.29c0-1.13.21-2.22 1.61-2.22s1.4 1.29 1.4 2.29v4.22z" />
+                      </svg>
+                    </a>
+                  </div>
+                )}
+
+                <div className="mt-5 pt-5 border-t border-border/60">
+                  <p className="uppercase tracking-[0.18em] text-[10px] text-muted-foreground">
+                    2018 — Present
+                  </p>
+                </div>
+              </div>
+            </motion.aside>
+
+            {/* RIGHT — oversized headline + inline pill highlights */}
+            <div>
               <motion.h1
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-6 hero-heading text-balance max-w-3xl"
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="font-display font-medium tracking-[-0.03em] leading-[0.95] text-[2.4rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] text-balance"
               >
-                {settings?.hero_title ?? "Hi, I'm Murat. I design calm software."}
+                <span className="inline-flex items-center align-middle mr-3 mb-2 rounded-full bg-foreground text-background px-4 py-1.5 text-base md:text-xl lg:text-2xl font-medium tracking-normal">
+                  Hi, I’m
+                </span>
+                <span className="inline-flex items-center align-middle mr-3 mb-2 rounded-full border border-border bg-background px-4 py-1.5 text-base md:text-xl lg:text-2xl font-medium tracking-normal">
+                  Murat
+                </span>
+                <br className="hidden md:block" />
+                {settings?.hero_title ?? "I design calm software"}
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="mt-7 text-base md:text-lg text-muted-foreground max-w-xl text-balance leading-relaxed"
+                transition={{ duration: 0.7, delay: 0.28 }}
+                className="mt-8 md:mt-10 text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed"
               >
                 {settings?.hero_subtitle ??
                   "Independent product designer working with founders and product teams on mobile, web and brand."}
@@ -113,10 +190,10 @@ function HomePage() {
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.32 }}
-                className="mt-10 flex flex-wrap gap-3"
+                transition={{ duration: 0.7, delay: 0.36 }}
+                className="mt-9 flex flex-wrap gap-3"
               >
-                <Link to="/work" className="btn-primary group">
+                <Link to="/work" className="btn-accent group">
                   See selected work
                   <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
@@ -125,22 +202,6 @@ function HomePage() {
                 </Link>
               </motion.div>
             </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="hidden md:block justify-self-end w-full"
-            >
-              {settings?.about_image_url ? (
-                <img
-                  src={resolveImage(settings.about_image_url)}
-                  alt="Portrait of Murat Karcı"
-                  className="w-full max-w-[320px] aspect-[4/5] object-cover rounded-3xl shadow-[var(--shadow-soft)]"
-                />
-              ) : (
-                <div className="w-full max-w-[320px] aspect-[4/5] rounded-3xl bg-muted border border-dashed border-border" />
-              )}
-            </motion.div>
           </div>
 
           {albumUrls.length > 0 && (
