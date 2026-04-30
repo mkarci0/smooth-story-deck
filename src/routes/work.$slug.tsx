@@ -573,18 +573,16 @@ function ProjectDetail() {
             className=""
           >
             <div
-              className="rounded-3xl overflow-hidden"
+              className="rounded-3xl overflow-hidden flex items-center justify-center"
               style={{ backgroundColor: project.accent }}
             >
               <img
                 src={resolveImage(project.cover_url)}
                 alt={`${project.title} — cover image`}
-                width={1600}
-                height={1000}
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"
-                className="w-full aspect-[16/10] object-cover"
+                className="w-full h-auto max-h-[80vh] object-contain"
               />
             </div>
           </motion.div>
