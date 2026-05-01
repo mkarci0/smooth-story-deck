@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as HeroDemosRouteImport } from './routes/hero-demos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,11 @@ import { Route as AdminPreviewRouteImport } from './routes/admin.preview'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminEditSlugRouteImport } from './routes/admin.edit.$slug'
 
+const HeroDemosRoute = HeroDemosRouteImport.update({
+  id: '/hero-demos',
+  path: '/hero-demos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/hero-demos': typeof HeroDemosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/preview': typeof AdminPreviewRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/hero-demos': typeof HeroDemosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/preview': typeof AdminPreviewRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/hero-demos': typeof HeroDemosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/preview': typeof AdminPreviewRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/hero-demos'
     | '/admin/login'
     | '/admin/preview'
     | '/admin/settings'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/hero-demos'
     | '/admin/login'
     | '/admin/preview'
     | '/admin/settings'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/hero-demos'
     | '/admin/login'
     | '/admin/preview'
     | '/admin/settings'
@@ -149,12 +161,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  HeroDemosRoute: typeof HeroDemosRoute
   WorkSlugRoute: typeof WorkSlugRoute
   WorkIndexRoute: typeof WorkIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/hero-demos': {
+      id: '/hero-demos'
+      path: '/hero-demos'
+      fullPath: '/hero-demos'
+      preLoaderRoute: typeof HeroDemosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -250,6 +270,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  HeroDemosRoute: HeroDemosRoute,
   WorkSlugRoute: WorkSlugRoute,
   WorkIndexRoute: WorkIndexRoute,
 }
