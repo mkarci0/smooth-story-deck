@@ -28,8 +28,36 @@ function HeroDemos() {
       </div>
 
       <Variant
-        label="Option 1 — Editorial centered"
-        note="Merkez hizalı, büyük tipografi, küçük status rozeti. Sade ve ferah."
+        label="Option 1A — Centered + designer subtitle"
+        note="Hero 1 temeli. Eyebrow rozeti UX/UI vurgusu yapıyor. Alt satırda 'now / next / clients' meta şeridi."
+      >
+        <HeroOneA />
+      </Variant>
+
+      <Variant
+        label="Option 1B — Centered + role tagline"
+        note="Başlık altına 'UX/UI Designer · 8 yıl' tag çizgisi + araç chip'leri (Figma, Framer, Webflow)."
+      >
+        <HeroOneB />
+      </Variant>
+
+      <Variant
+        label="Option 1C — Centered + 'currently designing' line"
+        note="Başlığın hemen altında küçük canlı durum: 'Currently designing onboarding for X · open for Q1 2026'."
+      >
+        <HeroOneC />
+      </Variant>
+
+      <Variant
+        label="Option 1D — Centered + impact metrics"
+        note="Başlık + 3 küçük metrik kolonu (40+ shipped products · 8 yrs · 12 industries). Designer'ın izi rakamlarda."
+      >
+        <HeroOneD />
+      </Variant>
+
+      <Variant
+        label="Option 1 — (önceki) Editorial centered"
+        note="İlk gönderdiğim Option 1, referans için duruyor."
       >
         <HeroOne />
       </Variant>
