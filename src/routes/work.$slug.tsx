@@ -573,7 +573,7 @@ function ProjectDetail() {
             className=""
           >
             <div
-              className="rounded-3xl overflow-hidden flex items-center justify-center"
+              className="rounded-3xl overflow-hidden"
               style={{ backgroundColor: project.accent }}
             >
               <img
@@ -582,7 +582,7 @@ function ProjectDetail() {
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"
-                className="w-full h-auto max-h-[80vh] object-contain"
+                className="w-full h-auto block"
               />
             </div>
           </motion.div>
