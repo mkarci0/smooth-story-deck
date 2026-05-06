@@ -275,15 +275,16 @@ function SectionRenderer({
   const subStartIndex = sectionCountsAsAlternateSlot ? 1 : 0;
 
   const SubSectionsBlock = hasSubs ? (
-    <div className="mt-12 space-y-12">
+    <div className="mt-12 divide-y divide-border">
       {subSections.map((sub, idx) => (
-        <SubSectionBlock
-          key={sub.id}
-          sub={sub}
-          accent={accent}
-          title={title}
-          index={idx + subStartIndex}
-        />
+        <div key={sub.id} className="py-12 first:pt-0 last:pb-0">
+          <SubSectionBlock
+            sub={sub}
+            accent={accent}
+            title={title}
+            index={idx + subStartIndex}
+          />
+        </div>
       ))}
     </div>
   ) : null;
