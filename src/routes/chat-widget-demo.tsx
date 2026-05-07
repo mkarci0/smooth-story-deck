@@ -128,7 +128,7 @@ function ChatPanel({
 }: {
   open: boolean;
   onClose: () => void;
-  anchorRef: React.RefObject<HTMLButtonElement>;
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   // render mounting separately for entrance/exit animation (Srini-style)
   const [render, setRender] = useState(false);
