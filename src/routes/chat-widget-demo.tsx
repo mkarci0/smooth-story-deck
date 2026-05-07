@@ -128,7 +128,6 @@ function ChatWidget() {
             height: isMobile ? "85vh" : 540,
             bottom: isMobile ? 0 : 92,
             right: isMobile ? 0 : 28,
-            borderRadius: isMobile ? "16px 16px 0 0" : 16,
             transform: mounted ? "translateY(0)" : "translateY(16px)",
             opacity: mounted ? 1 : 0,
             transition: "transform 250ms ease-out, opacity 250ms ease-out",
