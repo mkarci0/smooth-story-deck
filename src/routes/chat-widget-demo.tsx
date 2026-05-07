@@ -6,7 +6,7 @@ export const Route = createFileRoute("/chat-widget-demo")({
   head: () => ({
     meta: [
       { title: "AI Chat Widget — Demo" },
-      { name: "description", content: "Standalone demo of the floating AI chat widget." },
+      { name: "description", content: "Standalone demo of the AI chat widget in header." },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -28,46 +28,153 @@ type Msg =
 function ChatWidgetDemoPage() {
   return (
     <div className="min-h-screen bg-neutral-100 text-neutral-900">
+      <DemoHeader />
       <div className="mx-auto max-w-2xl px-6 py-24">
         <p className="text-xs uppercase tracking-[0.22em] text-neutral-500">Demo</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight">AI Chat Widget</h1>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight">AI Chat Widget — Header</h1>
         <p className="mt-4 text-neutral-600">
-          Standalone preview. Click the ✦ button at the bottom-right to open the widget.
+          The trigger lives in the header next to <em>about</em>. Hover to see the tooltip,
+          click to open the panel with a smooth transition.
         </p>
       </div>
-      <ChatWidget />
     </div>
   );
 }
 
-function ChatWidget() {
+function DemoHeader() {
+  return (
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-white/70 border-b border-neutral-200">
+      <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold tracking-tight">murat karcı</span>
+        </div>
+        <nav className="flex items-center gap-7 text-sm">
+          <a href="#" className="text-neutral-900">work</a>
+          <a href="#" className="text-neutral-900">about</a>
+          <ChatTrigger />
+          <span className="hidden sm:inline-flex items-center rounded-full bg-neutral-900 text-white px-4 py-2 text-sm font-medium">
+            Resume
+          </span>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+function ChatTrigger() {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // for animation
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <style>{`
+        @keyframes chatGradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes chatPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.45); }
+          50% { box-shadow: 0 0 0 6px rgba(168, 85, 247, 0); }
+        }
+        .chat-trigger {
+          background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f59e0b, #6366f1);
+          background-size: 300% 300%;
+          animation: chatGradient 6s ease infinite, chatPulse 2.4s ease-in-out infinite;
+        }
+        .chat-trigger:hover { transform: scale(1.06); }
+        .chat-tooltip {
+          opacity: 0;
+          transform: translate(-50%, 4px);
+          transition: opacity 160ms ease, transform 160ms ease;
+          pointer-events: none;
+        }
+        .chat-trigger-wrap:hover .chat-tooltip,
+        .chat-trigger:focus-visible + .chat-tooltip {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+      `}</style>
+      <div className="chat-trigger-wrap relative inline-flex">
+        <button
+          ref={btnRef}
+          type="button"
+          aria-label="Ask about Murat"
+          onClick={() => setOpen(true)}
+          className="chat-trigger flex h-9 w-9 items-center justify-center rounded-full transition-transform duration-200 ease-out outline-none"
+        >
+          <span className="text-white" style={{ fontSize: 14, lineHeight: 1 }}>✦</span>
+        </button>
+        <span
+          role="tooltip"
+          className="chat-tooltip absolute left-1/2 top-full mt-2 whitespace-nowrap rounded-md bg-neutral-900 px-2.5 py-1.5 text-[11px] font-medium text-white"
+        >
+          Ask about Murat
+          <span
+            aria-hidden
+            className="absolute left-1/2 -top-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-neutral-900"
+          />
+        </span>
+      </div>
+      <ChatPanel open={open} onClose={() => setOpen(false)} anchorRef={btnRef} />
+    </>
+  );
+}
+
+function ChatPanel({
+  open,
+  onClose,
+  anchorRef,
+}: {
+  open: boolean;
+  onClose: () => void;
+  anchorRef: React.RefObject<HTMLButtonElement>;
+}) {
+  // render mounting separately for entrance/exit animation (Srini-style)
+  const [render, setRender] = useState(false);
+  const [shown, setShown] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (open) {
-      const t = requestAnimationFrame(() => setMounted(true));
+      // capture trigger position for transform-origin
+      const rect = anchorRef.current?.getBoundingClientRect();
+      if (rect) setOrigin({ x: rect.left + rect.width / 2, y: rect.bottom });
+      setRender(true);
+      const t = requestAnimationFrame(() => setShown(true));
       return () => cancelAnimationFrame(t);
+    } else {
+      setShown(false);
+      const t = setTimeout(() => setRender(false), 260);
+      return () => clearTimeout(t);
     }
-    setMounted(false);
-  }, [open]);
+  }, [open, anchorRef]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (shown) setTimeout(() => inputRef.current?.focus(), 200);
+  }, [shown]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, loading]);
+
+  // Esc to close
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   const send = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
     const userMsg: Msg = { id: crypto.randomUUID(), role: "user", content: trimmed };
-    // strip suggestions from previous assistant messages
     setMessages((prev) => [
       ...prev.map((m) => (m.role === "assistant" ? { ...m, showSuggestions: false } : m)),
       userMsg,
@@ -97,133 +204,131 @@ function ChatWidget() {
     }
   };
 
+  if (!render) return null;
+
   const isMobile = typeof window !== "undefined" && window.innerWidth < 480;
 
   return (
     <>
-      {/* Trigger */}
-      <button
-        type="button"
-        aria-label={open ? "Close chat" : "Open chat"}
-        onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-7 right-7 z-50 flex h-[52px] w-[52px] items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-[1.04]"
-        style={{ background: "#111111" }}
+      {/* Backdrop for click-away */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-40"
+        style={{
+          background: shown ? "rgba(0,0,0,0.04)" : "rgba(0,0,0,0)",
+          transition: "background 250ms ease",
+        }}
+      />
+      <div
+        role="dialog"
+        aria-label="AI assistant"
+        className="fixed z-50 flex flex-col overflow-hidden"
+        style={{
+          background: "#ffffff",
+          border: "1px solid #e5e5e5",
+          borderRadius: isMobile ? "16px 16px 0 0" : 16,
+          width: isMobile ? "100vw" : 380,
+          height: isMobile ? "85vh" : 540,
+          top: isMobile ? "auto" : 72,
+          right: isMobile ? 0 : 24,
+          bottom: isMobile ? 0 : "auto",
+          left: isMobile ? 0 : "auto",
+          transformOrigin: origin
+            ? `${origin.x - (isMobile ? 0 : window.innerWidth - 24 - 380)}px ${
+                origin.y - (isMobile ? window.innerHeight * 0.15 : 72)
+              }px`
+            : "top right",
+          transform: shown ? "scale(1) translateY(0)" : "scale(0.96) translateY(-8px)",
+          opacity: shown ? 1 : 0,
+          transition:
+            "transform 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease-out",
+          boxShadow:
+            "0 24px 48px -12px rgba(0,0,0,0.18), 0 8px 20px -8px rgba(0,0,0,0.08)",
+        }}
       >
-        <span className="text-white" style={{ fontSize: 18, lineHeight: 1 }}>
-          {open ? "✕" : "✦"}
-        </span>
-      </button>
-
-      {/* Panel */}
-      {open && (
+        {/* Header */}
         <div
-          role="dialog"
-          aria-label="AI assistant"
-          className="fixed z-50 flex flex-col overflow-hidden"
-          style={{
-            background: "#ffffff",
-            border: "1px solid #e5e5e5",
-            borderRadius: isMobile ? "16px 16px 0 0" : 16,
-            width: isMobile ? "100vw" : 380,
-            height: isMobile ? "85vh" : 540,
-            bottom: isMobile ? 0 : 92,
-            right: isMobile ? 0 : 28,
-            transform: mounted ? "translateY(0)" : "translateY(16px)",
-            opacity: mounted ? 1 : 0,
-            transition: "transform 250ms ease-out, opacity 250ms ease-out",
-          }}
+          className="flex shrink-0 items-center justify-between"
+          style={{ height: 60, padding: "0 20px", borderBottom: "1px solid #e5e5e5" }}
         >
-          {/* Header */}
-          <div
-            className="flex shrink-0 items-center justify-between"
-            style={{ height: 60, padding: "0 20px", borderBottom: "1px solid #e5e5e5" }}
-          >
-            <div className="flex flex-col">
-              <span style={{ fontSize: 14, fontWeight: 500, color: "#111111", lineHeight: 1.2 }}>
-                Murat
-              </span>
-              <span style={{ fontSize: 11, color: "#999999", lineHeight: 1.4 }}>AI assistant</span>
-            </div>
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={() => setOpen(false)}
-              className="flex items-center justify-center"
-              style={{
-                width: 28,
-                height: 28,
-                background: "transparent",
-                color: "#999999",
-                fontSize: 16,
-              }}
-            >
-              ✕
-            </button>
+          <div className="flex flex-col">
+            <span style={{ fontSize: 14, fontWeight: 500, color: "#111111", lineHeight: 1.2 }}>
+              Murat
+            </span>
+            <span style={{ fontSize: 11, color: "#999999", lineHeight: 1.4 }}>AI assistant</span>
           </div>
-
-          {/* Messages */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto"
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="flex items-center justify-center"
             style={{
-              padding: 20,
-              scrollbarWidth: "none",
+              width: 28,
+              height: 28,
+              background: "transparent",
+              color: "#999999",
+              fontSize: 16,
             }}
           >
-            <style>{`.chat-scroll::-webkit-scrollbar{display:none}`}</style>
-            <div className="chat-scroll flex flex-col" style={{ gap: 16 }}>
-              {messages.length === 0 && !loading && (
-                <WelcomeState onPick={(s) => send(s)} />
-              )}
+            ✕
+          </button>
+        </div>
 
-              {messages.map((m) => (
-                <div key={m.id} className="flex flex-col" style={{ gap: 8 }}>
-                  <Bubble role={m.role}>{m.content}</Bubble>
-                  {m.role === "assistant" && m.showSuggestions && !loading && (
-                    <Suggestions onPick={(s) => send(s)} />
-                  )}
-                </div>
-              ))}
-
-              {loading && <TypingBubble />}
-            </div>
-          </div>
-
-          {/* Input */}
-          <div
-            className="flex shrink-0 items-center"
-            style={{ borderTop: "1px solid #e5e5e5", padding: "12px 16px", gap: 8 }}
-          >
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              disabled={loading}
-              placeholder="Ask me anything..."
-              className="flex-1 bg-transparent outline-none"
-              style={{ fontSize: 14, color: "#111111", border: "none" }}
-            />
-            <button
-              type="button"
-              onClick={() => send(input)}
-              disabled={loading || !input.trim()}
-              style={{
-                height: 32,
-                padding: "0 16px",
-                background: "#111111",
-                color: "#ffffff",
-                fontSize: 13,
-                borderRadius: 999,
-                opacity: loading || !input.trim() ? 0.5 : 1,
-                transition: "opacity 150ms ease",
-              }}
-            >
-              Send
-            </button>
+        {/* Messages */}
+        <div
+          ref={scrollRef}
+          className="chat-scroll flex-1 overflow-y-auto"
+          style={{ padding: 20, scrollbarWidth: "none" }}
+        >
+          <style>{`.chat-scroll::-webkit-scrollbar{display:none}`}</style>
+          <div className="flex flex-col" style={{ gap: 16 }}>
+            {messages.length === 0 && !loading && <WelcomeState onPick={send} />}
+            {messages.map((m) => (
+              <div key={m.id} className="flex flex-col" style={{ gap: 8 }}>
+                <Bubble role={m.role}>{m.content}</Bubble>
+                {m.role === "assistant" && m.showSuggestions && !loading && (
+                  <Suggestions onPick={send} />
+                )}
+              </div>
+            ))}
+            {loading && <TypingBubble />}
           </div>
         </div>
-      )}
+
+        {/* Input */}
+        <div
+          className="flex shrink-0 items-center"
+          style={{ borderTop: "1px solid #e5e5e5", padding: "12px 16px", gap: 8 }}
+        >
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            disabled={loading}
+            placeholder="Ask me anything..."
+            className="flex-1 bg-transparent outline-none"
+            style={{ fontSize: 14, color: "#111111", border: "none" }}
+          />
+          <button
+            type="button"
+            onClick={() => send(input)}
+            disabled={loading || !input.trim()}
+            style={{
+              height: 32,
+              padding: "0 16px",
+              background: "#111111",
+              color: "#ffffff",
+              fontSize: 13,
+              borderRadius: 999,
+              opacity: loading || !input.trim() ? 0.5 : 1,
+              transition: "opacity 150ms ease",
+            }}
+          >
+            Send
+          </button>
+        </div>
+      </div>
     </>
   );
 }
@@ -250,7 +355,7 @@ function WelcomeState({ onPick }: { onPick: (s: string) => void }) {
 function Suggestions({ onPick }: { onPick: (s: string) => void }) {
   return (
     <div className="flex flex-col">
-      {SUGGESTIONS.map((s, i) => (
+      {SUGGESTIONS.map((s) => (
         <button
           key={s}
           type="button"
@@ -258,7 +363,7 @@ function Suggestions({ onPick }: { onPick: (s: string) => void }) {
           className="group flex w-full items-center text-left"
           style={{
             padding: "10px 0",
-            borderTop: i === 0 ? "1px solid #eeeeee" : "1px solid #eeeeee",
+            borderTop: "1px solid #eeeeee",
             gap: 8,
             transition: "color 150ms ease",
           }}
