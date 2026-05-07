@@ -123,7 +123,7 @@ function ChatWidget() {
           style={{
             background: "#ffffff",
             border: "1px solid #e5e5e5",
-            borderRadius: 16,
+            borderRadius: isMobile ? "16px 16px 0 0" : 16,
             width: isMobile ? "100vw" : 380,
             height: isMobile ? "85vh" : 540,
             bottom: isMobile ? 0 : 92,
