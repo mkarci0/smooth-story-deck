@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as HeroDemosRouteImport } from './routes/hero-demos'
+import { Route as ChatWidgetDemoRouteImport } from './routes/chat-widget-demo'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,6 +25,11 @@ import { Route as AdminEditSlugRouteImport } from './routes/admin.edit.$slug'
 const HeroDemosRoute = HeroDemosRouteImport.update({
   id: '/hero-demos',
   path: '/hero-demos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatWidgetDemoRoute = ChatWidgetDemoRouteImport.update({
+  id: '/chat-widget-demo',
+  path: '/chat-widget-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/chat-widget-demo': typeof ChatWidgetDemoRoute
   '/hero-demos': typeof HeroDemosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/preview': typeof AdminPreviewRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/chat-widget-demo': typeof ChatWidgetDemoRoute
   '/hero-demos': typeof HeroDemosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/preview': typeof AdminPreviewRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/chat-widget-demo': typeof ChatWidgetDemoRoute
   '/hero-demos': typeof HeroDemosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/preview': typeof AdminPreviewRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/chat-widget-demo'
     | '/hero-demos'
     | '/admin/login'
     | '/admin/preview'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/chat-widget-demo'
     | '/hero-demos'
     | '/admin/login'
     | '/admin/preview'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/chat-widget-demo'
     | '/hero-demos'
     | '/admin/login'
     | '/admin/preview'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ChatWidgetDemoRoute: typeof ChatWidgetDemoRoute
   HeroDemosRoute: typeof HeroDemosRoute
   WorkSlugRoute: typeof WorkSlugRoute
   WorkIndexRoute: typeof WorkIndexRoute
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       path: '/hero-demos'
       fullPath: '/hero-demos'
       preLoaderRoute: typeof HeroDemosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat-widget-demo': {
+      id: '/chat-widget-demo'
+      path: '/chat-widget-demo'
+      fullPath: '/chat-widget-demo'
+      preLoaderRoute: typeof ChatWidgetDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -270,6 +290,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  ChatWidgetDemoRoute: ChatWidgetDemoRoute,
   HeroDemosRoute: HeroDemosRoute,
   WorkSlugRoute: WorkSlugRoute,
   WorkIndexRoute: WorkIndexRoute,
